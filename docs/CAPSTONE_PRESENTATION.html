@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finnie AI — Capstone Presentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0e1a;
+            --surface: #111827;
+            --card: #1a2332;
+            --border: #2d3748;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --green: #22c55e;
+            --orange: #f59e0b;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+            --radius: 16px;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ---------------------------------------------------------------- Slides */
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 6%;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(236, 72, 153, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .slide-inner {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ---------------------------------------------------------------- Title slide */
+        .title-slide {
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-light), var(--cyan), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .title-slide .tagline {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: var(--text-dim);
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .badge {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+
+        .badge em {
+            color: var(--accent-light);
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        /* ---------------------------------------------------------------- Section headers */
+        .section-num {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            margin-bottom: 0.75rem;
+            padding: 4px 14px;
+            border: 1px solid var(--accent);
+            border-radius: 100px;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            max-width: 700px;
+            margin: 0 auto 2.5rem;
+            font-size: 1.05rem;
+        }
+
+        /* ---------------------------------------------------------------- Grid cards */
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .card .icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .card h4 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        /* ---------------------------------------------------------------- Accent cards */
+        .accent-border {
+            border-left: 3px solid var(--accent);
+        }
+
+        .green-border {
+            border-left: 3px solid var(--green);
+        }
+
+        .pink-border {
+            border-left: 3px solid var(--pink);
+        }
+
+        .cyan-border {
+            border-left: 3px solid var(--cyan);
+        }
+
+        .orange-border {
+            border-left: 3px solid var(--orange);
+        }
+
+        /* ---------------------------------------------------------------- Architecture */
+        .arch-flow {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            overflow-x: auto;
+            padding: 2rem 0;
+            flex-wrap: nowrap;
+        }
+
+        .arch-col {
+            flex: 1;
+            min-width: 160px;
+            padding: 1.25rem 1rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+        }
+
+        .arch-col:first-child {
+            border-radius: var(--radius) 0 0 var(--radius);
+        }
+
+        .arch-col:last-child {
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .arch-col::after {
+            content: '→';
+            position: absolute;
+            right: -14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            color: var(--accent-light);
+            z-index: 2;
+        }
+
+        .arch-col:last-child::after {
+            content: '';
+        }
+
+        .arch-col .layer-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent-light);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .arch-col .layer-items {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        /* ---------------------------------------------------------------- Agent roster */
+        .agent-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: transform 0.2s;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .agent-emoji {
+            font-size: 2rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .agent-info h4 {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+        }
+
+        .agent-info p {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+
+        .agent-tag {
+            display: inline-block;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 100px;
+            margin-top: 6px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-light);
+        }
+
+        .agent-tag.data {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--green);
+        }
+
+        .agent-tag.llm {
+            background: rgba(236, 72, 153, 0.15);
+            color: var(--pink);
+        }
+
+        .agent-tag.rule {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--orange);
+        }
+
+        /* ---------------------------------------------------------------- Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            font-size: 0.88rem;
+        }
+
+        th {
+            background: rgba(99, 102, 241, 0.12);
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-light);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* ---------------------------------------------------------------- Flow diagram */
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .flow-step {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            min-width: 120px;
+        }
+
+        .flow-step .fs-icon {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .flow-step .fs-label {
+            color: var(--text-dim);
+            font-size: 0.78rem;
+        }
+
+        .flow-arrow {
+            font-size: 1.2rem;
+            color: var(--accent-light);
+            padding: 0 6px;
+            flex-shrink: 0;
+        }
+
+        /* ---------------------------------------------------------------- Stats row */
+        .stats {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem 2rem;
+            text-align: center;
+            min-width: 140px;
+            flex: 1;
+        }
+
+        .stat .num {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-light), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat .label {
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            margin-top: 4px;
+        }
+
+        /* ---------------------------------------------------------------- Code block */
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            color: #c9d1d9;
+            margin: 1rem 0;
+        }
+
+        .code-block .kw {
+            color: #ff7b72;
+        }
+
+        .code-block .fn {
+            color: #d2a8ff;
+        }
+
+        .code-block .str {
+            color: #a5d6ff;
+        }
+
+        .code-block .cmt {
+            color: #8b949e;
+        }
+
+        /* ---------------------------------------------------------------- Highlight */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(6, 182, 212, 0.08));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius);
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0;
+        }
+
+        /* ---------------------------------------------------------------- Slide nav */
+        .slide-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .slide-nav a {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+            display: block;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .slide-nav a:hover,
+        .slide-nav a.active {
+            background: var(--accent-light);
+            transform: scale(1.3);
+        }
+
+        /* ---------------------------------------------------------------- Thank you */
+        .final-slide {
+            text-align: center;
+        }
+
+        .final-slide h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            background: linear-gradient(135deg, var(--accent-light), var(--pink), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .links {
+            margin-top: 2rem;
+        }
+
+        .links a {
+            color: var(--accent-light);
+            text-decoration: none;
+            font-weight: 500;
+            margin: 0 1rem;
+            font-size: 1rem;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        /* ---------------------------------------------------------------- Responsive */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 3rem 5%;
+            }
+
+            .arch-flow {
+                flex-direction: column;
+            }
+
+            .arch-col::after {
+                content: '↓';
+                right: auto;
+                bottom: -18px;
+                top: auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .arch-col:first-child,
+            .arch-col:last-child {
+                border-radius: var(--radius);
+            }
+
+            .slide-nav {
+                display: none;
+            }
+
+            .flow-steps {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================================================================ NAV -->
+    <nav class="slide-nav" id="slideNav"></nav>
+
+    <!-- ================================================================ SLIDE 1: TITLE -->
+    <section class="slide title-slide" id="s1">
+        <div class="slide-inner">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🦈</div>
+            <h1>Finnie AI</h1>
+            <p class="tagline">Autonomous Financial Intelligence System</p>
+            <p style="color: var(--text-dim); font-size: 1rem; margin-bottom: 0.5rem;">
+                <em>"Hedge Fund in a Box"</em> — Multi-Agent AI for Financial Literacy & Analysis
+            </p>
+            <div class="badge-row">
+                <span class="badge"><em>8</em> Specialized Agents</span>
+                <span class="badge"><em>3</em> LLM Providers</span>
+                <span class="badge"><em>7</em> MCP Tools</span>
+                <span class="badge"><em>GraphRAG</em> Knowledge Graph</span>
+                <span class="badge"><em>Voice</em> Interface</span>
+            </div>
+            <p style="margin-top: 2.5rem; color: var(--text-dim); font-size: 0.9rem;">
+                Interview Kickstart — Capstone Project &nbsp;|&nbsp; February 2026
+            </p>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 2: PROBLEM -->
+    <section class="slide" id="s2">
+        <div class="slide-inner" style="text-align: center;">
+            <span class="section-num">01 — Problem</span>
+            <h2>The Financial Literacy Gap</h2>
+            <p class="subtitle">
+                Most people lack access to intelligent, personalized financial guidance.
+                Existing tools are either too complex or too basic.
+            </p>
+            <div class="grid grid-3">
+                <div class="card accent-border">
+                    <span class="icon">📉</span>
+                    <h4>63% of Americans</h4>
+                    <p>Live paycheck to paycheck — financial literacy hasn't kept up with market complexity</p>
+                </div>
+                <div class="card pink-border">
+                    <span class="icon">💸</span>
+                    <h4>$1,000+ / year</h4>
+                    <p>Average cost of a financial advisor — inaccessible for most beginners</p>
+                </div>
+                <div class="card cyan-border">
+                    <span class="icon">🤖</span>
+                    <h4>AI Opportunity</h4>
+                    <p>LLMs can democratize financial education with real-time data and graph-powered context</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 3: SOLUTION -->
+    <section class="slide" id="s3">
+        <div class="slide-inner" style="text-align: center;">
+            <span class="section-num">02 — Solution</span>
+            <h2>What Finnie AI Does</h2>
+            <p class="subtitle">A team of 8 AI agents that work together to deliver personalized financial intelligence
+            </p>
+            <div class="grid grid-3">
+                <div class="card">
+                    <span class="icon">💬</span>
+                    <h4>Financial Education</h4>
+                    <p>Explains concepts like P/E ratio, diversification, or options with graph-enriched LLM context</p>
+                </div>
+                <div class="card">
+                    <span class="icon">📊</span>
+                    <h4>Real-Time Market Data</h4>
+                    <p>Live stock prices, technicals, sector heatmaps, and comparisons via yFinance</p>
+                </div>
+                <div class="card">
+                    <span class="icon">📈</span>
+                    <h4>Portfolio Tracking</h4>
+                    <p>Add holdings, track value over time, see allocation breakdown and target suggestions</p>
+                </div>
+                <div class="card">
+                    <span class="icon">🔮</span>
+                    <h4>Monte Carlo Projections</h4>
+                    <p>"If I invest $10K for 10 years…" — interactive simulation with P10/P50/P90 ranges</p>
+                </div>
+                <div class="card">
+                    <span class="icon">🎤</span>
+                    <h4>Voice Interface</h4>
+                    <p>Full TTS + STT — speak to Finnie, hear responses. 6 selectable voices via edge-tts</p>
+                </div>
+                <div class="card">
+                    <span class="icon">🧠</span>
+                    <h4>Knowledge Graph (GraphRAG)</h4>
+                    <p>55+ companies, 20 concepts, 11 sectors, and their relationships in Neo4j — not just text search
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 4: ARCHITECTURE -->
+    <section class="slide" id="s4">
+        <div class="slide-inner" style="text-align: center;">
+            <span class="section-num">03 — Architecture</span>
+            <h2>System Architecture</h2>
+            <p class="subtitle">A 6-layer architecture from user input to AI-powered response</p>
+            <div class="arch-flow">
+                <div class="arch-col" style="border-left: 3px solid var(--cyan);">
+                    <div class="layer-label">🖥️ UI Layer</div>
+                    <div class="layer-items">
+                        Streamlit 5-tab UI<br>
+                        Voice TTS/STT<br>
+                        OAuth Login
+                    </div>
+                </div>
+                <div class="arch-col" style="border-left: 3px solid var(--accent);">
+                    <div class="layer-label">🔀 Orchestration</div>
+                    <div class="layer-items">
+                        LangGraph State Machine<br>
+                        Intent Router<br>
+                        State Management
+                    </div>
+                </div>
+                <div class="arch-col" style="border-left: 3px solid var(--green);">
+                    <div class="layer-label">🤖 Agent Team</div>
+                    <div class="layer-items">
+                        8 Specialized Agents<br>
+                        Parallel Execution<br>
+                        Compliance Layer
+                    </div>
+                </div>
+                <div class="arch-col" style="border-left: 3px solid var(--pink);">
+                    <div class="layer-label">🧠 LLM Layer</div>
+                    <div class="layer-items">
+                        OpenAI / Anthropic / Google<br>
+                        Provider Adapter Pattern<br>
+                        Hot-swappable
+                    </div>
+                </div>
+                <div class="arch-col" style="border-left: 3px solid var(--orange);">
+                    <div class="layer-label">🔧 Tools + Data</div>
+                    <div class="layer-items">
+                        MCP (7 tools)<br>
+                        GraphRAG (Neo4j)<br>
+                        SQLite · LangFuse
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="text-align: left; margin-top: 1.5rem;">
+                <h3 style="margin-bottom: 0.5rem;">📋 Request Flow: "What is a P/E ratio?"</h3>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="fs-icon">👤</div> User Input
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="fs-icon">🔀</div> Intent Router
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="fs-icon">📚</div> Professor
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="fs-icon">🧠</div> GraphRAG Lookup
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="fs-icon">💬</div> LLM + Context
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="fs-icon">🔊</div> Response + TTS
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 5: AGENTS -->
+    <section class="slide" id="s5">
+        <div class="slide-inner">
+            <div style="text-align: center;">
+                <span class="section-num">04 — Agent Team</span>
+                <h2>8 Specialized Agents</h2>
+                <p class="subtitle">Each agent has a distinct role, trigger patterns, and data sources</p>
+            </div>
+            <div class="grid grid-2">
+                <div class="agent-card">
+                    <div class="agent-emoji">📊</div>
+                    <div class="agent-info">
+                        <h4>The Quant</h4>
+                        <p>Real-time market data via yFinance. Fetches price, P/E, 52W range, volume, sector for any
+                            ticker.</p>
+                        <span class="agent-tag data">Data Only — No LLM</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">📚</div>
+                    <div class="agent-info">
+                        <h4>The Professor</h4>
+                        <p>Financial education with GraphRAG context injection. Explains concepts enriched by knowledge
+                            graph relationships.</p>
+                        <span class="agent-tag llm">LLM + GraphRAG</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">🌍</div>
+                    <div class="agent-info">
+                        <h4>The Scout</h4>
+                        <p>Scans 9 benchmark tickers, computes gainers/losers, feeds data to LLM for intelligent market
+                            analysis.</p>
+                        <span class="agent-tag llm">Data + LLM Analysis</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">🔮</div>
+                    <div class="agent-info">
+                        <h4>The Oracle</h4>
+                        <p>Monte Carlo investment projections with customizable parameters — amount, duration, risk
+                            level.</p>
+                        <span class="agent-tag llm">Simulation + LLM</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">💼</div>
+                    <div class="agent-info">
+                        <h4>The Advisor</h4>
+                        <p>Portfolio tracking, allocation analysis, holding management, and rebalancing guidance.</p>
+                        <span class="agent-tag llm">LLM Advice</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">📰</div>
+                    <div class="agent-info">
+                        <h4>The Analyst</h4>
+                        <p>News research and company analysis. Synthesizes information for investment context.</p>
+                        <span class="agent-tag llm">LLM Research</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">🛡️</div>
+                    <div class="agent-info">
+                        <h4>The Guardian</h4>
+                        <p>Compliance officer — appends disclaimers at appropriate risk levels (GREEN/YELLOW/RED).</p>
+                        <span class="agent-tag rule">Rule-Based</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">✍️</div>
+                    <div class="agent-info">
+                        <h4>The Scribe</h4>
+                        <p>Response synthesis — combines multi-agent outputs into cohesive, well-formatted answers.</p>
+                        <span class="agent-tag llm">LLM Synthesis</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 6: GRAPHRAG -->
+    <section class="slide" id="s6">
+        <div class="slide-inner" style="text-align: center;">
+            <span class="section-num">05 — GraphRAG</span>
+            <h2>Knowledge Graph Intelligence</h2>
+            <p class="subtitle">
+                Not just text search — a connected graph of financial entities and relationships in Neo4j
+            </p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="num">55+</div>
+                    <div class="label">Companies</div>
+                </div>
+                <div class="stat">
+                    <div class="num">20</div>
+                    <div class="label">Concepts</div>
+                </div>
+                <div class="stat">
+                    <div class="num">11</div>
+                    <div class="label">Sectors</div>
+                </div>
+                <div class="stat">
+                    <div class="num">18</div>
+                    <div class="label">ETFs</div>
+                </div>
+                <div class="stat">
+                    <div class="num">150+</div>
+                    <div class="label">Relationships</div>
+                </div>
+            </div>
+
+            <div class="grid grid-2" style="margin-top: 1.5rem;">
+                <div class="card accent-border" style="text-align: left;">
+                    <h3>📐 Graph Schema</h3>
+                    <div class="code-block">
+                        <span class="cmt">// Nodes & Relationships</span>
+                        (<span class="fn">Company</span>) -[<span class="kw">BELONGS_TO</span>]→ (<span
+                            class="fn">Sector</span>)
+                        (<span class="fn">Company</span>) -[<span class="kw">IN_INDUSTRY</span>]→ (<span
+                            class="fn">Industry</span>)
+                        (<span class="fn">Sector</span>) -[<span class="kw">HAS_ETF</span>]→ (<span
+                            class="fn">ETF</span>)
+                        (<span class="fn">Concept</span>) -[<span class="kw">RELATED_TO</span>]→ (<span
+                            class="fn">Concept</span>)
+                        (<span class="fn">Concept</span>) -[<span class="kw">APPLIES_TO</span>]→ (<span
+                            class="fn">Sector</span>)
+                    </div>
+                </div>
+                <div class="card green-border" style="text-align: left;">
+                    <h3>🏗️ Engineering Decisions</h3>
+                    <ul style="color: var(--text-dim); font-size: 0.88rem; padding-left: 1.2rem; line-height: 2;">
+                        <li><strong>Data/Code Separation</strong> — All data in JSON files, not hardcoded</li>
+                        <li><strong>Singleton Client</strong> — Lazy-init Neo4j driver, shared across agents</li>
+                        <li><strong>Full-Text Index</strong> — Cypher full-text search with regex fallback</li>
+                        <li><strong>Graceful Degradation</strong> — Agents work fine without Neo4j connected</li>
+                        <li><strong>CLI Ingestion</strong> — <code>python -m src.graphrag.ingest</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 7: TECH STACK -->
+    <section class="slide" id="s7">
+        <div class="slide-inner" style="text-align: center;">
+            <span class="section-num">06 — Tech Stack</span>
+            <h2>Technology Stack</h2>
+            <p class="subtitle">Production-grade Python stack with cloud-native deployment</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Technology</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Frontend</strong></td>
+                        <td>Streamlit</td>
+                        <td>Multi-tab UI (Chat, Portfolio, Market, Projections, Settings)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Orchestration</strong></td>
+                        <td>LangGraph</td>
+                        <td>StateGraph workflow, intent routing, parallel agent execution</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Agents</strong></td>
+                        <td>Custom Python (ABC)</td>
+                        <td>8 specialized agents with BaseFinnieAgent pattern</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LLM</strong></td>
+                        <td>OpenAI / Anthropic / Google</td>
+                        <td>Adapter pattern — hot-swap providers via UI</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tools</strong></td>
+                        <td>MCP (Model Context Protocol)</td>
+                        <td>7 registered tools: stock, history, charts, sectors</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Knowledge</strong></td>
+                        <td>Neo4j / AuraDB</td>
+                        <td>GraphRAG — entity relationships, concept retrieval</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Market Data</strong></td>
+                        <td>yFinance</td>
+                        <td>Real-time stock prices, fundamentals, historical data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Voice</strong></td>
+                        <td>edge-tts + Web Speech API</td>
+                        <td>TTS (6 voices) + browser STT</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Persistence</strong></td>
+                        <td>SQLite</td>
+                        <td>Chat history, user profiles, conversations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Observability</strong></td>
+                        <td>LangFuse</td>
+                        <td>Tracing, latency, token usage per agent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Testing</strong></td>
+                        <td>DeepEval + Pytest</td>
+                        <td>LLM response quality: relevancy, hallucination, faithfulness, bias</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deployment</strong></td>
+                        <td>Docker + Google Cloud Run</td>
+                        <td>Containerized, auto-scaling, HTTPS</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 8: MCP + TESTING -->
+    <section class="slide" id="s8">
+        <div class="slide-inner">
+            <div style="text-align: center;">
+                <span class="section-num">07 — MCP & Testing</span>
+                <h2>Tools & Quality Assurance</h2>
+                <p class="subtitle">Standardized tool interface + rigorous LLM response evaluation</p>
+            </div>
+            <div class="grid grid-2">
+                <div class="card accent-border" style="text-align: left;">
+                    <h3>🔧 MCP Tools (7 Registered)</h3>
+                    <table style="font-size: 0.82rem; margin-top: 0.75rem;">
+                        <tr>
+                            <td><code>get_stock_price</code></td>
+                            <td>Real-time price via yFinance</td>
+                        </tr>
+                        <tr>
+                            <td><code>get_historical_data</code></td>
+                            <td>Historical OHLCV data</td>
+                        </tr>
+                        <tr>
+                            <td><code>get_company_info</code></td>
+                            <td>Company fundamentals</td>
+                        </tr>
+                        <tr>
+                            <td><code>get_sector_performance</code></td>
+                            <td>Sector ETF performance</td>
+                        </tr>
+                        <tr>
+                            <td><code>create_price_chart</code></td>
+                            <td>Plotly candlestick chart</td>
+                        </tr>
+                        <tr>
+                            <td><code>create_comparison_chart</code></td>
+                            <td>Multi-ticker comparison</td>
+                        </tr>
+                        <tr>
+                            <td><code>create_sector_heatmap</code></td>
+                            <td>Sector performance heatmap</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="card pink-border" style="text-align: left;">
+                    <h3>🧪 DeepEval Testing</h3>
+                    <table style="font-size: 0.82rem; margin-top: 0.75rem;">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>What It Measures</th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <td><strong>Answer Relevancy</strong></td>
+                            <td>Does the response address the query?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hallucination</strong></td>
+                            <td>Does it fabricate data?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Faithfulness</strong></td>
+                            <td>Is it grounded in retrieved context?</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bias</strong></td>
+                            <td>Does it show unwanted bias?</td>
+                        </tr>
+                    </table>
+                    <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: 0.75rem;">
+                        + Unit tests for agents, LLM adapters, orchestration, and MCP tool discovery
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 9: FEATURE STATUS -->
+    <section class="slide" id="s9">
+        <div class="slide-inner" style="text-align: center;">
+            <span class="section-num">08 — Status</span>
+            <h2>Feature Completion</h2>
+            <p class="subtitle">19 features implemented — all core + enhanced scope complete</p>
+            <div class="grid grid-4" style="margin-top: 1rem;">
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>LangGraph<br>Orchestration</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>8 Specialized<br>Agents</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>MCP Tools<br>(7 tools)</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Multi-Provider<br>LLM</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Streamlit<br>5-Tab UI</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Voice<br>TTS + STT</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>GraphRAG<br>Knowledge Graph</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Portfolio<br>Tracking</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Monte Carlo<br>Projections</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>LangFuse<br>Observability</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>DeepEval<br>Testing</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Docker +<br>Cloud Run</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>FastAPI<br>REST API</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>OAuth<br>Login</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Market Data<br>yFinance</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Responsive<br>Mobile</small></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 10: DEMO -->
+    <section class="slide" id="s10">
+        <div class="slide-inner" style="text-align: center;">
+            <span class="section-num">09 — Demo</span>
+            <h2>Live Demo Highlights</h2>
+            <p class="subtitle">Key interactions to showcase during the demo</p>
+            <div class="grid grid-2" style="text-align: left;">
+                <div class="card accent-border">
+                    <h3>💬 "What is a P/E ratio?"</h3>
+                    <p>Professor + GraphRAG → enriched explanation with related concepts (EPS, Market Cap) from
+                        knowledge graph</p>
+                </div>
+                <div class="card green-border">
+                    <h3>📊 "What's AAPL trading at?"</h3>
+                    <p>Quant → real-time yFinance data: price, change, P/E, 52W range, volume, sector — no LLM needed
+                    </p>
+                </div>
+                <div class="card pink-border">
+                    <h3>🌍 "What's trending in the market?"</h3>
+                    <p>Scout → scans 9 benchmarks, identifies top gainers/losers, LLM analysis of market dynamics</p>
+                </div>
+                <div class="card cyan-border">
+                    <h3>🔮 "If I invest $10K for 10 years"</h3>
+                    <p>Oracle → Monte Carlo: P10=$19K, P50=$27K, P90=$38K with interactive chart</p>
+                </div>
+                <div class="card orange-border">
+                    <h3>🎤 Voice: "Hey Finnie, explain diversification"</h3>
+                    <p>STT → Professor + GraphRAG → TTS response with 6 voice options</p>
+                </div>
+                <div class="card" style="border-left: 3px solid var(--green);">
+                    <h3>⚙️ Settings: Switch LLM Provider</h3>
+                    <p>Hot-swap between Gemini, GPT-4o, or Claude — live in the Settings tab</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================ SLIDE 11: THANK YOU -->
+    <section class="slide final-slide" id="s11">
+        <div class="slide-inner">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🦈</div>
+            <h2>Thank You</h2>
+            <p style="color: var(--text-dim); font-size: 1.2rem; margin-top: 1rem; margin-bottom: 0.5rem;">
+                Finnie AI v2.1.0 — Autonomous Financial Intelligence
+            </p>
+            <p style="color: var(--text-dim); font-size: 0.95rem;">
+                8 agents · 3 LLM providers · 7 MCP tools · GraphRAG · Voice · Monte Carlo · DeepEval
+            </p>
+            <div class="stats" style="margin-top: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                <div class="stat">
+                    <div class="num">~5K</div>
+                    <div class="label">Lines of Python</div>
+                </div>
+                <div class="stat">
+                    <div class="num">4</div>
+                    <div class="label">Days Built</div>
+                </div>
+                <div class="stat">
+                    <div class="num">19</div>
+                    <div class="label">Features Shipped</div>
+                </div>
+            </div>
+            <div class="links">
+                <a href="https://github.com/sathyaincampus/finnie-ai">GitHub Repo</a>
+            </div>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 2rem;">
+                Interview Kickstart — Capstone Project &nbsp;|&nbsp; February 2026
+            </p>
+        </div>
+    </section>
+
+    <!-- ================================================================ SCRIPTS -->
+    <script>
+        // Build slide nav dots
+        const slides = document.querySelectorAll('.slide');
+        const nav = document.getElementById('slideNav');
+        slides.forEach((s, i) => {
+            const a = document.createElement('a');
+            a.href = '#' + s.id;
+            a.title = 'Slide ' + (i + 1);
+            nav.appendChild(a);
+        });
+
+        // Highlight active nav dot
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    nav.querySelectorAll('a').forEach(a => a.classList.remove('active'));
+                    const dot = nav.querySelector(`a[href="#${e.target.id}"]`);
+                    if (dot) dot.classList.add('active');
+                }
+            });
+        }, { threshold: 0.4 });
+        slides.forEach(s => observer.observe(s));
+
+        // Keyboard navigation
+        document.addEventListener('keydown', e => {
+            const current = [...slides].findIndex(s => {
+                const r = s.getBoundingClientRect();
+                return r.top >= -100 && r.top < window.innerHeight / 2;
+            });
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                const next = Math.min(current + 1, slides.length - 1);
+                slides[next].scrollIntoView({ behavior: 'smooth' });
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const prev = Math.max(current - 1, 0);
+                slides[prev].scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+
+</html>

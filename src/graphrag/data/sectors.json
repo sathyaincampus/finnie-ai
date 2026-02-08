@@ -1,0 +1,46 @@
+[
+    {
+        "name": "Technology",
+        "description": "Software, hardware, semiconductors, and IT services"
+    },
+    {
+        "name": "Healthcare",
+        "description": "Pharmaceuticals, biotech, medical devices, and health services"
+    },
+    {
+        "name": "Financial Services",
+        "description": "Banks, insurance, asset management, and fintech"
+    },
+    {
+        "name": "Consumer Cyclical",
+        "description": "Retail, automotive, housing, entertainment, and travel"
+    },
+    {
+        "name": "Communication Services",
+        "description": "Telecom, media, social networking, and entertainment"
+    },
+    {
+        "name": "Industrials",
+        "description": "Aerospace, defense, construction, and manufacturing"
+    },
+    {
+        "name": "Consumer Defensive",
+        "description": "Food, beverages, household products, and tobacco"
+    },
+    {
+        "name": "Energy",
+        "description": "Oil, gas, renewables, and energy equipment"
+    },
+    {
+        "name": "Utilities",
+        "description": "Electric, gas, water utilities, and renewable energy providers"
+    },
+    {
+        "name": "Real Estate",
+        "description": "REITs, real estate services, and property development"
+    },
+    {
+        "name": "Basic Materials",
+        "description": "Mining, chemicals, metals, and forest products"
+    }
+]

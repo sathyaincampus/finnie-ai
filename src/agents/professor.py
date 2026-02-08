@@ -62,7 +62,9 @@ Keep explanations concise but thorough - aim for 2-3 paragraphs max."""
         """
         Process an educational request.
         
-        Uses the LLM to generate clear explanations.
+        1. Query the knowledge graph for concept context (if available)
+        2. Use the LLM with graph context for rich explanations
+        3. Fall back to hardcoded definitions if no LLM key
         """
         user_input = state.get("user_input", "")
         
@@ -74,22 +76,78 @@ Keep explanations concise but thorough - aim for 2-3 paragraphs max."""
                 "data": None,
             }
         
-        # Use LLM for rich explanation
-        messages = [
-            {"role": "user", "content": user_input}
-        ]
+        # Try to get knowledge graph context
+        graph_context = self._get_graph_context(user_input)
+        
+        # Build the prompt with optional graph context
+        if graph_context:
+            messages = [
+                {
+                    "role": "user",
+                    "content": (
+                        f"Knowledge graph context:\n{graph_context}\n\n"
+                        f"User question: {user_input}\n\n"
+                        "Use the knowledge graph context to enrich your explanation. "
+                        "Mention related concepts and practical connections."
+                    ),
+                }
+            ]
+        else:
+            messages = [
+                {"role": "user", "content": user_input}
+            ]
         
         try:
             response = await self._call_llm(state, messages)
+            data = {"topic": self._extract_topic(user_input)}
+            if graph_context:
+                data["graph_context_used"] = True
             return {
                 "content": response,
-                "data": {"topic": self._extract_topic(user_input)},
+                "data": data,
             }
         except Exception as e:
             return {
                 "content": self._get_fallback_response(user_input),
                 "data": {"error": str(e)},
             }
+    
+    def _get_graph_context(self, user_input: str) -> str | None:
+        """
+        Query the knowledge graph for relevant context.
+        
+        Tries concept lookup first, then company lookup.
+        Returns formatted context or None.
+        """
+        try:
+            from src.graphrag.retriever import (
+                retrieve_concept_context,
+                retrieve_company_context,
+            )
+            
+            topic = self._extract_topic(user_input)
+            
+            # Try concept search
+            context = retrieve_concept_context(topic)
+            if context:
+                return context
+            
+            # Try company search (if topic looks like a ticker)
+            from src.agents.base import BaseFinnieAgent
+            tickers = self._extract_tickers(user_input)
+            if tickers:
+                contexts = []
+                for ticker in tickers[:2]:
+                    co_ctx = retrieve_company_context(ticker)
+                    if co_ctx:
+                        contexts.append(co_ctx)
+                if contexts:
+                    return "\n\n".join(contexts)
+            
+            return None
+        except Exception:
+            # Graph unavailable — continue without it
+            return None
     
     def _extract_topic(self, text: str) -> str:
         """Extract the main topic from the user's question."""

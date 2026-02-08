@@ -1,11 +1,11 @@
 # Finnie AI — Execution Roadmap
 ## From Architecture to Deployed Application
 
-> **Version:** 2.0.0  
-> **Last Updated:** February 5, 2026  
-> **Presentation:** February 9, 2026 (4 days)  
-> **Submission:** February 16, 2026 (11 days)  
-> **Companion Docs:** [SPEC_DEV.md](./SPEC_DEV.md) | [Implementation Q&A](./docs/IMPLEMENTATION_QA.md)
+> **Version:** 2.1.0  
+> **Last Updated:** February 8, 2026  
+> **Presentation:** February 9, 2026 (1 day)  
+> **Submission:** February 16, 2026 (8 days)  
+> **Companion Docs:** [SPEC_DEV.md](./SPEC_DEV.md) | [Implementation Q&A](./docs/IMPLEMENTATION_QA.md) | [Code Walkthrough](./docs/CODE_WALKTHROUGH.md)
 
 ---
 
@@ -63,20 +63,25 @@ gantt
 
 | Feature | Status | Phase |
 |---------|--------|-------|
-| LangGraph state machine | Core | 1 |
-| 8 specialized agents | Core | 1, 4 |
-| MCP tool integration | Core | 1 |
-| Multi-provider LLM (OpenAI/Anthropic/Google) | Core | 1 |
-| Streamlit multi-tab UI | Core | 2 |
-| Responsive mobile design | Core | 2 |
-| yFinance market data | Core | 1 |
-| Portfolio tracking | Enhanced | 3 |
-| Investment projections | Enhanced | 3 |
-| GraphRAG (Neo4j + Redis vectors) | Enhanced | 3 |
-| Voice interface (Whisper + TTS) | Enhanced | 4 |
-| LangFuse observability | Enhanced | 4 |
-| Google Cloud Run deployment | Core | 5 |
-| A2A protocol | Enhanced | 4 |
+| LangGraph state machine | ✅ Done | 1 |
+| 8 specialized agents | ✅ Done | 1, 4 |
+| MCP tool integration (7 tools) | ✅ Done | 1 |
+| Multi-provider LLM (OpenAI/Anthropic/Google) | ✅ Done | 1 |
+| Streamlit multi-tab UI (5 tabs) | ✅ Done | 2 |
+| Responsive mobile design | ✅ Done | 2 |
+| yFinance market data | ✅ Done | 1 |
+| Portfolio tracking (SQLite) | ✅ Done | 3 |
+| Investment projections (Monte Carlo) | ✅ Done | 3 |
+| GraphRAG (Neo4j/AuraDB knowledge graph) | ✅ Done | 3 |
+| Voice interface (edge-tts + Web Speech API) | ✅ Done | 4 |
+| LangFuse observability | ✅ Done | 4 |
+| Google Cloud Run deployment | ✅ Done | 5 |
+| DeepEval agent evaluation | ✅ Done | 5 |
+| FastAPI REST API | ✅ Done | 3 |
+| Docker deployment | ✅ Done | 5 |
+| Auto API key loading from .env | ✅ Ad-hoc | — |
+| Scout agent LLM market analysis | ✅ Ad-hoc | — |
+| GraphRAG data/code separation (JSON) | ✅ Ad-hoc | — |
 
 ### ⏭️ DEFERRED (Post-Submission)
 
@@ -1015,47 +1020,54 @@ images:
 ## Daily Checklist
 
 ### Day 1 (Feb 5) ✅
-- [ ] Project structure
-- [ ] LangGraph basic setup
-- [ ] LLM adapter framework
+- [x] Project structure
+- [x] LangGraph basic setup
+- [x] LLM adapter framework
 
-### Day 2 (Feb 6)
-- [ ] Complete LangGraph orchestration
-- [ ] Implement 4 core agents
-- [ ] MCP finance tools
+### Day 2 (Feb 6) ✅
+- [x] Complete LangGraph orchestration
+- [x] Implement 4 core agents
+- [x] MCP finance tools
 
-### Day 3 (Feb 7)
-- [ ] Remaining agents (Guardian, Scribe)
-- [ ] Streamlit multi-tab UI
-- [ ] Chat functionality
+### Day 3 (Feb 7) ✅
+- [x] Remaining agents (Guardian, Scribe)
+- [x] Streamlit multi-tab UI
+- [x] Chat functionality
 
-### Day 4 (Feb 8)
-- [ ] Responsive CSS
-- [ ] Settings page with LLM selection
-- [ ] Demo preparation
+### Day 4 (Feb 8) ✅
+- [x] Responsive CSS
+- [x] Settings page with LLM selection
+- [x] Voice interface (edge-tts TTS + Web Speech API STT)
+- [x] GraphRAG knowledge graph (Neo4j client, ingestion, retrieval)
+- [x] GraphRAG data/code separation (JSON data files)
+- [x] Scout agent LLM-powered market analysis
+- [x] Auto API key loading from .env
+- [x] DeepEval agent evaluation tests
+- [x] Code walkthrough documentation
+- [x] Demo preparation
 
 ### Day 5 (Feb 9) — PRESENTATION
-- [ ] Present architecture
-- [ ] Demo working chat
-- [ ] Show UI/UX mocks
+- [ ] Present architecture & working demo
+- [ ] Show all agent capabilities
+- [ ] Demonstrate voice, GraphRAG, market data
 
 ### Days 6-7 (Feb 10-11)
-- [ ] Database connections
-- [ ] Portfolio features
-- [ ] Projections calculator
+- [x] Database connections (SQLite for MVP)
+- [x] Portfolio features
+- [x] Projections calculator (Monte Carlo)
+- [x] FastAPI REST API
 
 ### Days 8-9 (Feb 12-13)
-- [ ] GraphRAG integration
-- [ ] Voice interface
-- [ ] Advanced agents (Oracle, Scout)
-- [ ] LangFuse observability
+- [x] Advanced agents (Oracle, Scout)
+- [x] LangFuse observability
+- [ ] Additional GraphRAG data enrichment
+- [ ] Edge case testing
 
 ### Days 10-11 (Feb 14-15)
-- [ ] Google Cloud Run deployment
-- [ ] Testing and bug fixes
-- [ ] DeepEval agent response evaluation (answer relevancy, hallucination, faithfulness)
-- [ ] Documentation
-- [ ] Final polish
+- [x] Google Cloud Run deployment
+- [x] Docker configuration
+- [ ] Final testing and bug fixes
+- [ ] Documentation polish
 
 ### Day 12 (Feb 16) — SUBMISSION
 - [ ] Final testing
@@ -1065,5 +1077,5 @@ images:
 ---
 
 *Roadmap prepared for Interview Kickstart Capstone Project*  
-*Finnie AI v2.0.0 — "Hedge Fund in a Box"*  
-*Last Updated: February 5, 2026*
+*Finnie AI v2.1.0 — "Hedge Fund in a Box"*  
+*Last Updated: February 8, 2026*

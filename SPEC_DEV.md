@@ -2,10 +2,10 @@
 ## Autonomous Financial Intelligence System
 
 > **Codename:** "Hedge Fund in a Box"  
-> **Version:** 2.0.0  
-> **Last Updated:** February 5, 2026  
+> **Version:** 2.1.0  
+> **Last Updated:** February 8, 2026  
 > **Author:** Principal AI Architect  
-> **Companion Docs:** [ROADMAP.md](./ROADMAP.md) | [Implementation Q&A](./docs/IMPLEMENTATION_QA.md)
+> **Companion Docs:** [ROADMAP.md](./ROADMAP.md) | [Implementation Q&A](./docs/IMPLEMENTATION_QA.md) | [Code Walkthrough](./docs/CODE_WALKTHROUGH.md)
 
 ---
 
@@ -721,12 +721,16 @@ stateDiagram-v2
 
 | Feature | Description | Priority |
 |---------|-------------|----------|
-| **Investment Projections** | Monte Carlo scenarios | P1 |
-| **Portfolio Analysis** | Holdings, risk metrics | P1 |
-| **Voice Interface** | Whisper STT + TTS | P1 |
-| **GraphRAG Retrieval** | Knowledge graph + vectors | P1 |
-| **Trend Discovery** | Sector momentum analysis | P1 |
-| **MCP Tools** | Standardized tool interface | P0 |
+| **Investment Projections** | Monte Carlo scenarios | ✅ Done |
+| **Portfolio Analysis** | Holdings, risk metrics | ✅ Done |
+| **Voice Interface** | edge-tts TTS + Web Speech API STT | ✅ Done |
+| **GraphRAG Retrieval** | Neo4j knowledge graph + retrieval | ✅ Done |
+| **Trend Discovery** | Scout agent LLM-powered sector analysis | ✅ Done |
+| **MCP Tools** | 7 standardized tools registered | ✅ Done |
+| **DeepEval Evaluation** | Answer relevancy, hallucination, faithfulness, bias | ✅ Done |
+| **LangFuse Observability** | Tracing, latency, token usage metrics | ✅ Done |
+| **Docker Deployment** | Dockerfile + Cloud Run config | ✅ Done |
+| **FastAPI REST API** | /chat, /tools endpoints | ✅ Done |
 
 ### 7.3 Investment Projection Feature
 
@@ -1373,22 +1377,32 @@ finnie-ai/
 │   ├── 📁 agents/           # 8 agent implementations
 │   ├── 📁 orchestration/    # LangGraph state machine
 │   ├── 📁 mcp/              # MCP tool servers
-│   ├── 📁 data/             # Database clients
-│   ├── 📁 api/              # FastAPI routes
-│   └── 📁 ui/               # Streamlit pages
+│   ├── 📁 graphrag/          # Neo4j knowledge graph
+│   │   ├── 📁 data/          # JSON data files (concepts, sectors, ETFs, companies)
+│   │   ├── graph_client.py   # Neo4j driver wrapper
+│   │   ├── ingest.py         # CLI ingestion pipeline
+│   │   └── retriever.py      # Query functions for agents
+│   ├── 📁 llm/               # Multi-provider LLM abstraction
+│   ├── 📁 api/               # FastAPI REST endpoint
+│   └── 📁 ui/                # Streamlit pages + voice + STT
 ├── 📁 docs/
-│   ├── IMPLEMENTATION_QA.md # Q&A document
-│   ├── 📁 guides/           # User guides
-│   └── 📁 api/              # API docs
-├── 📁 tests/                # Test suite
-├── 📁 docker/               # Docker configs
-├── SPEC_DEV.md              # This document
-├── ROADMAP.md               # Execution roadmap
-└── README.md                # Quick start
+│   ├── ARCHITECTURE.md        # Architecture diagrams
+│   ├── CODE_WALKTHROUGH.md    # Code walkthrough guide
+│   ├── TEST_GUIDE.md          # Testing guide
+│   └── IMPLEMENTATION_QA.md   # Q&A document
+├── 📁 tests/
+│   ├── 📁 eval/               # DeepEval agent evaluation
+│   ├── test_agents.py
+│   ├── test_llm_adapters.py
+│   └── test_orchestration.py
+├── SPEC_DEV.md                # This document
+├── ROADMAP.md                 # Execution roadmap
+├── Dockerfile                 # Docker deployment
+└── README.md                  # Quick start
 ```
 
 ---
 
 *Document prepared for Interview Kickstart Capstone Project*  
-*Finnie AI v2.0.0 — "Hedge Fund in a Box"*  
-*Last Updated: February 5, 2026*
+*Finnie AI v2.1.0 — "Hedge Fund in a Box"*  
+*Last Updated: February 8, 2026*

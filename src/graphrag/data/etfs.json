@@ -1,0 +1,130 @@
+{
+    "etfs": [
+        {
+            "ticker": "SPY",
+            "name": "SPDR S&P 500 ETF",
+            "category": "Broad Market"
+        },
+        {
+            "ticker": "QQQ",
+            "name": "Invesco QQQ Trust",
+            "category": "Technology"
+        },
+        {
+            "ticker": "DIA",
+            "name": "SPDR Dow Jones ETF",
+            "category": "Broad Market"
+        },
+        {
+            "ticker": "IWM",
+            "name": "iShares Russell 2000",
+            "category": "Small Cap"
+        },
+        {
+            "ticker": "VTI",
+            "name": "Vanguard Total Stock",
+            "category": "Broad Market"
+        },
+        {
+            "ticker": "VOO",
+            "name": "Vanguard S&P 500",
+            "category": "Broad Market"
+        },
+        {
+            "ticker": "XLK",
+            "name": "Technology Select SPDR",
+            "category": "Technology"
+        },
+        {
+            "ticker": "XLF",
+            "name": "Financial Select SPDR",
+            "category": "Financial Services"
+        },
+        {
+            "ticker": "XLE",
+            "name": "Energy Select SPDR",
+            "category": "Energy"
+        },
+        {
+            "ticker": "XLV",
+            "name": "Health Care Select SPDR",
+            "category": "Healthcare"
+        },
+        {
+            "ticker": "XLI",
+            "name": "Industrial Select SPDR",
+            "category": "Industrials"
+        },
+        {
+            "ticker": "XLP",
+            "name": "Consumer Staples SPDR",
+            "category": "Consumer Defensive"
+        },
+        {
+            "ticker": "XLY",
+            "name": "Consumer Discretionary SPDR",
+            "category": "Consumer Cyclical"
+        },
+        {
+            "ticker": "XLC",
+            "name": "Communication Services SPDR",
+            "category": "Communication Services"
+        },
+        {
+            "ticker": "XLRE",
+            "name": "Real Estate Select SPDR",
+            "category": "Real Estate"
+        },
+        {
+            "ticker": "XLU",
+            "name": "Utilities Select SPDR",
+            "category": "Utilities"
+        },
+        {
+            "ticker": "XLB",
+            "name": "Materials Select SPDR",
+            "category": "Basic Materials"
+        },
+        {
+            "ticker": "ARKK",
+            "name": "ARK Innovation ETF",
+            "category": "Innovation"
+        }
+    ],
+    "sector_etf_map": {
+        "Technology": [
+            "XLK",
+            "QQQ"
+        ],
+        "Healthcare": [
+            "XLV"
+        ],
+        "Financial Services": [
+            "XLF"
+        ],
+        "Consumer Cyclical": [
+            "XLY"
+        ],
+        "Communication Services": [
+            "XLC"
+        ],
+        "Industrials": [
+            "XLI"
+        ],
+        "Consumer Defensive": [
+            "XLP"
+        ],
+        "Energy": [
+            "XLE"
+        ],
+        "Utilities": [
+            "XLU"
+        ],
+        "Real Estate": [
+            "XLRE"
+        ],
+        "Basic Materials": [
+            "XLB"
+        ]
+    }
+}

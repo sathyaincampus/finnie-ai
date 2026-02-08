@@ -1,0 +1,92 @@
+{
+    "P/E Ratio": [
+        "Earnings Per Share",
+        "Market Capitalization",
+        "Revenue"
+    ],
+    "Market Capitalization": [
+        "P/E Ratio",
+        "Revenue"
+    ],
+    "Earnings Per Share": [
+        "P/E Ratio",
+        "Revenue",
+        "EBITDA"
+    ],
+    "Dividends": [
+        "Earnings Per Share",
+        "Compound Interest"
+    ],
+    "ETF": [
+        "Diversification",
+        "Bonds"
+    ],
+    "Dollar Cost Averaging": [
+        "Compound Interest",
+        "Diversification"
+    ],
+    "Beta": [
+        "Volatility",
+        "RSI"
+    ],
+    "Moving Average": [
+        "RSI",
+        "Volatility"
+    ],
+    "RSI": [
+        "Moving Average",
+        "Beta"
+    ],
+    "Diversification": [
+        "ETF",
+        "Bonds",
+        "Dollar Cost Averaging"
+    ],
+    "Short Selling": [
+        "Margin Trading",
+        "Options",
+        "Bear Market"
+    ],
+    "Compound Interest": [
+        "Dollar Cost Averaging",
+        "Dividends"
+    ],
+    "Volatility": [
+        "Beta",
+        "Bear Market",
+        "Bull Market",
+        "Options"
+    ],
+    "Bull Market": [
+        "Bear Market",
+        "Volatility"
+    ],
+    "Bear Market": [
+        "Bull Market",
+        "Volatility",
+        "Short Selling"
+    ],
+    "Margin Trading": [
+        "Short Selling",
+        "Options"
+    ],
+    "Bonds": [
+        "Diversification",
+        "ETF",
+        "Compound Interest"
+    ],
+    "Options": [
+        "Short Selling",
+        "Margin Trading",
+        "Volatility"
+    ],
+    "Revenue": [
+        "Earnings Per Share",
+        "EBITDA",
+        "P/E Ratio"
+    ],
+    "EBITDA": [
+        "Revenue",
+        "Earnings Per Share"
+    ]
+}

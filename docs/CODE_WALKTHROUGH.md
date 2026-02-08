@@ -49,6 +49,7 @@ graph TD
 
     subgraph DATA["💾 Data Layer"]
         MEM["Memory<br/>SQLite"]
+        GR["GraphRAG<br/>Neo4j/AuraDB"]
         OBS["Observability<br/>LangFuse"]
         CFG["Config<br/>.env + pydantic"]
     end
@@ -62,6 +63,7 @@ graph TD
     ADAPTER --> OAI & ANT & GOOG
     AGENTS --> MCP
     MCP --> FIN & CHART
+    AGENTS --> GR
     ST --> MEM
     ROUTER --> OBS
     CFG --> ST
@@ -101,6 +103,10 @@ finnie-ai/
 │   │   └── tools/
 │   │       ├── finance_tools.py  # get_stock_price, get_historical_data, etc.
 │   │       └── chart_tools.py    # create_price_chart, create_comparison_chart
+│   ├── graphrag/              # Knowledge graph (Neo4j/AuraDB)
+│   │   ├── graph_client.py    # Neo4j driver wrapper (singleton)
+│   │   ├── ingest.py          # CLI ingestion pipeline
+│   │   └── retriever.py       # Query functions for agents
 │   ├── ui/                    # Streamlit frontend
 │   │   ├── app.py             # Main app (tabs, routing, chat)
 │   │   ├── auth.py            # Google/GitHub OAuth + guest login
@@ -160,7 +166,7 @@ All agents inherit from `BaseFinnieAgent` which provides:
 | Agent | File | Trigger Patterns | Data Source | Uses LLM? |
 |-------|------|-------------------|-------------|-----------|
 | 📊 **Quant** | `quant.py` | Ticker symbols, "price of AAPL" | yFinance (single stock deep-dive) | ❌ Fast data-only path |
-| 📚 **Professor** | `professor.py` | "What is", "Explain" | LLM knowledge | ✅ For explanations |
+| 📚 **Professor** | `professor.py` | "What is", "Explain" | GraphRAG + LLM | ✅ Graph-enriched explanations |
 | 🌍 **Scout** | `scout.py` | "Trending", "Market today", "Predict" | yFinance (multi-ticker scan) + LLM | ✅ For market analysis |
 | 🔮 **Oracle** | `oracle.py` | "If I invest", "Project" | Monte Carlo sim | ✅ For interpretation |
 | 💼 **Advisor** | `advisor.py` | Portfolio queries | User portfolio | ✅ For advice |
@@ -318,9 +324,73 @@ REST API with endpoints:
 
 ---
 
+### 10. GraphRAG Knowledge Graph — `src/graphrag/`
+
+Stores financial knowledge as a **connected graph** in Neo4j/AuraDB, enabling agents to retrieve relationship-aware context before calling the LLM.
+
+#### Graph Schema
+
+```mermaid
+graph LR
+    C["🏢 Company"] -->|BELONGS_TO| S["📊 Sector"]
+    C -->|IN_INDUSTRY| I["📰 Industry"]
+    S -->|HAS_ETF| E["🏛️ ETF"]
+    CO["💡 Concept"] -->|RELATED_TO| CO2["💡 Concept"]
+    CO -->|APPLIES_TO| S
+```
+
+| Node | Count | Properties | Source |
+|------|-------|-----------|--------|
+| `Company` | 55+ | ticker, name, marketCap, peRatio | yFinance (live) |
+| `Sector` | 11 | name, description | GICS classification |
+| `Concept` | 20+ | name, definition, keyTakeaway, difficulty | Curated |
+| `ETF` | 18 | ticker, name, category | Curated |
+| `Industry` | ~30 | name | yFinance |
+
+#### Module Files
+
+| File | Purpose |
+|------|---------|
+| `graph_client.py` | Neo4j driver wrapper — singleton, `run_query()`, `run_write()`, `verify_connection()` |
+| `ingest.py` | CLI pipeline: `python -m src.graphrag.ingest` — populates all nodes and edges |
+| `retriever.py` | Query functions agents call: `retrieve_concept_context()`, `retrieve_company_context()`, `retrieve_sector_context()` |
+
+#### How It Enriches Agent Responses
+
+```
+User: "What is a P/E ratio?"
+  ↓
+Professor._get_graph_context("P/E ratio")
+  → retrieve_concept_context("p/e ratio")
+  → Cypher: MATCH (co:Concept)-[:RELATED_TO]->(r)
+  → Returns: definition + related (EPS, Market Cap, Revenue)
+  ↓
+LLM prompt:
+  "Knowledge graph context: [P/E Ratio definition, related: EPS, Market Cap...]
+   User question: What is a P/E ratio?
+   Use the knowledge graph context to enrich your explanation."
+  ↓
+LLM response is richer because it has structured context
+```
+
+#### Setup
+
+```bash
+# 1. Get a free AuraDB instance at https://neo4j.com/cloud/aura-free/
+# 2. Update .env:
+AURA_URI=neo4j+s://xxxxx.databases.neo4j.io
+AURA_USER=neo4j
+AURA_PASSWORD=your-password
+
+# 3. Run ingestion
+python -m src.graphrag.ingest
+
+# 4. Verify (check Settings tab → GraphRAG should show ✅)
+```
+
 ---
 
-### 10. Evaluation Tests — `tests/eval/test_agent_quality.py`
+### 11. Evaluation Tests — `tests/eval/test_agent_quality.py`
 
 Uses the **DeepEval** framework for LLM response quality evaluation. Tests run with:
 
@@ -426,7 +496,7 @@ streamlit run src/ui/app.py
 | ✅ MCP Tools | Active | 7 tools registered |
 | ✅ FastAPI REST API | Active | `/chat`, `/tools` endpoints |
 | ✅ LangFuse Observability | Optional | Needs LangFuse credentials |
-| ⬜ GraphRAG | Not connected | Needs AuraDB (Neo4j) setup |
+| ✅ GraphRAG | Ready | Run `python -m src.graphrag.ingest` after AuraDB setup |
 | ✅ Docker Deployment | Available | `Dockerfile` + `cloudbuild.yaml` |
 
 ---

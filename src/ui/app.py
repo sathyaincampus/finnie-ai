@@ -931,7 +931,12 @@ def render_settings_tab():
     with status_col2:
         st.markdown(f"{'✅' if st.session_state.llm_api_key else '⬜'} LLM Chat")
         st.markdown("✅ Voice Interface (TTS + STT)")
-        st.markdown("⬜ GraphRAG")
+        try:
+            from src.graphrag.graph_client import is_graph_available
+            graph_ok = is_graph_available()
+        except Exception:
+            graph_ok = False
+        st.markdown(f"{'✅' if graph_ok else '⬜'} GraphRAG")
 
 
 # =============================================================================

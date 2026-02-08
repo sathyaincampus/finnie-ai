@@ -1,0 +1,162 @@
+[
+    {
+        "name": "P/E Ratio",
+        "aliases": "price to earnings ratio, pe ratio, price-to-earnings",
+        "definition": "The P/E ratio measures how much investors pay for each dollar of a company's earnings. Formula: Stock Price ÷ Earnings Per Share.",
+        "keyTakeaway": "High P/E (>25) may signal growth expectations; low P/E (<15) may indicate undervaluation or investor concerns.",
+        "difficulty": "beginner",
+        "category": "valuation"
+    },
+    {
+        "name": "Market Capitalization",
+        "aliases": "market cap, mcap",
+        "definition": "Total value of a company's outstanding shares. Formula: Stock Price × Total Shares Outstanding.",
+        "keyTakeaway": "Large cap (>$10B) = more stable; mid cap ($2–10B); small cap (<$2B) = higher growth potential but more volatile.",
+        "difficulty": "beginner",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Dividends",
+        "aliases": "dividend, dividend yield, dividend payout",
+        "definition": "A portion of company profits distributed to shareholders, typically quarterly. Dividend Yield = Annual Dividend ÷ Stock Price.",
+        "keyTakeaway": "Dividends provide passive income. Growth companies often reinvest instead of paying dividends.",
+        "difficulty": "beginner",
+        "category": "income"
+    },
+    {
+        "name": "ETF",
+        "aliases": "exchange traded fund, exchange-traded fund, index fund",
+        "definition": "A basket of securities (stocks, bonds, commodities) that trades on an exchange like a stock. Provides instant diversification.",
+        "keyTakeaway": "ETFs offer diversification, low fees, and trading flexibility compared to mutual funds.",
+        "difficulty": "beginner",
+        "category": "instruments"
+    },
+    {
+        "name": "Earnings Per Share",
+        "aliases": "eps, earnings-per-share",
+        "definition": "Net income divided by total outstanding shares. Shows how much profit is attributable to each share of stock.",
+        "keyTakeaway": "Rising EPS generally signals improving profitability. Compare EPS growth rate across peers.",
+        "difficulty": "beginner",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Dollar Cost Averaging",
+        "aliases": "dca, dollar-cost averaging",
+        "definition": "Investing a fixed amount at regular intervals regardless of price. Reduces impact of volatility on overall purchase cost.",
+        "keyTakeaway": "DCA removes the need to time the market. You buy more shares when prices are low and fewer when prices are high.",
+        "difficulty": "beginner",
+        "category": "strategy"
+    },
+    {
+        "name": "Beta",
+        "aliases": "stock beta, beta coefficient",
+        "definition": "Measures a stock's volatility relative to the overall market. Beta of 1.0 = moves with the market; >1.0 = more volatile.",
+        "keyTakeaway": "High beta stocks amplify market movements (both gains and losses). Conservative investors may prefer low-beta stocks.",
+        "difficulty": "intermediate",
+        "category": "risk"
+    },
+    {
+        "name": "Moving Average",
+        "aliases": "ma, sma, simple moving average, ema, exponential moving average",
+        "definition": "Average price over a set period (e.g. 50-day or 200-day). Smooths out short-term fluctuations to show trends.",
+        "keyTakeaway": "Price crossing above the 200-day MA is bullish ('golden cross'); crossing below is bearish ('death cross').",
+        "difficulty": "intermediate",
+        "category": "technical"
+    },
+    {
+        "name": "RSI",
+        "aliases": "relative strength index, rsi indicator",
+        "definition": "Momentum oscillator measuring speed and magnitude of price changes. Ranges from 0 to 100.",
+        "keyTakeaway": "RSI above 70 = overbought (may pull back); RSI below 30 = oversold (may bounce).",
+        "difficulty": "intermediate",
+        "category": "technical"
+    },
+    {
+        "name": "Diversification",
+        "aliases": "portfolio diversification, asset allocation",
+        "definition": "Spreading investments across different asset classes, sectors, and geographies to reduce risk.",
+        "keyTakeaway": "Don't put all eggs in one basket. A diversified portfolio reduces the impact of any single investment's poor performance.",
+        "difficulty": "beginner",
+        "category": "strategy"
+    },
+    {
+        "name": "Short Selling",
+        "aliases": "shorting, short sale, going short",
+        "definition": "Borrowing shares to sell them, hoping to buy them back later at a lower price. Profits from declining stock prices.",
+        "keyTakeaway": "Short selling has unlimited loss potential since a stock can rise indefinitely. It's an advanced strategy.",
+        "difficulty": "advanced",
+        "category": "strategy"
+    },
+    {
+        "name": "Compound Interest",
+        "aliases": "compounding, compound growth, compound returns",
+        "definition": "Earning returns on both your original investment and previously earned returns. Often called the 'eighth wonder of the world'.",
+        "keyTakeaway": "The longer you invest, the more powerful compounding becomes. Starting early matters more than investing large amounts later.",
+        "difficulty": "beginner",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Volatility",
+        "aliases": "vol, implied volatility, historical volatility, vix",
+        "definition": "Statistical measure of how much a security's price fluctuates. Higher volatility = larger price swings.",
+        "keyTakeaway": "Volatility is not the same as risk, but it measures uncertainty. The VIX (fear index) tracks S&P 500 expected volatility.",
+        "difficulty": "intermediate",
+        "category": "risk"
+    },
+    {
+        "name": "Bull Market",
+        "aliases": "bull run, bullish, bull trend",
+        "definition": "A market condition where prices are rising or expected to rise. Generally defined as a 20%+ rise from recent lows.",
+        "keyTakeaway": "Bull markets are driven by economic growth, strong earnings, and investor optimism. They don't last forever.",
+        "difficulty": "beginner",
+        "category": "market"
+    },
+    {
+        "name": "Bear Market",
+        "aliases": "bear trend, bearish, market crash",
+        "definition": "A market condition where prices decline 20%+ from recent highs. Often accompanied by pessimism and fear.",
+        "keyTakeaway": "Bear markets are painful but historically temporary. They often present buying opportunities for long-term investors.",
+        "difficulty": "beginner",
+        "category": "market"
+    },
+    {
+        "name": "Margin Trading",
+        "aliases": "buying on margin, margin account, leverage",
+        "definition": "Borrowing money from a broker to buy securities. Amplifies both gains and losses.",
+        "keyTakeaway": "Margin can magnify returns but also magnify losses. A margin call forces you to add funds or sell positions.",
+        "difficulty": "advanced",
+        "category": "strategy"
+    },
+    {
+        "name": "Bonds",
+        "aliases": "bond, fixed income, treasury, corporate bond",
+        "definition": "Debt instruments where you lend money to a government or corporation in exchange for periodic interest and return of principal.",
+        "keyTakeaway": "Bonds are generally lower risk than stocks. Bond prices move inversely to interest rates.",
+        "difficulty": "beginner",
+        "category": "instruments"
+    },
+    {
+        "name": "Options",
+        "aliases": "call option, put option, options trading, derivatives",
+        "definition": "Contracts giving the right (not obligation) to buy (call) or sell (put) an asset at a set price before a deadline.",
+        "keyTakeaway": "Options offer leverage and hedging but are complex. Most options expire worthless — understand the risks.",
+        "difficulty": "advanced",
+        "category": "instruments"
+    },
+    {
+        "name": "Revenue",
+        "aliases": "sales, top line, total revenue, gross revenue",
+        "definition": "Total income from goods sold or services provided before any expenses are deducted. Also called the 'top line'.",
+        "keyTakeaway": "Revenue growth signals business expansion. Compare revenue growth rate to peers and industry averages.",
+        "difficulty": "beginner",
+        "category": "fundamentals"
+    },
+    {
+        "name": "EBITDA",
+        "aliases": "ebitda margin, earnings before interest taxes depreciation amortization",
+        "definition": "Earnings Before Interest, Taxes, Depreciation, and Amortization. Measures core operating profitability.",
+        "keyTakeaway": "EBITDA removes financing and accounting effects, making it useful for comparing companies across industries.",
+        "difficulty": "intermediate",
+        "category": "fundamentals"
+    }
+]
