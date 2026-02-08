@@ -1,7 +1,7 @@
 # Finnie AI — Test & Demo Guide
 
-> **Last Updated:** February 7, 2026  
-> **App Version:** Phase 1.1  
+> **Last Updated:** February 8, 2026  
+> **App Version:** Phase 2.0  
 > This guide is updated as new features are added.
 
 ---
@@ -31,10 +31,15 @@ streamlit run src/ui/app.py    # Opens at http://localhost:8501
 | 📈 Market — 6-Month Chart | ✅ Working | No |
 | 🔮 Projections — Monte Carlo | ✅ Working | No |
 | ⚙️ Settings — Provider Config | ✅ Working | No |
-| 🧪 Pytest Suite (33 tests) | ✅ Passing | No |
-| 🗣️ Voice Interface | ⬜ Phase 2 | — |
-| 🔗 FastAPI Backend | ⬜ Phase 2 | — |
-| 🗄️ Database Persistence | ⬜ Phase 2 | — |
+| 🔐 Auth — OAuth (Google/GitHub) + Guest | ✅ Working | OAuth setup |
+| 🗄️ Chat Memory — SQLite Persistence | ✅ Working | No |
+| 🔧 MCP Tool Servers (7 tools) | ✅ Working | No |
+| 🔗 FastAPI API (13 endpoints) | ✅ Working | No |
+| 🗣️ Voice Interface (TTS + STT) | ✅ Working | No |
+| 📊 LangFuse Observability | ✅ Working | LangFuse keys |
+| 🐳 Docker + Cloud Run | ✅ Ready | GCP project |
+| 🧪 Pytest Suite (47 tests) | ✅ Passing | No |
+| 🧪 DeepEval Agent Quality | ✅ Ready | `pip install deepeval` |
 
 ---
 
@@ -191,19 +196,160 @@ Enter your **current position** as it appears in your brokerage (e.g., Fidelity)
 
 ---
 
-## Running Automated Tests
+## 9. MCP Tool Servers
 
+**What it is:** Model Context Protocol — standardized tool discovery and execution for agents.
+
+**Steps:**
+1. In a terminal, test MCP directly:
+   ```bash
+   python -c "
+   from src.mcp.server import get_mcp_server, call_tool
+   server = get_mcp_server()
+   print(f'{server.tool_count} tools registered')
+   
+   # Call a tool
+   result = call_tool('get_stock_price', ticker='AAPL')
+   print(result)
+   "
+   ```
+
+**Expected:**
+- `7 tools registered`
+- Returns dict with price, change, market cap, PE ratio
+
+**Available Tools:**
+| Tool | Description |
+|------|-------------|
+| `get_stock_price` | Current price + metrics |
+| `get_historical_data` | OHLCV price history |
+| `get_company_info` | Sector, industry, financials |
+| `get_sector_performance` | Sector ETF performance |
+| `create_price_chart` | Line or candlestick chart |
+| `create_comparison_chart` | Multi-ticker normalized chart |
+| `create_sector_heatmap` | Sector performance bar chart |
+
+### 10. FastAPI API
+
+**Steps:**
+1. Start the API server:
+   ```bash
+   uvicorn src.api.main:app --port 8000 --reload
+   ```
+2. Open the auto-generated docs: http://localhost:8000/api/docs
+3. Test endpoints:
+   ```bash
+   # Health check
+   curl http://localhost:8000/api/health
+   
+   # Market data
+   curl http://localhost:8000/api/market/AAPL
+   
+   # List MCP tools
+   curl http://localhost:8000/api/tools
+   
+   # Sector performance
+   curl http://localhost:8000/api/sectors?period=1mo
+   
+   # Call MCP tool via API
+   curl -X POST http://localhost:8000/api/tools/call \
+     -H 'Content-Type: application/json' \
+     -d '{"tool_name": "get_stock_price", "arguments": {"ticker": "NVDA"}}'
+   ```
+
+**Expected:**
+- `/api/health` returns `{"status": "healthy", "mcp_tools": 7}`
+- `/api/market/AAPL` returns live price data
+- `/api/docs` shows interactive Swagger UI with all 13 endpoints
+
+### 11. Voice Interface
+
+**What it is:** Text-to-Speech (edge-tts) + browser Speech-to-Text (Web Speech API).
+
+**Steps (TTS — works anywhere):**
+1. In the Chat tab, toggle **🎤 Voice Mode** on
+2. Select a voice (6 options: US/UK/AU, male/female)
+3. Enable **Auto-speak**
+4. Ask a question — the response will be read aloud
+
+**Steps (STT — Chrome/Edge only):**
+1. With Voice Mode on, click the **🎤 microphone button**
+2. Speak your query (e.g., "What is Apple trading at?")
+3. Transcribed text appears and is sent to chat
+
+**Note:** STT requires Chrome or Edge browser (uses `webkitSpeechRecognition`).
+
+### 12. LangFuse Observability
+
+**Setup:**
+1. Create a free account at [cloud.langfuse.com](https://cloud.langfuse.com)
+2. Add keys to `.env`:
+   ```
+   LANGFUSE_PUBLIC_KEY=pk-lf-...
+   LANGFUSE_SECRET_KEY=sk-lf-...
+   ```
+3. Restart the app — traces will appear in the LangFuse dashboard
+
+**Without LangFuse keys:** Falls back to local logging — no errors.
+
+**Test locally:**
 ```bash
-pytest tests/ -v                              # All tests
-pytest tests/test_agents.py -v                # Agent tests only
-pytest tests/ --cov=src --cov-report=term     # With coverage
+python -c "
+from src.observability import get_observer
+observer = get_observer()
+trace = observer.create_trace('test-session', input_text='hello')
+with observer.span(trace, 'test_span'):
+    pass
+observer.end_trace(trace, output='world')
+print(f'Latency: {trace.total_latency_ms}ms, Spans: {len(trace.spans)}')
+"
 ```
 
-**Expected:** 33 passed, 1 skipped
+### 13. Docker + Cloud Run Deployment
+
+**Local Docker test:**
+```bash
+# Build
+docker build -t finnie-ai .
+
+# Run locally
+docker run -p 8080:8080 finnie-ai
+
+# Open http://localhost:8080
+```
+
+**Deploy to Google Cloud Run:**
+```bash
+# Set your GCP project
+gcloud config set project YOUR_PROJECT_ID
+
+# Build and deploy
+gcloud builds submit --config cloudbuild.yaml .
+```
 
 ---
 
-## Demo Script (5-Minute Walkthrough)
+## Running Automated Tests
+
+```bash
+# All tests (MCP, agents, observability)
+pytest tests/ -v
+
+# Specific test suites
+pytest tests/test_agents.py -v                          # Agent unit tests
+pytest tests/eval/test_agent_quality.py -v               # MCP + observability + agent structure
+pytest tests/ --cov=src --cov-report=term                # With coverage
+
+# DeepEval LLM quality tests (requires deepeval + LLM API key)
+pip install deepeval
+pytest tests/eval/test_agent_quality.py -v -k "relevancy or hallucination or faithfulness"
+```
+
+**Expected:** 47 passed, 13 skipped (DeepEval tests skip without deepeval)
+
+---
+
+## Demo Script (7-Minute Walkthrough)
 
 | Step | Action | Talking Point |
 |------|--------|---------------|
@@ -214,17 +360,22 @@ pytest tests/ --cov=src --cov-report=term     # With coverage
 | 5 | Market tab → look up `BRK-B` | "Handles special tickers (hyphens/dots)" |
 | 6 | Portfolio → add AAPL, GOOGL, BRK-B | "Live pricing, gain/loss, allocation chart" |
 | 7 | Projections → $10k / $500/mo / 10yr | "Monte Carlo — 1,000 simulations" |
-| 8 | Settings tab | "Multi-provider LLM (OpenAI/Anthropic/Google)" |
-| 9 | Mention architecture | "LangGraph orchestration, 33 tests passing" |
+| 8 | Toggle Voice Mode on, ask a question | "Edge-TTS voice output, browser STT input" |
+| 9 | Open `/api/docs` in new tab | "FastAPI with 13 endpoints, auto Swagger docs" |
+| 10 | `curl /api/tools` | "MCP protocol — 7 standardized tools" |
+| 11 | Settings tab | "Multi-provider LLM (OpenAI/Anthropic/Google)" |
+| 12 | Mention architecture | "LangGraph, MCP, LangFuse, Docker, 47 tests" |
 
 ---
 
-## Known Limitations (Phase 1)
+## Known Limitations
 
-- Chat/portfolio data **resets on page refresh** (session-only, no DB yet)
 - Market data may be **delayed 15–20 min** (yFinance limitation)
-- Portfolio shows current gain/loss but **not historical growth over time** (Phase 2)
+- Portfolio shows current gain/loss but **not historical growth over time** (future)
 - Ticker extraction may occasionally misidentify words (improved but not perfect)
+- Voice STT requires **Chrome or Edge** (Web Speech API limitation)
+- LangFuse requires external account setup (falls back to local logging)
+- DeepEval tests require `pip install deepeval` and an LLM API key
 
 ---
 
@@ -232,6 +383,13 @@ pytest tests/ --cov=src --cov-report=term     # With coverage
 
 | Date | Changes |
 |------|---------|
+| Feb 8, 2026 | **Phase 2.0:** MCP tool servers (7 tools), FastAPI API (13 routes) |
+| Feb 8, 2026 | Voice interface (edge-tts TTS + browser STT) |
+| Feb 8, 2026 | LangFuse observability (traces, spans, metrics) |
+| Feb 8, 2026 | Docker + Cloud Run deployment config |
+| Feb 8, 2026 | DeepEval test suite (relevancy, hallucination, faithfulness) |
+| Feb 8, 2026 | Test count: 33 → 47 (14 new MCP/Agent/Observability tests) |
+| Feb 7, 2026 | Auth: OAuth (Google/GitHub) + guest mode, SQLite chat memory |
 | Feb 7, 2026 | Portfolio: live pricing, gain/loss, allocation chart |
 | Feb 7, 2026 | Market: BRK-B / BRK.B ticker normalization |
 | Feb 7, 2026 | Chat: fixed routing — education before ticker extraction |
