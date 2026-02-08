@@ -205,6 +205,8 @@ SUPPORTED_MODELS = {
         ("claude-3-haiku-20240307", "Claude 3 Haiku"),
     ],
     "google": [
+        ("gemini-2.5-flash-lite", "Gemini 2.5 Flash Lite"),
+        ("gemini-2.5-flash", "Gemini 2.5 Flash"),
         ("gemini-2.0-flash", "Gemini 2.0 Flash"),
         ("gemini-1.5-pro", "Gemini 1.5 Pro"),
         ("gemini-1.5-flash", "Gemini 1.5 Flash"),

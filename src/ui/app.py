@@ -50,7 +50,12 @@ def init_session_state():
         st.session_state.llm_model = settings.default_llm_model
 
     if "llm_api_key" not in st.session_state:
-        st.session_state.llm_api_key = ""
+        # Load API key from .env (via config) so users don't have to re-enter it
+        try:
+            settings = get_settings()
+            st.session_state.llm_api_key = settings.get_llm_api_key()
+        except (ValueError, Exception):
+            st.session_state.llm_api_key = ""
 
     if "portfolio" not in st.session_state:
         st.session_state.portfolio = {"holdings": []}

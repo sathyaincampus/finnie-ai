@@ -59,24 +59,55 @@ When presenting trends:
         """
         Process a trend discovery request.
         
-        Detects timeframe from user input and fetches movers accordingly.
+        Detects timeframe from user input, fetches market data via yFinance,
+        then uses the LLM to produce intelligent analysis.
         """
         user_input = state.get("user_input", "").lower()
         period, period_label = self._detect_period(user_input)
         
         trending = self._get_market_movers(period)
         
-        if trending:
-            trending["period_label"] = period_label
-            content = self._format_trending(trending)
+        if not trending:
             return {
-                "content": content,
-                "data": trending,
+                "content": self._get_fallback_response(),
+                "data": None,
             }
-        
+
+        trending["period_label"] = period_label
+
+        # If LLM is available, have it analyze the market data
+        if state.get("llm_api_key"):
+            try:
+                market_summary = self._format_trending(trending)
+                messages = [
+                    {
+                        "role": "user",
+                        "content": (
+                            f"User asked: {state.get('user_input', '')}\n\n"
+                            f"Here is the real market data I fetched ({period_label}):\n"
+                            f"{market_summary}\n\n"
+                            "Using this real data, provide an insightful analysis. "
+                            "Include the data, explain likely catalysts, and give "
+                            "your assessment of momentum and what to watch for. "
+                            "Keep it concise (3-4 paragraphs max). "
+                            "End with a disclaimer that this is educational, not financial advice."
+                        ),
+                    }
+                ]
+                response = await self._call_llm(state, messages)
+                return {
+                    "content": response,
+                    "data": trending,
+                }
+            except Exception as e:
+                # LLM failed — fall back to template
+                print(f"Scout LLM call failed: {e}")
+
+        # Fallback: formatted data without LLM analysis
+        content = self._format_trending(trending)
         return {
-            "content": self._get_fallback_response(),
-            "data": None,
+            "content": content,
+            "data": trending,
         }
     
     def _detect_period(self, text: str) -> tuple[str, str]:
