@@ -159,14 +159,17 @@ All agents inherit from `BaseFinnieAgent` which provides:
 
 | Agent | File | Trigger Patterns | Data Source | Uses LLM? |
 |-------|------|-------------------|-------------|-----------|
-| 📊 **Quant** | `quant.py` | Ticker symbols, "price of" | yFinance real-time | ✅ For analysis |
+| 📊 **Quant** | `quant.py` | Ticker symbols, "price of AAPL" | yFinance (single stock deep-dive) | ❌ Fast data-only path |
 | 📚 **Professor** | `professor.py` | "What is", "Explain" | LLM knowledge | ✅ For explanations |
-| 🌍 **Scout** | `scout.py` | "Trending", "Market today" | yFinance + LLM | ✅ For analysis |
+| 🌍 **Scout** | `scout.py` | "Trending", "Market today", "Predict" | yFinance (multi-ticker scan) + LLM | ✅ For market analysis |
 | 🔮 **Oracle** | `oracle.py` | "If I invest", "Project" | Monte Carlo sim | ✅ For interpretation |
 | 💼 **Advisor** | `advisor.py` | Portfolio queries | User portfolio | ✅ For advice |
 | 📰 **Analyst** | `analyst.py` | "News about" | LLM knowledge | ✅ For research |
 | 🛡️ **Guardian** | `guardian.py` | Always runs | Compliance rules | No (rule-based) |
 | ✍️ **Scribe** | `scribe.py` | Always runs | Agent outputs | ✅ For synthesis |
+
+> [!NOTE]
+> **Quant vs Scout — why both?** Quant is the **fast path** for specific stock queries ("What's AAPL at?") — it fetches deep single-stock data (P/E, EPS, 52W range, volume, sector) and returns immediately **without an LLM call**. Scout handles **broad market scans** ("What's trending?", "Predict Monday") — it fetches 9 tickers, computes gainers/losers, and feeds the data to the LLM for intelligent analysis.
 
 #### Data Flow for a Query
 
@@ -312,6 +315,45 @@ REST API with endpoints:
 | `/chat/stream` | POST | Streaming response via SSE |
 | `/tools` | GET | List available MCP tools |
 | `/tools/{name}` | POST | Execute a specific tool |
+
+---
+
+---
+
+### 10. Evaluation Tests — `tests/eval/test_agent_quality.py`
+
+Uses the **DeepEval** framework for LLM response quality evaluation. Tests run with:
+
+```bash
+pytest tests/eval/test_agent_quality.py -v
+```
+
+#### Metrics Tested
+
+| Metric | What It Measures | Agents Tested |
+|--------|-----------------|---------------|
+| **Answer Relevancy** | Does the response address the query? | Quant, Professor, Advisor |
+| **Hallucination** | Does the response fabricate data? | Quant, Professor |
+| **Faithfulness** | Is the response grounded in retrieved context? | All agents |
+| **Bias** | Does the response show unwanted bias? | All agents |
+
+#### Test Data Structure
+
+Each test case includes:
+- `input` — The user's question (e.g., "What's AAPL trading at?")
+- `expected_context` — Ground truth facts the response should align with
+- `expected_output` — The expected formatted response for comparison
+
+Tests cover scenarios for **Quant** (single stock, multi-stock comparison), **Professor** (P/E ratio, dollar cost averaging), and **Advisor** (portfolio diversification).
+
+#### Additional Test Suites
+
+| Suite | File | Tests |
+|-------|------|-------|
+| **MCP Tool Tests** | `test_agent_quality.py` | Tool discovery, schema validation, unknown tool handling |
+| **Agent Unit Tests** | `test_agents.py` | Agent instantiation, ticker extraction, process() |
+| **LLM Adapter Tests** | `test_llm_adapters.py` | Provider factory, API calls, error handling |
+| **Orchestration Tests** | `test_orchestration.py` | Graph compilation, state management, intent routing |
 
 ---
 
