@@ -172,11 +172,13 @@ An ETF is a basket of securities (stocks, bonds, commodities) that trades on an 
             if key in topic:
                 return definition
         
-        return f"""I'd be happy to explain that concept! However, I need to connect to my knowledge base for a detailed explanation.
+        return f"""I'd be happy to help with **"{self._extract_topic(user_input)}"**, but I need an LLM API key to generate detailed answers.
 
-**In the meantime, here are some general tips:**
-- Try searching for "{self._extract_topic(user_input)}" in financial education resources
-- Investopedia is a great free resource for financial concepts
-- Consider what problem this concept solves or what decision it helps you make
+**To enable full responses:**
+1. Go to the **⚙️ Settings** tab
+2. Select your LLM provider (OpenAI, Anthropic, or Google)
+3. Enter your API key and click **Save**
 
-Would you like to try another question?"""
+Once connected, I can explain any financial concept in depth!
+
+*In the meantime, try asking about topics I know offline: **P/E ratio**, **market cap**, **dividends**, or **ETFs**.*"""

@@ -141,10 +141,11 @@ def speak_response(text: str, voice: str = "en-US-AriaNeural"):
         audio_bytes = text_to_speech_sync(clean_text, voice=voice)
         b64_audio = audio_to_base64(audio_bytes)
 
-        # Auto-playing audio element
+        # Auto-playing audio element with visible controls
         st.markdown(
             f"""
-            <audio autoplay>
+            <audio autoplay controls
+                   style="height:36px; width:100%; max-width:300px; opacity:0.85; margin:4px 0;">
                 <source src="data:audio/mp3;base64,{b64_audio}" type="audio/mp3">
             </audio>
             """,
