@@ -12,6 +12,7 @@ import src.agents.oracle
 importlib.reload(src.agents.oracle)
 
 from src.ui.auth import require_auth, render_user_header, logout
+from src.ui.voice import render_voice_controls, speak_response, render_stt_component
 from src.memory import (
     save_message, get_messages, get_conversations,
     create_conversation, auto_title_conversation,
@@ -59,6 +60,16 @@ def init_session_state():
 
     if "current_conversation_id" not in st.session_state:
         st.session_state.current_conversation_id = None
+
+    # Voice state
+    if "voice_settings" not in st.session_state:
+        st.session_state.voice_settings = {
+            "enabled": False,
+            "voice": "en-US-AriaNeural",
+            "auto_speak": True,
+        }
+    if "stt_input" not in st.session_state:
+        st.session_state.stt_input = None
 
 
 # =============================================================================
@@ -349,11 +360,58 @@ def load_custom_css():
 # Tab Components
 # =============================================================================
 
+def _process_chat_input(user_input: str, is_guest: bool, user_id: str):
+    """Process a chat input (from text or voice) and generate a response."""
+    # Ensure we have a conversation ID
+    if not st.session_state.current_conversation_id and not is_guest:
+        conv_id = create_conversation(user_id)
+        st.session_state.current_conversation_id = conv_id
+
+    st.session_state.messages.append({
+        "role": "user",
+        "content": user_input,
+    })
+
+    # Save user message to DB (non-guest only)
+    conv_id = st.session_state.current_conversation_id
+    if conv_id:
+        save_message(conv_id, "user", user_input)
+        # Auto-title on first message
+        if len(st.session_state.messages) == 1:
+            auto_title_conversation(conv_id, user_input)
+
+    with st.spinner("🦈 Thinking..."):
+        response = generate_response(user_input)
+
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": response,
+    })
+
+    # Save assistant response to DB
+    if conv_id:
+        save_message(conv_id, "assistant", response)
+
+    # Flag for TTS — defer to render phase (audio would be destroyed by rerun)
+    voice = st.session_state.voice_settings
+    if voice.get("enabled") and voice.get("auto_speak"):
+        st.session_state._speak_next = response
+
+    st.rerun()
+
+
 def render_chat_tab():
     """Render the Chat tab using Streamlit's native chat components."""
     user = st.session_state.get("user", {})
     user_id = user.get("user_id", "guest")
     is_guest = user.get("provider") == "guest"
+
+    # ── Voice controls bar ──────────────────────────────────────
+    voice = render_voice_controls()
+    st.session_state.voice_settings = voice
+
+    if voice["enabled"]:
+        st.markdown("---")
 
     # Welcome card if no messages
     if not st.session_state.messages:
@@ -380,39 +438,21 @@ def render_chat_tab():
         with st.chat_message(message["role"], avatar=avatar):
             st.markdown(message["content"])
 
+    # ── TTS playback (deferred from _process_chat_input) ─────────
+    if st.session_state.get("_speak_next"):
+        text_to_speak = st.session_state._speak_next
+        st.session_state._speak_next = None
+        speak_response(text_to_speak, voice=voice.get("voice", "en-US-AriaNeural"))
+
+    # ── Voice input (STT) ───────────────────────────────────────
+    if voice["enabled"]:
+        stt_result = render_stt_component()
+        if stt_result and isinstance(stt_result, str) and stt_result.strip():
+            _process_chat_input(stt_result.strip(), is_guest, user_id)
+
     # Chat input — use rerun pattern so messages always appear above input
     if user_input := st.chat_input("Ask anything about finance..."):
-        # Ensure we have a conversation ID
-        if not st.session_state.current_conversation_id and not is_guest:
-            conv_id = create_conversation(user_id)
-            st.session_state.current_conversation_id = conv_id
-
-        st.session_state.messages.append({
-            "role": "user",
-            "content": user_input,
-        })
-
-        # Save user message to DB (non-guest only)
-        conv_id = st.session_state.current_conversation_id
-        if conv_id:
-            save_message(conv_id, "user", user_input)
-            # Auto-title on first message
-            if len(st.session_state.messages) == 1:
-                auto_title_conversation(conv_id, user_input)
-
-        with st.spinner("🦈 Thinking..."):
-            response = generate_response(user_input)
-
-        st.session_state.messages.append({
-            "role": "assistant",
-            "content": response,
-        })
-
-        # Save assistant response to DB
-        if conv_id:
-            save_message(conv_id, "assistant", response)
-
-        st.rerun()
+        _process_chat_input(user_input, is_guest, user_id)
 
 
 def _normalize_ticker(raw: str) -> str:
@@ -885,7 +925,7 @@ def render_settings_tab():
         st.markdown("✅ Portfolio Tracking")
     with status_col2:
         st.markdown(f"{'✅' if st.session_state.llm_api_key else '⬜'} LLM Chat")
-        st.markdown("⬜ Voice Interface")
+        st.markdown("✅ Voice Interface (TTS + STT)")
         st.markdown("⬜ GraphRAG")
 
 

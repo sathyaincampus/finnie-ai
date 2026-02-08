@@ -10,9 +10,16 @@ from __future__ import annotations
 import asyncio
 import base64
 import io
+import os
 import tempfile
 from pathlib import Path
 from typing import Optional
+
+import streamlit.components.v1 as _components
+
+# Register the STT custom component once at module level
+_STT_COMPONENT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "stt_component")
+_stt_func = _components.declare_component("stt_input", path=_STT_COMPONENT_DIR)
 
 
 # =============================================================================
@@ -147,83 +154,32 @@ def speak_response(text: str, voice: str = "en-US-AriaNeural"):
         st.warning(f"Voice output unavailable: {e}")
 
 
-def render_stt_component():
+def render_stt_component() -> str | None:
     """
     Render browser-based Speech-to-Text input.
 
-    Uses the Web Speech API (webkitSpeechRecognition) via a Streamlit HTML component.
-    Returns transcribed text through a hidden Streamlit text input.
+    Uses a proper Streamlit custom component (declare_component) for
+    bi-directional communication. The Web Speech API captures voice in the
+    browser and sends the transcript back to Python.
+
+    Returns:
+        Transcribed text string, or None if nothing new captured.
     """
     import streamlit as st
-    import streamlit.components.v1 as components
 
-    stt_html = """
-    <div id="stt-container" style="text-align: center;">
-        <button id="stt-btn" onclick="startListening()" 
-                style="
-                    width: 60px; height: 60px; border-radius: 50%;
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    border: none; cursor: pointer; font-size: 24px;
-                    color: white; transition: all 0.3s ease;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-                ">
-            🎤
-        </button>
-        <p id="stt-status" style="color: #888; font-size: 0.85rem; margin-top: 8px;">
-            Click to speak
-        </p>
-    </div>
+    # Render the component — returns the value set by JS via setComponentValue
+    result = _stt_func(key="stt_input", default=None)
 
-    <script>
-    function startListening() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            document.getElementById('stt-status').textContent = 'Speech recognition not supported';
-            return;
-        }
+    # De-duplicate: only return transcript if it's new (timestamp differs)
+    if result and isinstance(result, dict):
+        transcript = result.get("transcript", "")
+        timestamp = result.get("timestamp", 0)
 
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+        if transcript and timestamp != st.session_state.get("_last_stt_ts"):
+            st.session_state._last_stt_ts = timestamp
+            return transcript
 
-        const btn = document.getElementById('stt-btn');
-        const status = document.getElementById('stt-status');
-
-        btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-        btn.textContent = '⏺';
-        status.textContent = 'Listening...';
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            status.textContent = transcript;
-            btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            btn.textContent = '🎤';
-
-            // Send transcript to Streamlit
-            window.parent.postMessage({
-                type: 'streamlit:setComponentValue',
-                value: transcript
-            }, '*');
-        };
-
-        recognition.onerror = (event) => {
-            status.textContent = 'Error: ' + event.error;
-            btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            btn.textContent = '🎤';
-        };
-
-        recognition.onend = () => {
-            btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
-            btn.textContent = '🎤';
-        };
-
-        recognition.start();
-    }
-    </script>
-    """
-
-    components.html(stt_html, height=120)
+    return None
 
 
 # =============================================================================

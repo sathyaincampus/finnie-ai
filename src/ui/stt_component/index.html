@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        #stt-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            padding: 6px 0;
+        }
+
+        #stt-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            flex-shrink: 0;
+        }
+
+        #stt-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        #stt-btn.listening {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(231, 76, 60, 0.7);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
+            }
+        }
+
+        #stt-status {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            max-width: 260px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="stt-container">
+        <button id="stt-btn" onclick="startListening()">🎤</button>
+        <span id="stt-status">Tap mic to speak</span>
+    </div>
+
+    <script>
+        // ================================================================
+        // Streamlit Component Protocol
+        // ================================================================
+
+        // Send a message to the Streamlit parent frame
+        function sendMessageToStreamlit(type, data) {
+            const msg = Object.assign({ isStreamlitMessage: true, type: type }, data);
+            window.parent.postMessage(msg, "*");
+        }
+
+        // Component ready — tells Streamlit to start sending render events
+        function setComponentReady() {
+            sendMessageToStreamlit("streamlit:componentReady", { apiVersion: 1 });
+        }
+
+        // Set the iframe height
+        function setFrameHeight(height) {
+            sendMessageToStreamlit("streamlit:setFrameHeight", { height: height });
+        }
+
+        // Set the component's return value (sent back to Python)
+        function setComponentValue(value) {
+            sendMessageToStreamlit("streamlit:setComponentValue", {
+                value: value,
+                dataType: "json"
+            });
+        }
+
+        // Listen for render events from Streamlit
+        window.addEventListener("message", function (event) {
+            if (event.data && event.data.type === "streamlit:render") {
+                // Streamlit told us to render. Update the frame height.
+                setFrameHeight(65);
+            }
+        });
+
+        // Tell Streamlit we're ready on load
+        setComponentReady();
+        setFrameHeight(65);
+
+        // ================================================================
+        // Speech-to-Text via Web Speech API
+        // ================================================================
+
+        let isListening = false;
+
+        function startListening() {
+            if (isListening) return;
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                document.getElementById('stt-status').textContent = '⚠️ Use Chrome or Edge for voice';
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.continuous = false;
+
+            const btn = document.getElementById('stt-btn');
+            const status = document.getElementById('stt-status');
+
+            isListening = true;
+            btn.classList.add('listening');
+            btn.textContent = '⏺';
+            status.textContent = 'Listening...';
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript;
+                status.textContent = '✅ ' + transcript;
+                btn.classList.remove('listening');
+                btn.textContent = '🎤';
+                isListening = false;
+
+                // Send transcript + timestamp back to Python
+                setComponentValue({
+                    transcript: transcript,
+                    timestamp: Date.now()
+                });
+            };
+
+            recognition.onerror = function (event) {
+                status.textContent = '⚠️ ' + event.error;
+                btn.classList.remove('listening');
+                btn.textContent = '🎤';
+                isListening = false;
+            };
+
+            recognition.onend = function () {
+                if (isListening) {
+                    status.textContent = 'Tap mic to speak';
+                }
+                btn.classList.remove('listening');
+                btn.textContent = '🎤';
+                isListening = false;
+            };
+
+            recognition.start();
+        }
+    </script>
+
+</body>
+
+</html>
