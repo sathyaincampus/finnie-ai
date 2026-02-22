@@ -19,6 +19,26 @@ from src.llm import get_llm_adapter
 
 
 # =============================================================================
+# Enhancer Node (runs first)
+# =============================================================================
+
+async def execute_enhancer(state: FinnieState) -> dict[str, Any]:
+    """
+    Execute The Enhancer agent to refine user input.
+    
+    This runs before intent parsing to improve downstream agent quality.
+    """
+    from src.agents.enhancer import EnhancerAgent
+    
+    agent = EnhancerAgent()
+    result = await agent.process(state)
+    
+    return {
+        "enhanced_input": result.get("enhanced_input", state.get("user_input", "")),
+    }
+
+
+# =============================================================================
 # Intent Parsing Node
 # =============================================================================
 
@@ -26,21 +46,40 @@ async def parse_intent(state: FinnieState) -> dict[str, Any]:
     """
     Parse the user's intent from their input.
     
-    This node uses the LLM to classify the user's query and determine
-    which agents should handle it.
-    
-    Args:
-        state: Current workflow state.
-        
-    Returns:
-        Updated state dict with intent and selected_agents.
+    Uses enhanced_input when available for better classification.
     """
-    user_input = state["user_input"].lower()
+    # Use enhanced input if available, otherwise raw input
+    raw_input = state.get("enhanced_input", "") or state.get("user_input", "")
+    user_input = raw_input.lower()
     
     # Quick pattern matching for obvious intents
     if _matches_patterns(user_input, [r'\bprice\b', r'\bquote\b', r'\btrading at\b', r'\$[A-Z]+']):
         intent = IntentType.MARKET_DATA
         confidence = 0.95
+    elif _matches_patterns(user_input, [
+        r'\b529\b', r'\broth\s?ira\b', r'\bretire\b', r'\bretirement\b',
+        r'\b401\s?k\b', r'\bhsa\b', r'\btax\b', r'\bvisa\b', r'\bh1b\b',
+        r'\bbudget\b', r'\bexpense\b', r'\bside hustle\b', r'\bfreelance\b',
+        r'\bnre\b', r'\bnro\b', r'\bfbar\b', r'\bsavings?\s?plan\b',
+        r'\bcollege\s?saving\b', r'\bfinancial\s?plan\b',
+    ]):
+        intent = IntentType.FINANCIAL_PLAN
+        confidence = 0.92
+    elif _matches_patterns(user_input, [
+        r'\bbitcoin\b', r'\bethereum\b', r'\bcrypto\b', r'\bblockchain\b',
+        r'\bbtc\b', r'\beth\b', r'\bsol\b', r'\bdefi\b', r'\bnft\b',
+        r'\bstaking\b', r'\baltcoin\b', r'\bdogecoin\b', r'\bcardano\b',
+    ]):
+        intent = IntentType.CRYPTO
+        confidence = 0.93
+    elif _matches_patterns(user_input, [
+        r'\bgoal\b.*\b(save|reach|need|target)\b',
+        r'\bi want to have\b', r'\bi need\b.*\bby age\b',
+        r'\bhow much.*(need|should|must)\s+(to\s+)?invest\b',
+        r'\btarget\b.*\b(amount|goal)\b',
+    ]):
+        intent = IntentType.GOAL_PLAN
+        confidence = 0.88
     elif _matches_patterns(user_input, [r'\bwhat is\b', r'\bexplain\b', r'\bhow does\b', r'\bwhy\b']):
         intent = IntentType.EDUCATION
         confidence = 0.90
@@ -60,12 +99,11 @@ async def parse_intent(state: FinnieState) -> dict[str, Any]:
         intent = IntentType.COMPARISON
         confidence = 0.90
     else:
-        # Default to general - will use LLM for classification
         intent = IntentType.GENERAL
         confidence = 0.70
     
     # Get agents for this intent
-    selected_agents = INTENT_AGENT_MAP.get(intent, [AgentName.PROFESSOR])
+    selected_agents = list(INTENT_AGENT_MAP.get(intent, [AgentName.PROFESSOR]))
     
     # Always add Guardian and Scribe
     if AgentName.GUARDIAN not in selected_agents:
@@ -212,6 +250,47 @@ async def execute_scout(state: FinnieState) -> dict[str, Any]:
     }
 
 
+async def execute_planner(state: FinnieState) -> dict[str, Any]:
+    """
+    Execute The Planner agent for financial life planning.
+    
+    Handles 529, Roth IRA, retirement, tax, visa, budgeting queries.
+    """
+    from src.agents.planner import PlannerAgent
+    
+    agent = PlannerAgent()
+    result = await agent.process(state)
+    
+    return {
+        "agent_outputs": [AgentOutput(
+            agent_name=AgentName.PLANNER,
+            content=result.get("content", ""),
+            data=result.get("data"),
+            timestamp=datetime.utcnow().isoformat(),
+        )],
+    }
+
+
+async def execute_crypto(state: FinnieState) -> dict[str, Any]:
+    """
+    Execute The Crypto agent for cryptocurrency data and analysis.
+    """
+    from src.agents.crypto import CryptoAgent
+    
+    agent = CryptoAgent()
+    result = await agent.process(state)
+    
+    return {
+        "agent_outputs": [AgentOutput(
+            agent_name=AgentName.CRYPTO,
+            content=result.get("content", ""),
+            data=result.get("data"),
+            timestamp=datetime.utcnow().isoformat(),
+        )],
+        "visualizations": result.get("visualizations", []),
+    }
+
+
 # =============================================================================
 # Guardian & Scribe Nodes
 # =============================================================================
@@ -267,18 +346,9 @@ async def execute_scribe(state: FinnieState) -> dict[str, Any]:
 def route_to_agents(state: FinnieState) -> list[str]:
     """
     Determine which agent nodes to execute based on selected_agents.
-    
-    This is used by LangGraph's conditional edges.
-    
-    Args:
-        state: Current workflow state.
-        
-    Returns:
-        List of node names to execute.
     """
     selected = state.get("selected_agents", [])
     
-    # Map agent names to node functions
     agent_node_map = {
         AgentName.QUANT: "execute_quant",
         AgentName.PROFESSOR: "execute_professor",
@@ -286,7 +356,8 @@ def route_to_agents(state: FinnieState) -> list[str]:
         AgentName.ADVISOR: "execute_advisor",
         AgentName.ORACLE: "execute_oracle",
         AgentName.SCOUT: "execute_scout",
-        # Guardian and Scribe are always at the end
+        AgentName.PLANNER: "execute_planner",
+        AgentName.CRYPTO: "execute_crypto",
     }
     
     nodes = []

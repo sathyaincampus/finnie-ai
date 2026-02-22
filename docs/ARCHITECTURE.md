@@ -1,7 +1,7 @@
 # Finnie AI — Architecture Documentation
 
-> **Version:** 2.0.0  
-> **Last Updated:** February 5, 2026
+> **Version:** 2.5.0  
+> **Last Updated:** February 11, 2026
 
 ---
 
@@ -17,12 +17,12 @@ The Finnie AI backend follows a layered architecture pattern with clear separati
 |-------|------------|---------|
 | **Input Layer** | User Input, Voice Input, Portfolio Data | Entry points for user interactions |
 | **API Gateway** | FastAPI (Port 8000) | REST endpoints, WebSocket streaming |
-| **Orchestration** | LangGraph, Session Manager, MCP Client | State machine, memory, tool coordination |
+| **Orchestration** | LangGraph, Enhancer Agent, Session Manager, MCP Client | State machine, prompt optimization, memory, tool coordination |
 | **AI Services** | OpenAI, Anthropic, Google | Multi-provider LLM support |
-| **Agent Layer** | 8 specialized agents | Domain-specific processing |
-| **MCP Tools** | yFinance, Charts, News, Calculator | External integrations |
+| **Agent Layer** | 11 specialized agents | Domain-specific processing (incl. Enhancer, Planner, Crypto) |
+| **MCP Tools** | yFinance, Charts, CoinGecko, News, Calculator | External integrations |
 | **Storage** | NeonDB, AuraDB, Redis Cloud | Persistence layer |
-| **Observability** | LangFuse | Tracing and monitoring |
+| **Observability** | Arize Phoenix + OpenTelemetry | Tracing and monitoring (localhost:6006) |
 
 ---
 
@@ -39,7 +39,7 @@ The Finnie AI frontend is built with Streamlit for rapid development and respons
 | **User Layer** | Desktop, Mobile browsers | Cross-platform access |
 | **Routing** | Streamlit Router | Tab-based navigation |
 | **Layout** | Header, Tab Bar, Main Content | Consistent structure |
-| **Pages** | Chat, Portfolio, Market, Projections, Settings | Feature screens |
+| **Pages** | Chat, Portfolio, Market, Projections, Planner, Crypto, Settings | Feature screens (7 tabs) |
 | **Components** | Charts, Chat Bubbles, Stock Cards | Reusable UI elements |
 | **State** | Session State | User settings, chat history |
 | **Services** | HTTP Client, WebSocket, Voice | Backend communication |
@@ -150,9 +150,11 @@ sequenceDiagram
 | Frontend | Streamlit, Plotly, Custom CSS |
 | Backend | FastAPI, LangGraph, MCP |
 | LLMs | OpenAI GPT-4o, Claude, Gemini |
+| Agents | 11 specialists (Enhancer, Quant, Professor, Scout, Oracle, Advisor, Analyst, Planner, Crypto, Guardian, Scribe) |
 | Databases | NeonDB (Postgres), AuraDB (Neo4j), Redis Cloud |
 | Voice | OpenAI Whisper, edge-tts |
-| Observability | LangFuse |
+| Observability | Arize Phoenix + OpenTelemetry |
+| Evaluations | Arize Phoenix (relevance, hallucination, faithfulness) |
 | Deployment | Google Cloud Run, Docker |
 
 ---

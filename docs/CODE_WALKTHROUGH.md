@@ -1,6 +1,6 @@
 # Finnie AI — Code Walkthrough
 
-> **Last updated:** 2026-02-08  
+> **Last updated:** 2026-02-11  
 > A comprehensive guide to the Finnie AI codebase for developers and reviewers.
 
 ---
@@ -23,13 +23,16 @@ graph TD
         NODES["Node Functions<br/>src/orchestration/nodes.py"]
     end
 
-    subgraph AGENTS["🤖 Agent Team"]
+    subgraph AGENTS["🤖 Agent Team (11 Agents)"]
+        ENHANCE["✨ Enhancer<br/>Prompt Optimization"]
         QUANT["📊 Quant<br/>Market Data"]
         PROF["📚 Professor<br/>Education"]
         SCOUT["🌍 Scout<br/>Trends"]
-        ORACLE["🔮 Oracle<br/>Projections"]
+        ORACLE["🔮 Oracle<br/>Projections + Goals"]
         ADVISOR["💼 Advisor<br/>Portfolio"]
         ANALYST["📰 Analyst<br/>Research"]
+        PLANNER["📋 Planner<br/>Financial Life Planning"]
+        CRYPTO["🪙 Crypto<br/>Cryptocurrency"]
         GUARD["🛡️ Guardian<br/>Compliance"]
         SCRIBE["✍️ Scribe<br/>Synthesis"]
     end
@@ -50,7 +53,7 @@ graph TD
     subgraph DATA["💾 Data Layer"]
         MEM["Memory<br/>SQLite"]
         GR["GraphRAG<br/>Neo4j/AuraDB"]
-        OBS["Observability<br/>LangFuse"]
+        OBS["Observability<br/>Arize Phoenix"]
         CFG["Config<br/>.env + pydantic"]
     end
 
@@ -78,15 +81,18 @@ finnie-ai/
 ├── src/
 │   ├── config.py              # Centralized config via pydantic-settings
 │   ├── memory.py              # SQLite chat persistence layer
-│   ├── observability.py       # LangFuse tracing & metrics
-│   ├── agents/                # Multi-agent team
+│   ├── observability.py       # Arize Phoenix + OpenTelemetry tracing
+│   ├── agents/                # Multi-agent team (11 agents)
 │   │   ├── base.py            # BaseFinnieAgent ABC
+│   │   ├── enhancer.py        # ✨ Prompt optimizer (runs first)
 │   │   ├── quant.py           # 📊 Market data (yFinance)
 │   │   ├── professor.py       # 📚 Financial education
 │   │   ├── scout.py           # 🌍 Trend discovery
-│   │   ├── oracle.py          # 🔮 Monte Carlo projections
+│   │   ├── oracle.py          # 🔮 Monte Carlo + goal-based projections
 │   │   ├── advisor.py         # 💼 Portfolio management
 │   │   ├── analyst.py         # 📰 News & research
+│   │   ├── planner.py         # 📋 Financial life planning (529, Roth, visa)
+│   │   ├── crypto.py          # 🪙 Cryptocurrency (CoinGecko API)
 │   │   ├── guardian.py        # 🛡️ Compliance disclaimers
 │   │   └── scribe.py          # ✍️ Response synthesis
 │   ├── llm/                   # Multi-provider LLM abstraction
@@ -95,9 +101,9 @@ finnie-ai/
 │   │   ├── anthropic_provider.py
 │   │   └── google_provider.py
 │   ├── orchestration/         # LangGraph workflow
-│   │   ├── state.py           # FinnieState TypedDict
-│   │   ├── graph.py           # StateGraph definition
-│   │   └── nodes.py           # Node functions (parse_intent, execute_*)
+│   │   ├── state.py           # FinnieState TypedDict (enhanced_input, new intents)
+│   │   ├── graph.py           # StateGraph: enhancer → parse_intent → agents
+│   │   └── nodes.py           # Node functions (execute_enhancer, execute_planner, etc.)
 │   ├── mcp/                   # Model Context Protocol tools
 │   │   ├── server.py          # MCPToolRegistry singleton
 │   │   └── tools/
@@ -108,18 +114,28 @@ finnie-ai/
 │   │   ├── ingest.py          # CLI ingestion pipeline
 │   │   └── retriever.py       # Query functions for agents
 │   ├── ui/                    # Streamlit frontend
-│   │   ├── app.py             # Main app (tabs, routing, chat)
+│   │   ├── app.py             # Main app (7 tabs, routing, chat)
 │   │   ├── auth.py            # Google/GitHub OAuth + guest login
 │   │   ├── voice.py           # TTS (edge-tts) + STT control
-│   │   └── stt_component/     # Custom Streamlit component for mic input
-│   │       └── index.html
+│   │   ├── stt_component/     # Custom Streamlit component for mic input
+│   │   │   └── index.html
+│   │   └── tabs/              # Modular UI tabs (v2.0)
+│   │       ├── __init__.py
+│   │       ├── chat.py        # 💬 Chat tab
+│   │       ├── portfolio.py   # 💼 Portfolio tab
+│   │       ├── market.py      # 📈 Market tab
+│   │       ├── projections.py # 🔮 Projections tab
+│   │       ├── planner.py     # 📋 Financial Planner tab
+│   │       ├── crypto.py      # 🪙 Crypto Dashboard tab
+│   │       └── settings.py    # ⚙️ Settings tab
 │   └── api/
 │       └── main.py            # FastAPI REST endpoint
 ├── tests/
 │   ├── test_agents.py
 │   ├── test_llm_adapters.py
 │   ├── test_orchestration.py
-│   └── eval/                  # DeepEval evaluation tests
+│   └── eval/                  # Arize Phoenix evaluation tests
+│       └── test_phoenix_eval.py
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── TEST_GUIDE.md
@@ -161,21 +177,24 @@ All agents inherit from `BaseFinnieAgent` which provides:
 - `_call_llm(state, messages)` — Helper to call the configured LLM
 - `_extract_tickers(text)` — Regex-based ticker extraction from text
 
-#### Agent Roster
+#### Agent Roster (11 Agents)
 
 | Agent | File | Trigger Patterns | Data Source | Uses LLM? |
 |-------|------|-------------------|-------------|-----------|
+| ✨ **Enhancer** | `enhancer.py` | Always runs first | User input | ✅ Prompt optimization |
 | 📊 **Quant** | `quant.py` | Ticker symbols, "price of AAPL" | yFinance (single stock deep-dive) | ❌ Fast data-only path |
 | 📚 **Professor** | `professor.py` | "What is", "Explain" | GraphRAG + LLM | ✅ Graph-enriched explanations |
 | 🌍 **Scout** | `scout.py` | "Trending", "Market today", "Predict" | yFinance (multi-ticker scan) + LLM | ✅ For market analysis |
-| 🔮 **Oracle** | `oracle.py` | "If I invest", "Project" | Monte Carlo sim | ✅ For interpretation |
+| 🔮 **Oracle** | `oracle.py` | "If I invest", "Project", "I need $X by age Y" | Monte Carlo + goal sim | ✅ For interpretation |
 | 💼 **Advisor** | `advisor.py` | Portfolio queries | User portfolio | ✅ For advice |
 | 📰 **Analyst** | `analyst.py` | "News about" | LLM knowledge | ✅ For research |
+| 📋 **Planner** | `planner.py` | "529", "Roth IRA", "retirement", "visa", "budget" | Financial planning knowledge | ✅ Life planning |
+| 🪙 **Crypto** | `crypto.py` | "Bitcoin", "Ethereum", "crypto", "BTC" | CoinGecko API | ✅ Crypto analysis |
 | 🛡️ **Guardian** | `guardian.py` | Always runs | Compliance rules | No (rule-based) |
 | ✍️ **Scribe** | `scribe.py` | Always runs | Agent outputs | ✅ For synthesis |
 
 > [!NOTE]
-> **Quant vs Scout — why both?** Quant is the **fast path** for specific stock queries ("What's AAPL at?") — it fetches deep single-stock data (P/E, EPS, 52W range, volume, sector) and returns immediately **without an LLM call**. Scout handles **broad market scans** ("What's trending?", "Predict Monday") — it fetches 9 tickers, computes gainers/losers, and feeds the data to the LLM for intelligent analysis.
+> **New in v2.0:** The **Enhancer** runs first to optimize user prompts before routing. **Planner** handles comprehensive financial life planning (retirement, 529, taxes, visa considerations). **Crypto** provides real-time cryptocurrency data via CoinGecko. **Oracle** now supports goal-based reverse projections.
 
 #### Data Flow for a Query
 
@@ -224,11 +243,11 @@ response = await adapter.chat(messages=[...], system_prompt="...")
 
 Built on **LangGraph** with a `StateGraph` workflow.
 
-- **`state.py`** — Defines `FinnieState` (TypedDict) with fields: `user_input`, `intent`, `llm_provider`, `llm_model`, `llm_api_key`, `agent_responses`, `final_response`, etc.
-- **`graph.py`** — Builds the graph: `START → parse_intent → route → agent → guardian → scribe → aggregate → END`
-- **`nodes.py`** — Node wrapper functions that instantiate agents and call `agent.process(state)`
+- **`state.py`** — Defines `FinnieState` (TypedDict) with fields: `user_input`, `enhanced_input`, `intent`, `llm_provider`, `llm_model`, `llm_api_key`, `agent_responses`, `final_response`, etc. Includes `IntentType` (with `FINANCIAL_PLAN`, `GOAL_PLAN`, `CRYPTO`) and `AgentName` enums.
+- **`graph.py`** — Builds the graph: `START → enhancer → parse_intent → route → agent → guardian → scribe → aggregate → END`
+- **`nodes.py`** — Node wrapper functions: `execute_enhancer`, `execute_planner`, `execute_crypto`, plus expanded intent pattern matching for new domains.
 
-> **Note:** The main UI (`app.py`) currently uses **direct agent routing** via `generate_response()` rather than the full LangGraph pipeline. The graph is available for the FastAPI endpoint and advanced workflows.
+> **Note:** The main UI (`app.py`) uses **direct agent routing** via `generate_response()` for the Chat tab, while the Planner and Crypto tabs use the modular tab architecture under `src/ui/tabs/`.
 
 ---
 
@@ -489,13 +508,17 @@ streamlit run src/ui/app.py
 | Feature | Status | Notes |
 |---------|--------|-------|
 | ✅ Market Data | Active | yFinance, no key needed |
-| ✅ Monte Carlo Projections | Active | Built-in simulation engine |
+| ✅ Monte Carlo Projections | Active | Forward + goal-based simulations |
 | ✅ Portfolio Tracking | Active | SQLite persistence |
 | ✅ LLM Chat | Active | Requires API key in `.env` |
 | ✅ Voice Interface (TTS + STT) | Active | edge-tts + Web Speech API |
 | ✅ MCP Tools | Active | 7 tools registered |
 | ✅ FastAPI REST API | Active | `/chat`, `/tools` endpoints |
-| ✅ LangFuse Observability | Optional | Needs LangFuse credentials |
+| ✅ Arize Phoenix Observability | Active | Dashboard at `localhost:6006` |
+| ✅ Financial Life Planner | Active | 529, Roth IRA, retirement, visa, budget, side hustles |
+| ✅ Crypto Dashboard | Active | CoinGecko live prices, allocation guide, tax info |
+| ✅ Prompt Enhancer | Active | First node in LangGraph — optimizes user queries |
+| ✅ Phoenix Evaluations | Active | Replaces DeepEval — relevance, hallucination, faithfulness |
 | ✅ GraphRAG | Ready | Run `python -m src.graphrag.ingest` after AuraDB setup |
 | ✅ Docker Deployment | Available | `Dockerfile` + `cloudbuild.yaml` |
 

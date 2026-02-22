@@ -10,6 +10,7 @@ from langgraph.graph import StateGraph, START, END
 
 from src.orchestration.state import FinnieState, AgentName
 from src.orchestration.nodes import (
+    execute_enhancer,
     parse_intent,
     execute_quant,
     execute_professor,
@@ -17,6 +18,8 @@ from src.orchestration.nodes import (
     execute_advisor,
     execute_oracle,
     execute_scout,
+    execute_planner,
+    execute_crypto,
     execute_guardian,
     execute_scribe,
     aggregate_responses,
@@ -28,48 +31,54 @@ def create_finnie_graph() -> StateGraph:
     Create the Finnie AI LangGraph workflow.
     
     The workflow follows this pattern:
-    1. Parse intent from user input
-    2. Route to appropriate domain agents (parallel)
-    3. Guardian checks compliance
-    4. Scribe formats final response
-    5. Aggregate and return
+    1. Enhance user prompt
+    2. Parse intent from enhanced input
+    3. Route to appropriate domain agents
+    4. Guardian checks compliance
+    5. Scribe formats final response
+    6. Aggregate and return
     
     ```
     START
       │
       ▼
+    enhancer
+      │
+      ▼
     parse_intent
       │
-      ├─────────────────────────────────────┐
-      ▼         ▼         ▼         ▼       ▼
-    quant  professor  analyst  advisor  oracle/scout
-      │         │         │         │       │
-      └─────────┴─────────┴─────────┴───────┘
-                          │
-                          ▼
-                      guardian
-                          │
-                          ▼
-                       scribe
-                          │
-                          ▼
-                    aggregate
-                          │
-                          ▼
-                        END
+      ├──────────────────────────────────────────────────┐
+      ▼       ▼         ▼        ▼       ▼       ▼      ▼
+    quant  professor  analyst advisor oracle  planner  crypto
+      │       │         │        │       │       │      │
+      └───────┴─────────┴────────┴───────┴───────┴──────┘
+                              │
+                              ▼
+                          guardian
+                              │
+                              ▼
+                           scribe
+                              │
+                              ▼
+                        aggregate
+                              │
+                              ▼
+                            END
     ```
     
     Returns:
         Compiled StateGraph ready for execution.
     """
-    # Create the graph with our state type
     workflow = StateGraph(FinnieState)
     
     # ==========================================================================
     # Add nodes
     # ==========================================================================
     
-    # Entry node - parse user intent
+    # Prompt enhancement (first node)
+    workflow.add_node("execute_enhancer", execute_enhancer)
+    
+    # Intent parsing
     workflow.add_node("parse_intent", parse_intent)
     
     # Domain agent nodes
@@ -79,6 +88,8 @@ def create_finnie_graph() -> StateGraph:
     workflow.add_node("execute_advisor", execute_advisor)
     workflow.add_node("execute_oracle", execute_oracle)
     workflow.add_node("execute_scout", execute_scout)
+    workflow.add_node("execute_planner", execute_planner)
+    workflow.add_node("execute_crypto", execute_crypto)
     
     # Always-run nodes
     workflow.add_node("execute_guardian", execute_guardian)
@@ -89,16 +100,14 @@ def create_finnie_graph() -> StateGraph:
     # Add edges
     # ==========================================================================
     
-    # Start -> Parse Intent
-    workflow.add_edge(START, "parse_intent")
+    # Start -> Enhancer -> Parse Intent
+    workflow.add_edge(START, "execute_enhancer")
+    workflow.add_edge("execute_enhancer", "parse_intent")
     
     # Parse Intent -> Conditional routing to agents
-    # Note: For MVP, we route to a single primary agent per intent
-    # Parallel execution can be added in Phase 2
     workflow.add_conditional_edges(
         "parse_intent",
         _route_by_intent,
-        # Map return values to node names (single node per route for MVP)
         {
             "quant_only": "execute_quant",
             "professor_only": "execute_professor",
@@ -106,6 +115,8 @@ def create_finnie_graph() -> StateGraph:
             "advisor": "execute_advisor",
             "oracle": "execute_oracle",
             "scout": "execute_scout",
+            "planner": "execute_planner",
+            "crypto": "execute_crypto",
             "default": "execute_professor",
         }
     )
@@ -118,6 +129,8 @@ def create_finnie_graph() -> StateGraph:
         "execute_advisor",
         "execute_oracle",
         "execute_scout",
+        "execute_planner",
+        "execute_crypto",
     ]:
         workflow.add_edge(agent_node, "execute_guardian")
     
@@ -140,9 +153,7 @@ def _route_by_intent(state: FinnieState) -> str:
     Based on the parsed intent, returns a key that maps to agent nodes.
     """
     intent = state.get("intent", "general")
-    selected_agents = state.get("selected_agents", [])
     
-    # Simple routing based on intent
     from src.orchestration.state import IntentType
     
     if intent == IntentType.MARKET_DATA:
@@ -158,7 +169,13 @@ def _route_by_intent(state: FinnieState) -> str:
     elif intent == IntentType.TREND:
         return "scout"
     elif intent == IntentType.COMPARISON:
-        return "quant_only"  # Primary agent for comparison
+        return "quant_only"
+    elif intent == IntentType.FINANCIAL_PLAN:
+        return "planner"
+    elif intent == IntentType.GOAL_PLAN:
+        return "oracle"
+    elif intent == IntentType.CRYPTO:
+        return "crypto"
     else:
         return "default"
 
@@ -214,7 +231,6 @@ async def run_finnie(
     """
     from src.orchestration.state import create_initial_state
     
-    # Create initial state
     initial_state = create_initial_state(
         user_input=user_input,
         session_id=session_id,
@@ -224,7 +240,6 @@ async def run_finnie(
         portfolio_data=portfolio_data,
     )
     
-    # Compile and run the graph
     graph = compile_graph()
     result = await graph.ainvoke(initial_state)
     

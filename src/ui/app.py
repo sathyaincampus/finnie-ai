@@ -33,6 +33,52 @@ from src.config import get_settings, get_available_providers, get_models_for_pro
 
 
 # =============================================================================
+# Phoenix / OpenTelemetry Auto-Instrumentation
+# =============================================================================
+
+def _init_phoenix_tracing():
+    """Initialize OpenTelemetry tracing to send LangChain spans to Phoenix.
+    
+    This auto-instruments all LangChain LLM calls (ChatOpenAI, ChatAnthropic, etc.)
+    so every call shows up in the Phoenix dashboard at http://localhost:6006.
+    """
+    import os
+    if os.getenv("PHOENIX_ENABLED", "true").lower() != "true":
+        return
+
+    try:
+        from opentelemetry import trace as otel_trace
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+        from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+        from openinference.instrumentation.langchain import LangChainInstrumentor
+
+        # Only instrument once
+        if otel_trace.get_tracer_provider().__class__.__name__ != "TracerProvider":
+            # Set up OTLP exporter pointing to Phoenix
+            phoenix_endpoint = os.getenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006/v1/traces")
+            exporter = OTLPSpanExporter(endpoint=phoenix_endpoint)
+            
+            provider = TracerProvider()
+            provider.add_span_processor(SimpleSpanProcessor(exporter))
+            otel_trace.set_tracer_provider(provider)
+            
+            # Auto-instrument LangChain — captures all ChatOpenAI/Anthropic/Google calls
+            LangChainInstrumentor().instrument()
+
+    except ImportError:
+        pass  # Phoenix/OTEL not installed, skip silently
+    except Exception:
+        pass  # Don't crash the app if tracing fails
+
+
+# Initialize tracing on app load (Streamlit re-runs this file on every interaction)
+if "phoenix_initialized" not in st.session_state:
+    _init_phoenix_tracing()
+    st.session_state.phoenix_initialized = True
+
+
+# =============================================================================
 # Session State Initialization
 # =============================================================================
 
@@ -396,6 +442,16 @@ def _process_chat_input(user_input: str, is_guest: bool, user_id: str):
     # Save assistant response to DB
     if conv_id:
         save_message(conv_id, "assistant", response)
+
+    # Run Phoenix evaluations in background (non-blocking)
+    import threading
+    def _bg_eval():
+        try:
+            from src.evals import run_evals_on_response
+            run_evals_on_response(user_input=user_input, response=response)
+        except Exception:
+            pass
+    threading.Thread(target=_bg_eval, daemon=True).start()
 
     # Flag for TTS — defer to render phase (audio would be destroyed by rerun)
     voice = st.session_state.voice_settings
@@ -772,9 +828,25 @@ def render_market_tab():
 
 
 def render_projections_tab():
-    """Render the Projections tab."""
+    """Render the Projections tab with forward and goal-based modes."""
     st.markdown("#### 🔮 Investment Projection Calculator")
 
+    # Mode selector
+    proj_mode = st.radio(
+        "Projection Mode",
+        ["📊 Forward Projection", "🎯 Goal-Based (Reverse)"],
+        horizontal=True,
+        key="proj_mode_select",
+    )
+
+    if "Forward" in proj_mode:
+        _render_forward_projection()
+    else:
+        _render_goal_projection()
+
+
+def _render_forward_projection():
+    """Forward projection: How will my investment grow?"""
     col1, col2 = st.columns([1, 2])
 
     with col1:
@@ -863,6 +935,155 @@ def render_projections_tab():
             """, unsafe_allow_html=True)
 
 
+def _render_goal_projection():
+    """Goal-based reverse projection: How much do I need to invest?"""
+    import math
+
+    st.markdown("**🎯 I need a specific amount by a target date**")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        target_amount = st.number_input(
+            "Target Amount ($)", min_value=1000, max_value=100_000_000,
+            value=1_000_000, step=50000, key="goal_target",
+        )
+        current_age = st.number_input(
+            "Your Current Age", min_value=18, max_value=80,
+            value=30, key="goal_current_age",
+        )
+        target_age = st.number_input(
+            "Target Age", min_value=25, max_value=90,
+            value=55, key="goal_target_age",
+        )
+
+    with col2:
+        current_savings = st.number_input(
+            "Current Savings ($)", min_value=0, max_value=50_000_000,
+            value=50000, step=5000, key="goal_savings",
+        )
+        risk_profile = st.selectbox(
+            "Risk Profile",
+            ["Conservative (6%)", "Moderate (8%)", "Aggressive (10%)"],
+            index=1, key="goal_risk_profile",
+        )
+
+    years_to_goal = max(1, target_age - current_age)
+
+    if st.button("🎯 Calculate Required Investment", use_container_width=True, key="calc_goal"):
+        profiles = {
+            "Conservative (6%)": 0.06,
+            "Moderate (8%)": 0.08,
+            "Aggressive (10%)": 0.10,
+        }
+
+        st.divider()
+        st.subheader(f"🎯 Path to ${target_amount:,.0f} by Age {target_age}")
+
+        results_cols = st.columns(3)
+        all_results = {}
+
+        for i, (name, rate) in enumerate(profiles.items()):
+            months = years_to_goal * 12
+            monthly_rate = rate / 12
+
+            # Future value of current savings
+            fv_current = current_savings * ((1 + monthly_rate) ** months)
+            remaining = max(0, target_amount - fv_current)
+
+            # Required monthly contribution
+            if monthly_rate > 0 and months > 0:
+                monthly_needed = remaining * monthly_rate / (((1 + monthly_rate) ** months) - 1)
+            else:
+                monthly_needed = remaining / max(months, 1)
+
+            total_contrib = current_savings + (monthly_needed * months)
+            growth = target_amount - total_contrib
+
+            emoji = ["📉", "📊", "📈"][i]
+            label = name.split("(")[0].strip()
+
+            with results_cols[i]:
+                st.metric(
+                    f"{emoji} {label} ({rate*100:.0f}%)",
+                    f"${monthly_needed:,.0f}/mo",
+                    f"${growth:,.0f} growth",
+                )
+
+            all_results[label] = {
+                "monthly": monthly_needed,
+                "total": total_contrib,
+                "growth": growth,
+                "rate": rate,
+            }
+
+        # Summary
+        st.caption(f"Starting with ${current_savings:,.0f} · {years_to_goal} years · Age {current_age} → {target_age}")
+
+        selected_rate = profiles.get(risk_profile, 0.08)
+        selected_label = risk_profile.split("(")[0].strip()
+        selected = all_results.get(selected_label, {})
+
+        if selected:
+            st.success(
+                f"💡 **Recommended ({selected_label}):** Invest **${selected['monthly']:,.0f}/month** "
+                f"to reach **${target_amount:,.0f}** by age **{target_age}**."
+            )
+
+        # Growth chart
+        try:
+            import plotly.graph_objects as go
+
+            fig = go.Figure()
+
+            for label, data in all_results.items():
+                monthly_r = data["rate"] / 12
+                balance = current_savings
+                chart_x = [current_age]
+                chart_y = [current_savings]
+
+                for yr in range(1, years_to_goal + 1):
+                    for _ in range(12):
+                        balance = balance * (1 + monthly_r) + data["monthly"]
+                    chart_x.append(current_age + yr)
+                    chart_y.append(balance)
+
+                colors = {"Conservative": "#06b6d4", "Moderate": "#6366f1", "Aggressive": "#22c55e"}
+                fig.add_trace(go.Scatter(
+                    x=chart_x, y=chart_y,
+                    name=f"{label} ({data['rate']*100:.0f}%)",
+                    line=dict(color=colors.get(label, "#6366f1"), width=2),
+                    hovertemplate="Age %{x}<br>$%{y:,.0f}<extra></extra>",
+                ))
+
+            fig.add_hline(
+                y=target_amount, line_dash="dash", line_color="#f59e0b",
+                annotation_text=f"Goal: ${target_amount:,.0f}",
+            )
+
+            fig.update_layout(
+                title=f"Growth Projection: Age {current_age} → {target_age}",
+                xaxis_title="Age",
+                yaxis_title="Portfolio Value ($)",
+                template="plotly_dark",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                height=400,
+                yaxis=dict(tickformat="$,.0f"),
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+        except ImportError:
+            pass
+
+        st.markdown("""
+        <div class="disclaimer">
+            ⚠️ Projections assume consistent monthly contributions and fixed annual returns.
+            Actual results will vary based on market conditions.
+        </div>
+        """, unsafe_allow_html=True)
+
+
 def render_settings_tab():
     """Render the Settings tab."""
     st.markdown("#### ⚙️ LLM Provider Configuration")
@@ -947,19 +1168,23 @@ def generate_response(user_input: str) -> str:
     """Generate a response to user input.
     
     Routing priority:
-    1. Greetings / general queries → default help response
+    1. Greetings (only when no conversation history) → default help
     2. Educational queries → Professor agent
     3. Trending queries → Scout agent
+    3b. Financial planning → Planner agent
     4. Projection queries → Oracle agent
     5. Ticker-based queries → Quant agent (last, to avoid false positives)
+    6. Contextual fallback (with history) → LLM with conversation context
+    7. No history fallback → default help response
     """
     user_lower = user_input.lower().strip()
+    has_history = len(st.session_state.get("messages", [])) > 0
 
-    # ── 1. Greetings & simple messages ──────────────────────────
+    # ── 1. Greetings & simple messages (ONLY when no conversation history) ──
     greeting_patterns = ["hello", "hi", "hey", "help", "what can you do",
                          "who are you", "good morning", "good evening", "thanks",
                          "thank you", "sup", "yo", "howdy"]
-    if user_lower in greeting_patterns or any(user_lower == p for p in greeting_patterns):
+    if not has_history and (user_lower in greeting_patterns or any(user_lower == p for p in greeting_patterns)):
         return _default_response()
 
     # ── 2. Educational queries ──────────────────────────────────
@@ -1030,6 +1255,46 @@ def generate_response(user_input: str) -> str:
         result = asyncio.run(agent.process(state))
         response = result.get("content", "Let me check the market movers.")
         response += "\n\n---\n*⚠️ Educational purposes only, not financial advice.*"
+        return response
+
+    # ── 3b. Financial planning queries ──────────────────────────
+    planning_patterns = [
+        "save for", "saving for", "savings for", "plan for",
+        "retirement goal", "retire", "retirement", "college savings",
+        "college fund", "education fund", "529", "down payment",
+        "buy a home", "buy a house", "home purchase",
+        "financial plan", "financial goal", "money goal",
+        "how should i", "what should i do", "help me plan",
+        "save for my", "need to save", "want to save",
+        "2 sons", "2 kids", "two kids", "two sons", "children",
+        "emergency fund", "million dollar",
+    ]
+    # Multi-goal indicator: mentions 2+ distinct financial goals
+    goal_keywords = ["college", "retirement", "home", "house", "down payment",
+                     "emergency", "car", "wedding", "vacation", "debt"]
+    goal_count = sum(1 for kw in goal_keywords if kw in user_lower)
+
+    if goal_count >= 2 or any(p in user_lower for p in planning_patterns):
+        from src.agents.planner import PlannerAgent
+        agent = PlannerAgent()
+        state = {
+            "user_input": user_input,
+            "enhanced_input": user_input,
+            "llm_provider": st.session_state.llm_provider,
+            "llm_model": st.session_state.llm_model,
+            "llm_api_key": st.session_state.llm_api_key,
+            "portfolio_data": st.session_state.portfolio.get("holdings", []),
+        }
+        result = asyncio.run(agent.process(state))
+        response = result.get("content", "Let me help you create a financial plan.")
+
+        # Store parsed plan data for the Plan Builder tab
+        plan_data = result.get("data", {})
+        if plan_data:
+            st.session_state.active_plan = plan_data
+
+        response += "\n\n---\n📋 **Open the Plan Builder tab** to adjust assumptions and see detailed year-over-year projections with interactive controls."
+        response += "\n\n*⚠️ This is educational guidance, not professional financial advice.*"
         return response
 
     # ── 4. Projection queries ───────────────────────────────────
@@ -1125,12 +1390,86 @@ def generate_response(user_input: str) -> str:
         response += "\n\n---\n*⚠️ Educational purposes only, not financial advice.*"
         return response
 
-    # ── Fallback ────────────────────────────────────────────────
+    # ── Fallback — contextual LLM response with conversation history ──
+    if has_history:
+        return _contextual_llm_response(user_input)
+
     return _default_response()
 
 
+def _contextual_llm_response(user_input: str) -> str:
+    """Generate a contextual response using conversation history.
+    
+    This is the fallback when no keyword pattern matches but the user
+    has an active conversation. Sends conversation history to the LLM
+    so follow-up questions get meaningful answers.
+    """
+    from src.llm import get_llm_adapter
+
+    # Build conversation history for context (last 10 messages to stay within limits)
+    messages = st.session_state.get("messages", [])
+    history = messages[-10:]  # last 10 messages for context window
+
+    llm_messages = []
+    for msg in history:
+        llm_messages.append({
+            "role": msg["role"],
+            "content": msg["content"],
+        })
+
+    # Add the current user message
+    llm_messages.append({"role": "user", "content": user_input})
+
+    system_prompt = """You are Finnie AI 🦈, an autonomous financial intelligence assistant.
+
+You are having a conversation with a user about their finances. Use the conversation
+history to understand context and provide relevant, helpful follow-up answers.
+
+Your capabilities:
+- Stock prices and market data (real-time via yfinance)
+- Financial education (explain concepts clearly)
+- Investment projections and Monte Carlo simulations
+- Financial planning (retirement, 529 college savings, home buying, tax optimization)
+- Portfolio analysis and allocation advice
+- Crypto market data
+- Market trends and news
+
+Rules:
+- Be specific with numbers, dollar amounts, and percentages
+- Reference the user's earlier goals/context from the conversation
+- Use markdown formatting for readability
+- If the user asks about stocks to invest in, provide specific tickers with rationale
+- If the user asks a follow-up to a financial plan, reference their specific goals
+- Always add: "⚠️ This is educational guidance, not professional financial advice."
+- Be concise but comprehensive"""
+
+    try:
+        adapter = get_llm_adapter(
+            provider=st.session_state.llm_provider,
+            model=st.session_state.llm_model,
+            api_key=st.session_state.llm_api_key,
+        )
+
+        response = asyncio.run(adapter.chat(
+            messages=llm_messages,
+            system_prompt=system_prompt,
+        ))
+
+        return response.content
+    except Exception as e:
+        # If LLM fails, try to give a helpful response based on context
+        return (
+            "I'd love to help with that! Based on our conversation, could you "
+            "provide a bit more detail? For example:\n\n"
+            "- **Stock recommendations:** \"What are good index funds for long-term growth?\"\n"
+            "- **Plan adjustments:** \"What if I increase my monthly savings to $3,000?\"\n"
+            "- **Market data:** \"What's AAPL trading at?\"\n\n"
+            "*⚠️ This is educational guidance, not professional financial advice.*"
+        )
+
+
 def _default_response() -> str:
-    """Return the default help response."""
+    """Return the default help response. Only shown for first interaction."""
     return """I'm **Finnie AI**, your financial intelligence assistant! 🦈
 
 Here's what I can do:
@@ -1141,6 +1480,7 @@ Here's what I can do:
 | 📚 **Education** | "What is P/E ratio?" |
 | 🌍 **Trending** | "What's trending today?" |
 | 🔮 **Projections** | "If I invest $10k for 10 years" |
+| 📋 **Financial Planning** | "Help me plan for retirement and college" |
 | 💼 **Portfolio** | Use the Portfolio tab |
 
 Try one of these to get started!"""
@@ -1332,8 +1672,16 @@ def main():
     <p class="finnie-subtitle">Autonomous Financial Intelligence</p>
     """, unsafe_allow_html=True)
 
-    # Tabs
-    tabs = st.tabs(["💬 Chat", "📊 Portfolio", "📈 Market", "🔮 Projections", "⚙️ Settings"])
+    # Tabs — expanded with Plan Builder and Crypto
+    tabs = st.tabs([
+        "💬 Chat",
+        "📊 Portfolio",
+        "📈 Market",
+        "🔮 Projections",
+        "📋 Plan Builder",
+        "🪙 Crypto",
+        "⚙️ Settings",
+    ])
 
     with tabs[0]:
         render_chat_tab()
@@ -1348,8 +1696,19 @@ def main():
         render_projections_tab()
 
     with tabs[4]:
+        # Interactive Plan Builder — imported from modular tab
+        from src.ui.tabs.plan_builder import render_plan_builder_tab as _render_plan_builder
+        _render_plan_builder()
+
+    with tabs[5]:
+        # Crypto Dashboard — imported from modular tab
+        from src.ui.tabs.crypto import render_crypto_tab as _render_crypto
+        _render_crypto()
+
+    with tabs[6]:
         render_settings_tab()
 
 
 if __name__ == "__main__":
     main()
+

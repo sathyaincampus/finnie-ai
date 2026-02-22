@@ -1,7 +1,7 @@
 # Finnie AI — Test & Demo Guide
 
-> **Last Updated:** February 8, 2026  
-> **App Version:** Phase 2.0  
+> **Last Updated:** February 11, 2026  
+> **App Version:** Phase 2.5  
 > This guide is updated as new features are added.
 
 ---
@@ -29,17 +29,22 @@ streamlit run src/ui/app.py    # Opens at http://localhost:8501
 | 📊 Portfolio — Allocation Chart | ✅ Working | No |
 | 📈 Market — Stock Lookup (incl. BRK-B) | ✅ Working | No |
 | 📈 Market — 6-Month Chart | ✅ Working | No |
-| 🔮 Projections — Monte Carlo | ✅ Working | No |
+| 🔮 Projections — Forward Monte Carlo | ✅ Working | No |
+| 🔮 Projections — Goal-Based (Reverse) | ✅ Working | No |
+| 📋 Planner — Retirement/529/Tax/Visa | ✅ Working | No |
+| 🪙 Crypto — Live Prices (CoinGecko) | ✅ Working | No |
+| 🪙 Crypto — Allocation Guide & Tax | ✅ Working | No |
 | ⚙️ Settings — Provider Config | ✅ Working | No |
 | 🔐 Auth — OAuth (Google/GitHub) + Guest | ✅ Working | OAuth setup |
 | 🗄️ Chat Memory — SQLite Persistence | ✅ Working | No |
 | 🔧 MCP Tool Servers (7 tools) | ✅ Working | No |
 | 🔗 FastAPI API (13 endpoints) | ✅ Working | No |
 | 🗣️ Voice Interface (TTS + STT) | ✅ Working | No |
-| 📊 LangFuse Observability | ✅ Working | LangFuse keys |
+| 📊 Arize Phoenix Observability | ✅ Working | No (auto-launches) |
+| ✨ Prompt Enhancer Agent | ✅ Working | **Yes** |
 | 🐳 Docker + Cloud Run | ✅ Ready | GCP project |
-| 🧪 Pytest Suite (47 tests) | ✅ Passing | No |
-| 🧪 DeepEval Agent Quality | ✅ Ready | `pip install deepeval` |
+| 🧪 Pytest Suite (47+ tests) | ✅ Passing | No |
+| 🧪 Phoenix Evaluations | ✅ Ready | `pip install arize-phoenix` |
 
 ---
 
@@ -173,6 +178,46 @@ Enter your **current position** as it appears in your brokerage (e.g., Fidelity)
 **Expected:**
 - Shows market movers / trending stocks from yfinance
 
+### 9. Planner Tab — Financial Life Planning
+
+**Steps:**
+1. Click the **📋 Planner** tab
+2. Explore sections: Retirement, Education Savings, Tax Optimization
+
+**Expected:**
+- **Retirement:** Calculator with 401(k)/IRA contribution limits
+- **Education:** 529 plan calculator with growth projection
+- **Tax:** Optimization strategies with bracket details
+- **Visa/Immigration:** H1B financial planning considerations
+- **Budget:** Interactive expense tracker categories
+- **Side Hustles:** Income ideas with earnings estimates
+- **Goals:** Savings goal calculator with timeline
+
+### 10. Crypto Tab — Cryptocurrency Dashboard
+
+**Steps:**
+1. Click the **🪙 Crypto** tab
+
+**Expected:**
+- **Live Prices:** Top 5 crypto (BTC, ETH, BNB, SOL, ADA) with 24h change and market cap
+- **Allocation Guide:** Conservative/Moderate/Aggressive allocations
+- **Tax Guide:** Short-term vs long-term capital gains, taxable events
+
+### 11. Projections Tab — Goal-Based (New)
+
+**Steps:**
+1. Click the **🔮 Projections** tab
+2. Select **🎯 Goal-Based** mode
+3. Set inputs:
+   - Target Amount: `$1,000,000`
+   - Current Savings: `$50,000`
+   - Years to Goal: `20`
+4. Click **Calculate Required Investment**
+
+**Expected:**
+- Shows required monthly investment for Conservative, Moderate, and Aggressive strategies
+- Moderate required amount should be less than Conservative
+
 ---
 
 ## Test Script (With API Key)
@@ -279,18 +324,15 @@ Enter your **current position** as it appears in your brokerage (e.g., Fidelity)
 
 **Note:** STT requires Chrome or Edge browser (uses `webkitSpeechRecognition`).
 
-### 12. LangFuse Observability
+### 12. Arize Phoenix Observability
 
 **Setup:**
-1. Create a free account at [cloud.langfuse.com](https://cloud.langfuse.com)
-2. Add keys to `.env`:
-   ```
-   LANGFUSE_PUBLIC_KEY=pk-lf-...
-   LANGFUSE_SECRET_KEY=sk-lf-...
-   ```
-3. Restart the app — traces will appear in the LangFuse dashboard
+Phoenix launches automatically when the app starts (no external account needed).
 
-**Without LangFuse keys:** Falls back to local logging — no errors.
+1. Phoenix dashboard available at `http://localhost:6006`
+2. All LLM calls and agent traces are automatically captured
+
+**Without Phoenix installed:** Falls back to local logging — no errors.
 
 **Test locally:**
 ```bash
@@ -337,15 +379,14 @@ pytest tests/ -v
 
 # Specific test suites
 pytest tests/test_agents.py -v                          # Agent unit tests
-pytest tests/eval/test_agent_quality.py -v               # MCP + observability + agent structure
+pytest tests/eval/test_phoenix_eval.py -v               # Phoenix evaluations
 pytest tests/ --cov=src --cov-report=term                # With coverage
 
-# DeepEval LLM quality tests (requires deepeval + LLM API key)
-pip install deepeval
-pytest tests/eval/test_agent_quality.py -v -k "relevancy or hallucination or faithfulness"
+# Phoenix evaluation tests (requires arize-phoenix + LLM API key)
+pytest tests/eval/test_phoenix_eval.py -v -k "relevancy or hallucination or faithfulness"
 ```
 
-**Expected:** 47 passed, 13 skipped (DeepEval tests skip without deepeval)
+**Expected:** 47+ passed, some skipped (eval tests skip without LLM API key)
 
 ---
 
@@ -353,18 +394,19 @@ pytest tests/eval/test_agent_quality.py -v -k "relevancy or hallucination or fai
 
 | Step | Action | Talking Point |
 |------|--------|---------------|
-| 1 | Open app, show welcome card | "Multi-agent financial AI with 8 specialized agents" |
+| 1 | Open app, show welcome card | "Multi-agent financial AI with 11 specialized agents" |
 | 2 | Ask `What's AAPL trading at?` | "Real-time yFinance data, no API key needed" |
 | 3 | Ask `What is P/E ratio?` | "Financial education with LLM + fallback" |
 | 4 | Market tab → look up `NVDA` | "Interactive Plotly charts, 6-month history" |
 | 5 | Market tab → look up `BRK-B` | "Handles special tickers (hyphens/dots)" |
 | 6 | Portfolio → add AAPL, GOOGL, BRK-B | "Live pricing, gain/loss, allocation chart" |
-| 7 | Projections → $10k / $500/mo / 10yr | "Monte Carlo — 1,000 simulations" |
-| 8 | Toggle Voice Mode on, ask a question | "Edge-TTS voice output, browser STT input" |
-| 9 | Open `/api/docs` in new tab | "FastAPI with 13 endpoints, auto Swagger docs" |
-| 10 | `curl /api/tools` | "MCP protocol — 7 standardized tools" |
-| 11 | Settings tab | "Multi-provider LLM (OpenAI/Anthropic/Google)" |
-| 12 | Mention architecture | "LangGraph, MCP, LangFuse, Docker, 47 tests" |
+| 7 | Projections → forward + goal-based | "Monte Carlo — forward and reverse projections" |
+| 8 | Planner tab → retirement, 529 | "Financial life planning: retirement, education, visa, tax" |
+| 9 | Crypto tab → live prices | "CoinGecko API, allocation guides, crypto tax info" |
+| 10 | Toggle Voice Mode on, ask a question | "Edge-TTS voice output, browser STT input" |
+| 11 | Open `/api/docs` in new tab | "FastAPI with 13 endpoints, auto Swagger docs" |
+| 12 | Settings tab → show Phoenix | "Arize Phoenix observability at localhost:6006" |
+| 13 | Mention architecture | "LangGraph, MCP, 11 agents, Phoenix, Docker, 47+ tests" |
 
 ---
 
@@ -374,8 +416,8 @@ pytest tests/eval/test_agent_quality.py -v -k "relevancy or hallucination or fai
 - Portfolio shows current gain/loss but **not historical growth over time** (future)
 - Ticker extraction may occasionally misidentify words (improved but not perfect)
 - Voice STT requires **Chrome or Edge** (Web Speech API limitation)
-- LangFuse requires external account setup (falls back to local logging)
-- DeepEval tests require `pip install deepeval` and an LLM API key
+- CoinGecko API has rate limits on free tier (∼10-50 calls/min)
+- Phoenix evaluations require `arize-phoenix` package
 
 ---
 
@@ -383,6 +425,12 @@ pytest tests/eval/test_agent_quality.py -v -k "relevancy or hallucination or fai
 
 | Date | Changes |
 |------|---------|
+| Feb 11, 2026 | **Phase 2.5:** 3 new agents (Enhancer, Planner, Crypto) — 11 total |
+| Feb 11, 2026 | Arize Phoenix replaces LangFuse for observability |
+| Feb 11, 2026 | Phoenix evaluations replace DeepEval |
+| Feb 11, 2026 | Goal-based projections (reverse Monte Carlo) |
+| Feb 11, 2026 | Modular UI tabs (`src/ui/tabs/`) — 7 tabs total |
+| Feb 11, 2026 | CoinGecko integration for live crypto prices |
 | Feb 8, 2026 | **Phase 2.0:** MCP tool servers (7 tools), FastAPI API (13 routes) |
 | Feb 8, 2026 | Voice interface (edge-tts TTS + browser STT) |
 | Feb 8, 2026 | LangFuse observability (traces, spans, metrics) |

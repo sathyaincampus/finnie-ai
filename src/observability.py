@@ -1,8 +1,11 @@
 """
 Finnie AI — Observability Module
 
-LangFuse integration for tracing, metrics, and cost tracking.
-Provides decorators and utilities for instrumenting the multi-agent system.
+Arize Phoenix integration for tracing, evaluation, and telemetry.
+Provides request tracing, agent-level spans, token usage metrics, and
+a local evaluation dashboard at localhost:6006.
+
+Falls back to local-only tracing if Phoenix is not installed.
 """
 
 from __future__ import annotations
@@ -55,53 +58,71 @@ class TraceRecord:
 
 
 # =============================================================================
-# LangFuse Client
+# Phoenix Observer
 # =============================================================================
 
 
 class FinnieObserver:
     """
-    Observability client wrapping LangFuse.
+    Observability client using Arize Phoenix.
 
     Provides:
-    - Request tracing (full lifecycle)
+    - Request tracing (full lifecycle) via OpenTelemetry
     - Agent-level span tracking
     - Token usage metrics
     - Error tracking
-    - Cost estimation
+    - Phoenix dashboard at localhost:6006 for eval workbench
 
-    Falls back to local logging if LangFuse is not configured.
+    Falls back to local logging if Phoenix is not installed.
     """
 
     def __init__(self):
-        self._langfuse = None
+        self._phoenix_session = None
+        self._tracer = None
         self._enabled = False
         self._local_traces: list[TraceRecord] = []
-        self._init_langfuse()
+        self._dashboard_url: str = ""
+        self._init_phoenix()
 
-    def _init_langfuse(self):
-        """Initialize LangFuse client if credentials are available."""
-        public_key = os.getenv("LANGFUSE_PUBLIC_KEY", "")
-        secret_key = os.getenv("LANGFUSE_SECRET_KEY", "")
+    def _init_phoenix(self):
+        """Initialize Phoenix session and OpenTelemetry tracer."""
+        phoenix_enabled = os.getenv("PHOENIX_ENABLED", "true").lower() == "true"
+        if not phoenix_enabled:
+            return
 
-        if public_key and secret_key:
+        try:
+            import phoenix as px
+            from opentelemetry import trace as otel_trace
+
+            # Launch Phoenix in the background
+            self._phoenix_session = px.launch_app()
+            self._dashboard_url = "http://localhost:6006"
+
+            # Set up OpenTelemetry tracer via Phoenix
+            from opentelemetry.sdk.trace import TracerProvider
+
             try:
-                from langfuse import Langfuse
+                from phoenix.otel import register
+                tracer_provider = register(project_name="finnie-ai")
+            except (ImportError, Exception):
+                tracer_provider = TracerProvider()
+                otel_trace.set_tracer_provider(tracer_provider)
 
-                self._langfuse = Langfuse(
-                    public_key=public_key,
-                    secret_key=secret_key,
-                    host=os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com"),
-                )
-                self._enabled = True
-            except ImportError:
-                pass
-            except Exception:
-                pass
+            self._tracer = otel_trace.get_tracer("finnie-ai")
+            self._enabled = True
+
+        except ImportError:
+            pass
+        except Exception:
+            pass
 
     @property
     def is_enabled(self) -> bool:
         return self._enabled
+
+    @property
+    def dashboard_url(self) -> str:
+        return self._dashboard_url
 
     def create_trace(
         self,
@@ -118,15 +139,17 @@ class FinnieObserver:
             start_time=time.time(),
         )
 
-        if self._enabled and self._langfuse:
+        if self._enabled and self._tracer:
             try:
-                self._langfuse.trace(
-                    id=trace.trace_id,
-                    session_id=session_id,
-                    user_id=user_id,
-                    input=input_text,
+                span = self._tracer.start_span(
                     name="finnie-ai-request",
+                    attributes={
+                        "session.id": session_id,
+                        "user.id": user_id or "",
+                        "input.value": input_text,
+                    },
                 )
+                trace.metadata["_otel_span"] = span
             except Exception:
                 pass
 
@@ -147,27 +170,38 @@ class FinnieObserver:
             metadata=metadata or {},
         )
 
+        otel_span = None
+        if self._enabled and self._tracer:
+            try:
+                otel_span = self._tracer.start_span(
+                    name=name,
+                    attributes={
+                        "agent.name": name,
+                        "trace.id": trace.trace_id,
+                        **(metadata or {}),
+                    },
+                )
+            except Exception:
+                pass
+
         try:
             yield span_record
             span_record.status = "ok"
+            if otel_span:
+                otel_span.set_attribute("status", "ok")
         except Exception as e:
             span_record.status = "error"
             span_record.metadata["error"] = str(e)
+            if otel_span:
+                otel_span.set_attribute("status", "error")
+                otel_span.set_attribute("error.message", str(e))
             raise
         finally:
             span_record.end_time = time.time()
             trace.spans.append(span_record)
-
-            if self._enabled and self._langfuse:
+            if otel_span:
                 try:
-                    self._langfuse.span(
-                        trace_id=trace.trace_id,
-                        name=name,
-                        start_time=datetime.fromtimestamp(span_record.start_time),
-                        end_time=datetime.fromtimestamp(span_record.end_time),
-                        status_message=span_record.status,
-                        metadata=span_record.metadata,
-                    )
+                    otel_span.end()
                 except Exception:
                     pass
 
@@ -177,17 +211,12 @@ class FinnieObserver:
         trace.output_text = output
         self._local_traces.append(trace)
 
-        if self._enabled and self._langfuse:
+        otel_span = trace.metadata.pop("_otel_span", None)
+        if otel_span:
             try:
-                self._langfuse.trace(
-                    id=trace.trace_id,
-                    output=output,
-                    metadata={
-                        "latency_ms": trace.total_latency_ms,
-                        "spans": len(trace.spans),
-                        "token_usage": trace.token_usage,
-                    },
-                )
+                otel_span.set_attribute("output.value", output[:500])
+                otel_span.set_attribute("latency_ms", trace.total_latency_ms)
+                otel_span.end()
             except Exception:
                 pass
 
@@ -207,15 +236,11 @@ class FinnieObserver:
         }
 
     def get_callback_handler(self, session_id: str, user_id: str | None = None):
-        """Get a LangFuse callback handler for LangChain integration."""
-        if self._enabled and self._langfuse:
+        """Get an OpenInference callback handler for LangChain integration."""
+        if self._enabled:
             try:
-                from langfuse.callback import CallbackHandler
-
-                return CallbackHandler(
-                    session_id=session_id,
-                    user_id=user_id,
-                )
+                from openinference.instrumentation.langchain import LangChainInstrumentor
+                LangChainInstrumentor().instrument()
             except ImportError:
                 pass
         return None
@@ -252,12 +277,8 @@ class FinnieObserver:
         }
 
     def flush(self):
-        """Flush any pending events to LangFuse."""
-        if self._enabled and self._langfuse:
-            try:
-                self._langfuse.flush()
-            except Exception:
-                pass
+        """Flush any pending spans."""
+        pass  # OTEL auto-exports, no manual flush needed
 
 
 # =============================================================================

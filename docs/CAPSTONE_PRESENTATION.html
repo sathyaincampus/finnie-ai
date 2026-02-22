@@ -594,11 +594,12 @@
                 <em>"Hedge Fund in a Box"</em> — Multi-Agent AI for Financial Literacy & Analysis
             </p>
             <div class="badge-row">
-                <span class="badge"><em>8</em> Specialized Agents</span>
+                <span class="badge"><em>11</em> Specialized Agents</span>
                 <span class="badge"><em>3</em> LLM Providers</span>
                 <span class="badge"><em>7</em> MCP Tools</span>
-                <span class="badge"><em>GraphRAG</em> Knowledge Graph</span>
-                <span class="badge"><em>Voice</em> Interface</span>
+                <span class="badge"><em>7</em> UI Tabs</span>
+                <span class="badge"><em>Phoenix</em> Observability</span>
+                <span class="badge"><em>CoinGecko</em> Crypto</span>
             </div>
             <p style="margin-top: 2.5rem; color: var(--text-dim); font-size: 0.9rem;">
                 Interview Kickstart — Capstone Project &nbsp;|&nbsp; February 2026
@@ -640,7 +641,7 @@
         <div class="slide-inner" style="text-align: center;">
             <span class="section-num">02 — Solution</span>
             <h2>What Finnie AI Does</h2>
-            <p class="subtitle">A team of 8 AI agents that work together to deliver personalized financial intelligence
+            <p class="subtitle">A team of 11 AI agents that work together to deliver personalized financial intelligence
             </p>
             <div class="grid grid-3">
                 <div class="card">
@@ -660,8 +661,8 @@
                 </div>
                 <div class="card">
                     <span class="icon">🔮</span>
-                    <h4>Monte Carlo Projections</h4>
-                    <p>"If I invest $10K for 10 years…" — interactive simulation with P10/P50/P90 ranges</p>
+                    <h4>Projections (Forward + Goal)</h4>
+                    <p>"If I invest $10K for 10 years…" or "I need $1M by age 55" — Monte Carlo + reverse simulation</p>
                 </div>
                 <div class="card">
                     <span class="icon">🎤</span>
@@ -673,6 +674,23 @@
                     <h4>Knowledge Graph (GraphRAG)</h4>
                     <p>55+ companies, 20 concepts, 11 sectors, and their relationships in Neo4j — not just text search
                     </p>
+                </div>
+                <div class="card">
+                    <span class="icon">📋</span>
+                    <h4>Financial Life Planner</h4>
+                    <p>529 plans, Roth IRA, retirement planning, visa/H1B considerations, budgeting, and side hustles
+                    </p>
+                </div>
+                <div class="card">
+                    <span class="icon">🪙</span>
+                    <h4>Crypto Dashboard</h4>
+                    <p>Live crypto prices via CoinGecko, portfolio allocation guides, and cryptocurrency tax education
+                    </p>
+                </div>
+                <div class="card">
+                    <span class="icon">✨</span>
+                    <h4>Prompt Enhancer</h4>
+                    <p>AI prompt optimization layer — refines user queries before routing to specialized agents</p>
                 </div>
             </div>
         </div>
@@ -688,23 +706,23 @@
                 <div class="arch-col" style="border-left: 3px solid var(--cyan);">
                     <div class="layer-label">🖥️ UI Layer</div>
                     <div class="layer-items">
-                        Streamlit 5-tab UI<br>
-                        Voice TTS/STT<br>
-                        OAuth Login
+                        Streamlit 7-tab UI<br>
+                        Modular tabs/<br>
+                        Voice TTS/STT · OAuth
                     </div>
                 </div>
                 <div class="arch-col" style="border-left: 3px solid var(--accent);">
                     <div class="layer-label">🔀 Orchestration</div>
                     <div class="layer-items">
                         LangGraph State Machine<br>
-                        Intent Router<br>
+                        Enhancer → Intent Router<br>
                         State Management
                     </div>
                 </div>
                 <div class="arch-col" style="border-left: 3px solid var(--green);">
                     <div class="layer-label">🤖 Agent Team</div>
                     <div class="layer-items">
-                        8 Specialized Agents<br>
+                        11 Specialized Agents<br>
                         Parallel Execution<br>
                         Compliance Layer
                     </div>
@@ -720,9 +738,9 @@
                 <div class="arch-col" style="border-left: 3px solid var(--orange);">
                     <div class="layer-label">🔧 Tools + Data</div>
                     <div class="layer-items">
-                        MCP (7 tools)<br>
+                        MCP (7 tools) · CoinGecko<br>
                         GraphRAG (Neo4j)<br>
-                        SQLite · LangFuse
+                        SQLite · Arize Phoenix
                     </div>
                 </div>
             </div>
@@ -735,6 +753,10 @@
                     </div>
                     <div class="flow-arrow">→</div>
                     <div class="flow-step">
+                        <div class="fs-icon">✨</div> Enhancer
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
                         <div class="fs-icon">🔀</div> Intent Router
                     </div>
                     <div class="flow-arrow">→</div>
@@ -743,11 +765,7 @@
                     </div>
                     <div class="flow-arrow">→</div>
                     <div class="flow-step">
-                        <div class="fs-icon">🧠</div> GraphRAG Lookup
-                    </div>
-                    <div class="flow-arrow">→</div>
-                    <div class="flow-step">
-                        <div class="fs-icon">💬</div> LLM + Context
+                        <div class="fs-icon">🧠</div> GraphRAG
                     </div>
                     <div class="flow-arrow">→</div>
                     <div class="flow-step">
@@ -763,7 +781,7 @@
         <div class="slide-inner">
             <div style="text-align: center;">
                 <span class="section-num">04 — Agent Team</span>
-                <h2>8 Specialized Agents</h2>
+                <h2>11 Specialized Agents</h2>
                 <p class="subtitle">Each agent has a distinct role, trigger patterns, and data sources</p>
             </div>
             <div class="grid grid-2">
@@ -798,8 +816,7 @@
                     <div class="agent-emoji">🔮</div>
                     <div class="agent-info">
                         <h4>The Oracle</h4>
-                        <p>Monte Carlo investment projections with customizable parameters — amount, duration, risk
-                            level.</p>
+                        <p>Forward + goal-based investment projections via Monte Carlo. "I need $1M by age 55."</p>
                         <span class="agent-tag llm">Simulation + LLM</span>
                     </div>
                 </div>
@@ -817,6 +834,32 @@
                         <h4>The Analyst</h4>
                         <p>News research and company analysis. Synthesizes information for investment context.</p>
                         <span class="agent-tag llm">LLM Research</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">✨</div>
+                    <div class="agent-info">
+                        <h4>The Enhancer</h4>
+                        <p>Prompt optimization layer — refines user queries before routing to specialized agents.</p>
+                        <span class="agent-tag llm">LLM Pre-Processing</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">📋</div>
+                    <div class="agent-info">
+                        <h4>The Planner</h4>
+                        <p>Financial life planning: 529, Roth IRA, retirement, tax optimization, visa/H1B, budgeting.
+                        </p>
+                        <span class="agent-tag llm">LLM Planning</span>
+                    </div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-emoji">🪙</div>
+                    <div class="agent-info">
+                        <h4>The Crypto</h4>
+                        <p>Cryptocurrency data via CoinGecko API. Live prices, allocation guides, and crypto tax
+                            education.</p>
+                        <span class="agent-tag data">CoinGecko + LLM</span>
                     </div>
                 </div>
                 <div class="agent-card">
@@ -919,7 +962,7 @@
                     <tr>
                         <td><strong>Frontend</strong></td>
                         <td>Streamlit</td>
-                        <td>Multi-tab UI (Chat, Portfolio, Market, Projections, Settings)</td>
+                        <td>7-tab modular UI (Chat, Portfolio, Market, Projections, Planner, Crypto, Settings)</td>
                     </tr>
                     <tr>
                         <td><strong>Orchestration</strong></td>
@@ -929,7 +972,7 @@
                     <tr>
                         <td><strong>Agents</strong></td>
                         <td>Custom Python (ABC)</td>
-                        <td>8 specialized agents with BaseFinnieAgent pattern</td>
+                        <td>11 specialized agents with BaseFinnieAgent + Enhancer pattern</td>
                     </tr>
                     <tr>
                         <td><strong>LLM</strong></td>
@@ -948,8 +991,8 @@
                     </tr>
                     <tr>
                         <td><strong>Market Data</strong></td>
-                        <td>yFinance</td>
-                        <td>Real-time stock prices, fundamentals, historical data</td>
+                        <td>yFinance + CoinGecko</td>
+                        <td>Real-time stock + crypto prices, fundamentals, historical data</td>
                     </tr>
                     <tr>
                         <td><strong>Voice</strong></td>
@@ -963,13 +1006,13 @@
                     </tr>
                     <tr>
                         <td><strong>Observability</strong></td>
-                        <td>LangFuse</td>
-                        <td>Tracing, latency, token usage per agent</td>
+                        <td>Arize Phoenix + OpenTelemetry</td>
+                        <td>Tracing, latency, token usage — dashboard at localhost:6006</td>
                     </tr>
                     <tr>
                         <td><strong>Testing</strong></td>
-                        <td>DeepEval + Pytest</td>
-                        <td>LLM response quality: relevancy, hallucination, faithfulness, bias</td>
+                        <td>Phoenix Eval + Pytest</td>
+                        <td>LLM response quality: relevancy, hallucination, faithfulness</td>
                     </tr>
                     <tr>
                         <td><strong>Deployment</strong></td>
@@ -1024,7 +1067,7 @@
                     </table>
                 </div>
                 <div class="card pink-border" style="text-align: left;">
-                    <h3>🧪 DeepEval Testing</h3>
+                    <h3>🧪 Arize Phoenix Evaluations</h3>
                     <table style="font-size: 0.82rem; margin-top: 0.75rem;">
                         <thead>
                             <tr>
@@ -1044,13 +1087,9 @@
                             <td><strong>Faithfulness</strong></td>
                             <td>Is it grounded in retrieved context?</td>
                         </tr>
-                        <tr>
-                            <td><strong>Bias</strong></td>
-                            <td>Does it show unwanted bias?</td>
-                        </tr>
                     </table>
                     <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: 0.75rem;">
-                        + Unit tests for agents, LLM adapters, orchestration, and MCP tool discovery
+                        + Unit tests for agents, LLM adapters, orchestration, MCP tools, Planner, Crypto agents
                     </p>
                 </div>
             </div>
@@ -1062,18 +1101,18 @@
         <div class="slide-inner" style="text-align: center;">
             <span class="section-num">08 — Status</span>
             <h2>Feature Completion</h2>
-            <p class="subtitle">19 features implemented — all core + enhanced scope complete</p>
+            <p class="subtitle">25 features implemented — all core + v2.5 expansion complete</p>
             <div class="grid grid-4" style="margin-top: 1rem;">
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>LangGraph<br>Orchestration</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
-                        style="font-size: 1.5rem;">✅</span><br><small>8 Specialized<br>Agents</small></div>
+                        style="font-size: 1.5rem;">✅</span><br><small>11 Specialized<br>Agents</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>MCP Tools<br>(7 tools)</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>Multi-Provider<br>LLM</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
-                        style="font-size: 1.5rem;">✅</span><br><small>Streamlit<br>5-Tab UI</small></div>
+                        style="font-size: 1.5rem;">✅</span><br><small>Streamlit<br>7-Tab UI</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>Voice<br>TTS + STT</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
@@ -1081,11 +1120,11 @@
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>Portfolio<br>Tracking</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
-                        style="font-size: 1.5rem;">✅</span><br><small>Monte Carlo<br>Projections</small></div>
+                        style="font-size: 1.5rem;">✅</span><br><small>Forward + Goal<br>Projections</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
-                        style="font-size: 1.5rem;">✅</span><br><small>LangFuse<br>Observability</small></div>
+                        style="font-size: 1.5rem;">✅</span><br><small>Arize Phoenix<br>Observability</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
-                        style="font-size: 1.5rem;">✅</span><br><small>DeepEval<br>Testing</small></div>
+                        style="font-size: 1.5rem;">✅</span><br><small>Phoenix Eval<br>Testing</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>Docker +<br>Cloud Run</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
@@ -1093,7 +1132,16 @@
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>OAuth<br>Login</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
-                        style="font-size: 1.5rem;">✅</span><br><small>Market Data<br>yFinance</small></div>
+                        style="font-size: 1.5rem;">✅</span><br><small>Market + Crypto<br>yFinance + CoinGecko</small>
+                </div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Financial Life<br>Planner</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Prompt<br>Enhancer</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Crypto<br>Dashboard</small></div>
+                <div class="card" style="text-align: center; padding: 1rem;"><span
+                        style="font-size: 1.5rem;">✅</span><br><small>Modular UI<br>Tabs</small></div>
                 <div class="card" style="text-align: center; padding: 1rem;"><span
                         style="font-size: 1.5rem;">✅</span><br><small>Responsive<br>Mobile</small></div>
             </div>
@@ -1106,32 +1154,42 @@
             <span class="section-num">09 — Demo</span>
             <h2>Live Demo Highlights</h2>
             <p class="subtitle">Key interactions to showcase during the demo</p>
-            <div class="grid grid-2" style="text-align: left;">
+            <div class="grid grid-3" style="text-align: left;">
                 <div class="card accent-border">
                     <h3>💬 "What is a P/E ratio?"</h3>
-                    <p>Professor + GraphRAG → enriched explanation with related concepts (EPS, Market Cap) from
-                        knowledge graph</p>
+                    <p>Enhancer → Professor + GraphRAG → enriched explanation with knowledge graph</p>
                 </div>
                 <div class="card green-border">
                     <h3>📊 "What's AAPL trading at?"</h3>
-                    <p>Quant → real-time yFinance data: price, change, P/E, 52W range, volume, sector — no LLM needed
-                    </p>
+                    <p>Quant → real-time yFinance data: price, P/E, 52W range — no LLM needed</p>
                 </div>
                 <div class="card pink-border">
-                    <h3>🌍 "What's trending in the market?"</h3>
-                    <p>Scout → scans 9 benchmarks, identifies top gainers/losers, LLM analysis of market dynamics</p>
+                    <h3>🌍 "What's trending?"</h3>
+                    <p>Scout → scans benchmarks, LLM analysis of market dynamics</p>
                 </div>
                 <div class="card cyan-border">
-                    <h3>🔮 "If I invest $10K for 10 years"</h3>
-                    <p>Oracle → Monte Carlo: P10=$19K, P50=$27K, P90=$38K with interactive chart</p>
+                    <h3>🔮 "I need $1M by age 55"</h3>
+                    <p>Oracle → Goal-based reverse projection: required monthly investment</p>
                 </div>
                 <div class="card orange-border">
-                    <h3>🎤 Voice: "Hey Finnie, explain diversification"</h3>
-                    <p>STT → Professor + GraphRAG → TTS response with 6 voice options</p>
+                    <h3>📋 "How should I plan for retirement?"</h3>
+                    <p>Planner → 401(k) limits, Roth IRA, tax optimization, visa considerations</p>
                 </div>
                 <div class="card" style="border-left: 3px solid var(--green);">
-                    <h3>⚙️ Settings: Switch LLM Provider</h3>
-                    <p>Hot-swap between Gemini, GPT-4o, or Claude — live in the Settings tab</p>
+                    <h3>🪙 "What's Bitcoin at?"</h3>
+                    <p>Crypto → CoinGecko live: $96K, +2.3%, allocation guides, tax education</p>
+                </div>
+                <div class="card" style="border-left: 3px solid var(--accent);">
+                    <h3>🎤 Voice: "Explain diversification"</h3>
+                    <p>STT → Enhancer → Professor → TTS response with 6 voice options</p>
+                </div>
+                <div class="card" style="border-left: 3px solid var(--cyan);">
+                    <h3>🔮 "If I invest $10K for 10 years"</h3>
+                    <p>Oracle → Monte Carlo: P10/P50/P90 ranges with interactive chart</p>
+                </div>
+                <div class="card" style="border-left: 3px solid var(--pink);">
+                    <h3>⚙️ Phoenix + Settings</h3>
+                    <p>Observability dashboard at localhost:6006 + hot-swap LLM providers</p>
                 </div>
             </div>
         </div>
@@ -1143,23 +1201,27 @@
             <div style="font-size: 4rem; margin-bottom: 1rem;">🦈</div>
             <h2>Thank You</h2>
             <p style="color: var(--text-dim); font-size: 1.2rem; margin-top: 1rem; margin-bottom: 0.5rem;">
-                Finnie AI v2.1.0 — Autonomous Financial Intelligence
+                Finnie AI v2.5.0 — Autonomous Financial Intelligence
             </p>
             <p style="color: var(--text-dim); font-size: 0.95rem;">
-                8 agents · 3 LLM providers · 7 MCP tools · GraphRAG · Voice · Monte Carlo · DeepEval
+                11 agents · 3 LLM providers · 7 MCP tools · 7 UI tabs · Phoenix · CoinGecko · GraphRAG · Voice
             </p>
-            <div class="stats" style="margin-top: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+            <div class="stats" style="margin-top: 2rem; max-width: 800px; margin-left: auto; margin-right: auto;">
                 <div class="stat">
-                    <div class="num">~5K</div>
+                    <div class="num">~7K</div>
                     <div class="label">Lines of Python</div>
                 </div>
                 <div class="stat">
-                    <div class="num">4</div>
+                    <div class="num">7</div>
                     <div class="label">Days Built</div>
                 </div>
                 <div class="stat">
-                    <div class="num">19</div>
+                    <div class="num">25</div>
                     <div class="label">Features Shipped</div>
+                </div>
+                <div class="stat">
+                    <div class="num">11</div>
+                    <div class="label">AI Agents</div>
                 </div>
             </div>
             <div class="links">

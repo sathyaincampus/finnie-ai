@@ -65,15 +65,11 @@ class Settings(BaseSettings):
     )
     
     # =========================================================================
-    # Observability
+    # Observability (Arize Phoenix)
     # =========================================================================
     
-    langfuse_public_key: Optional[str] = Field(default=None, description="LangFuse public key")
-    langfuse_secret_key: Optional[str] = Field(default=None, description="LangFuse secret key")
-    langfuse_host: str = Field(
-        default="https://cloud.langfuse.com",
-        description="LangFuse host URL"
-    )
+    phoenix_enabled: bool = Field(default=True, description="Enable Arize Phoenix tracing")
+    phoenix_port: int = Field(default=6006, description="Phoenix dashboard port")
     
     # =========================================================================
     # Feature Flags
@@ -161,8 +157,8 @@ class Settings(BaseSettings):
         return bool(self.aura_uri and self.aura_password)
     
     def has_observability_config(self) -> bool:
-        """Check if LangFuse is configured."""
-        return bool(self.langfuse_public_key and self.langfuse_secret_key)
+        """Check if Arize Phoenix is enabled."""
+        return self.phoenix_enabled
     
     @property
     def is_development(self) -> bool:

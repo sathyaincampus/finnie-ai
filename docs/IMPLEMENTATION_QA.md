@@ -1,7 +1,7 @@
 # Finnie AI — Implementation Q&A Document
 
 > **Purpose:** Running documentation of design decisions, questions, and answers throughout the development process.  
-> **Last Updated:** February 5, 2026  
+> **Last Updated:** February 11, 2026  
 > **Companion Documents:** [SPEC_DEV.md](../SPEC_DEV.md) | [ROADMAP.md](../ROADMAP.md)
 
 ---
@@ -338,7 +338,7 @@ class LLMAdapter:
 
 ### Q6.1: Are 6 agents enough?
 
-**Current 6 agents are sufficient for MVP.** However, we can add 2 more for differentiation:
+**Current 6 agents are sufficient for MVP.** However, we expanded to **11 agents** for differentiation:
 
 | Agent | Role | Priority |
 |-------|------|----------|
@@ -358,7 +358,7 @@ class LLMAdapter:
 
 ```mermaid
 mindmap
-  root((Finnie AI<br/>8 Agents))
+  root((Finnie AI<br/>11 Agents))
     Core Agents
       📊 The Quant
         Real-time prices
@@ -377,6 +377,9 @@ mindmap
         Risk assessment
         Rebalancing
     Support Agents
+      ✨ The Enhancer
+        Prompt optimization
+        Context enrichment
       🛡️ The Guardian
         Compliance checks
         Disclaimers
@@ -387,13 +390,22 @@ mindmap
         Multi-modal output
     Advanced Agents
       🔮 The Oracle
-        Investment projections
-        Growth scenarios
+        Forward projections
+        Goal-based projections
         Monte Carlo sims
       🌍 The Scout
         Startup discovery
         Trend spotting
         Sector rotation
+      📋 The Planner
+        Retirement planning
+        Education savings
+        Tax optimization
+        Visa considerations
+      🪙 The Crypto
+        CoinGecko data
+        Allocation guides
+        Crypto tax education
 ```
 
 ---
@@ -538,7 +550,7 @@ FINNIE_AGENT_CARD = {
 
 ### Q9.1: How do we implement observability?
 
-**Tool Choice: LangFuse** (open-source, free tier available)
+**Tool Choice: Arize Phoenix** (open-source, auto-launches locally at `localhost:6006`)
 
 **What We Track:**
 
@@ -550,31 +562,31 @@ FINNIE_AGENT_CARD = {
 | **Error Rates** | Reliability monitoring |
 | **User Satisfaction** | Thumbs up/down feedback |
 
-### Q9.2: LangFuse Integration
+### Q9.2: Arize Phoenix Integration
 
 ```python
-from langfuse import Langfuse
-from langfuse.callback import CallbackHandler
+from src.observability import get_observer
 
-# Initialize LangFuse
-langfuse = Langfuse(
-    public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
-    secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
-    host="https://cloud.langfuse.com"
-)
+# Initialize Phoenix observer (singleton)
+observer = get_observer()
 
-# Use with LangChain
-handler = CallbackHandler()
+# Create trace for a session
+trace = observer.create_trace(session_id='user-123', input_text='hello')
 
-# Every LLM call is automatically traced
-response = llm.invoke(prompt, callbacks=[handler])
+# Span tracking
+with observer.span(trace, 'agent_call'):
+    # Agent processing happens here
+    pass
+
+# End trace
+observer.end_trace(trace, output='response text')
 ```
 
-**Dashboard Views:**
+**Dashboard Views (at localhost:6006):**
 - Request traces with agent breakdown
-- Cost per conversation
-- Error rates by agent
 - Latency percentiles
+- Token usage tracking
+- Error rates by agent
 
 ---
 

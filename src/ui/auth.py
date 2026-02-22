@@ -13,8 +13,11 @@ from typing import Optional
 def _oauth_configured() -> bool:
     """Check if OAuth credentials are configured in secrets."""
     try:
-        providers = st.secrets.get("auth", {}).get("providers", {})
-        return bool(providers)
+        auth = st.secrets.get("auth", {})
+        # Streamlit expects [auth.google] / [auth.github], not [auth.providers.*]
+        return any(
+            key in auth for key in ("google", "github", "providers")
+        )
     except Exception:
         return False
 
@@ -55,6 +58,30 @@ def _create_guest_user() -> dict:
         "avatar_url": "",
         "provider": "guest",
     }
+
+
+def _oauth_has_real_credentials() -> bool:
+    """Check if OAuth credentials are real (not placeholders)."""
+    if not _oauth_configured():
+        return False
+    try:
+        auth = st.secrets.get("auth", {})
+        # Check direct provider keys (auth.google, auth.github)
+        for key in ("google", "github"):
+            provider = auth.get(key, {})
+            if isinstance(provider, dict):
+                client_id = provider.get("client_id", "")
+                if client_id and "YOUR_" not in client_id:
+                    return True
+        # Fallback: check old providers format
+        providers = auth.get("providers", {})
+        for provider in providers.values():
+            client_id = provider.get("client_id", "")
+            if client_id and "YOUR_" not in client_id:
+                return True
+    except Exception:
+        pass
+    return False
 
 
 def render_login_page():
@@ -156,6 +183,7 @@ def render_login_page():
         if st.button("👤 Continue as Guest", use_container_width=True, key="login_guest"):
             st.session_state.user = _create_guest_user()
             st.session_state.auth_complete = True
+            st.session_state.logged_out = False
             st.rerun()
 
         st.markdown("""
@@ -173,10 +201,7 @@ def require_auth() -> dict:
     Gate the app behind authentication.
     
     Returns user info dict if authenticated, otherwise shows login page and stops.
-    
-    Usage in app.py:
-        user = require_auth()
-        # ... rest of app only runs if authenticated
+    Auto-enters guest mode if OAuth is not configured (local dev).
     """
     # Check for existing session
     if st.session_state.get("auth_complete") and st.session_state.get("user"):
@@ -198,6 +223,15 @@ def require_auth() -> dict:
             provider=oauth_user["provider"],
         )
         return oauth_user
+
+    # Auto-enter guest mode if OAuth isn't properly configured
+    # (avoids requiring a click every refresh during local dev)
+    # BUT skip if user explicitly logged out
+    if not _oauth_has_real_credentials() and not st.session_state.get("logged_out"):
+        guest = _create_guest_user()
+        st.session_state.user = guest
+        st.session_state.auth_complete = True
+        return guest
 
     # Not authenticated — show login page
     render_login_page()
@@ -233,19 +267,23 @@ def render_user_header(user: dict):
 
 
 def logout():
-    """Clear session and logout."""
+    """Clear ALL session state and return to login page."""
     is_oauth = st.session_state.get("user", {}).get("provider") != "guest"
 
-    # Clear session
-    for key in ["user", "auth_complete", "messages", "current_conversation_id"]:
-        if key in st.session_state:
-            del st.session_state[key]
-
-    # If OAuth, also call Streamlit logout
+    # If OAuth, call Streamlit's built-in logout first
     if is_oauth:
         try:
             st.logout()
         except Exception:
             pass
+
+    # Nuclear option — clear everything
+    keys_to_keep = set()  # nothing to keep
+    for key in list(st.session_state.keys()):
+        if key not in keys_to_keep:
+            del st.session_state[key]
+
+    # Set logged_out flag AFTER clearing (prevents auto-guest re-entry)
+    st.session_state.logged_out = True
 
     st.rerun()

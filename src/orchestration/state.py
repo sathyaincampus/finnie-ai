@@ -56,6 +56,7 @@ class FinnieState(TypedDict, total=False):
     
     # Input
     user_input: str
+    enhanced_input: str  # Refined by Enhancer agent
     session_id: str
     
     # LLM Configuration
@@ -111,6 +112,7 @@ def create_initial_state(
     """
     return FinnieState(
         user_input=user_input,
+        enhanced_input="",  # Populated by Enhancer agent
         session_id=session_id,
         llm_provider=llm_provider,
         llm_model=llm_model,
@@ -127,7 +129,7 @@ def create_initial_state(
         error=None,
         metadata={
             "start_time": datetime.utcnow().isoformat(),
-            "version": "1.0.0",
+            "version": "2.0.0",
         },
     )
 
@@ -146,6 +148,9 @@ class IntentType:
     PROJECTION = "projection"              # Investment projections
     TREND = "trend"                        # What's trending
     COMPARISON = "comparison"              # Compare stocks/assets
+    FINANCIAL_PLAN = "financial_plan"      # 529, Roth IRA, retirement, tax
+    GOAL_PLAN = "goal_plan"                # Goal-based projections
+    CRYPTO = "crypto"                      # Cryptocurrency
     GENERAL = "general"                    # General financial chat
 
 
@@ -156,6 +161,7 @@ class IntentType:
 class AgentName:
     """Agent identifiers."""
     
+    ENHANCER = "enhancer"     # Prompt optimization
     QUANT = "quant"           # Market data
     PROFESSOR = "professor"   # Education
     ANALYST = "analyst"       # News/research
@@ -164,6 +170,8 @@ class AgentName:
     SCRIBE = "scribe"         # Formatting
     ORACLE = "oracle"         # Projections
     SCOUT = "scout"           # Trends
+    PLANNER = "planner"       # Financial planning
+    CRYPTO = "crypto"         # Cryptocurrency
 
 
 # Intent to Agent mapping
@@ -175,5 +183,8 @@ INTENT_AGENT_MAP: dict[str, list[str]] = {
     IntentType.PROJECTION: [AgentName.ORACLE, AgentName.QUANT],
     IntentType.TREND: [AgentName.SCOUT, AgentName.ANALYST],
     IntentType.COMPARISON: [AgentName.QUANT, AgentName.ANALYST],
+    IntentType.FINANCIAL_PLAN: [AgentName.PLANNER],
+    IntentType.GOAL_PLAN: [AgentName.ORACLE, AgentName.PLANNER],
+    IntentType.CRYPTO: [AgentName.CRYPTO],
     IntentType.GENERAL: [AgentName.PROFESSOR],
 }

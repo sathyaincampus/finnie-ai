@@ -584,11 +584,46 @@ Interview Kickstart was asking for how I prompted and got this.
 
 ---
 
-*Last Updated: February 8, 2026*  
-*27 prompts over 4 days across ~8 conversation sessions*
+*Last Updated: February 11, 2026*  
+*34 prompts over 7 days across ~10 conversation sessions*
 
 ---
 
 ## Prompt Append Log
 
 > *New prompts will be added below as the project evolves.*
+
+### Phase 9: v2.0 Expansion — New Agents, Phoenix, Modular UI (Day 7)
+
+### Prompt 28 — The Big Expansion
+
+> This was another high-effort prompt — asked for a full expansion across observability,
+> agents, projections, and UI architecture in one go.
+
+```
+Please create new agents: an Enhancer agent that pre-processes user prompts before
+routing, a Planner agent for financial life planning (529 plans, Roth IRA, retirement,
+visa/H1B considerations, budget tracking, side hustles), and a Crypto agent with
+CoinGecko API integration for live prices and tax guidance.
+
+Also replace LangFuse with Arize Phoenix for observability, replace DeepEval with
+Phoenix-based evaluations, add goal-based reverse projections to Oracle ("I need
+$1M by age 55"), and refactor the UI into modular tabs under src/ui/tabs/.
+
+Update the orchestration (state.py, graph.py, nodes.py) to wire everything together
+with enhancer as the first node.
+```
+
+**Result:** 3 new agents (Enhancer, Planner, Crypto), Phoenix observability, Phoenix
+evaluations, goal-based projections, 7 modular UI tab files, full orchestration
+rewiring. Agent count: 8 → 11.
+
+### Prompt 29 — Wire and document
+
+```
+okay can you please continue so i can see the updated changes
+```
+
+**Result:** app.py updated with 7 tabs (added Planner, Crypto), all 5 docs updated
+(CODE_WALKTHROUGH, TEST_GUIDE, ARCHITECTURE, IMPLEMENTATION_QA, PROMPT_JOURNAL).
+
