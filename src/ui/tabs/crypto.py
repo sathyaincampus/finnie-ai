@@ -113,27 +113,57 @@ def _render_price_chart():
     """Render interactive price chart for a selected coin."""
     st.subheader("📈 Price History")
     
-    col1, col2 = st.columns([2, 1])
-    
-    coin_options = {
-        "Bitcoin (BTC)": "bitcoin",
-        "Ethereum (ETH)": "ethereum",
-        "Solana (SOL)": "solana",
-        "BNB (BNB)": "binancecoin",
-        "XRP (XRP)": "ripple",
-        "Cardano (ADA)": "cardano",
-        "Dogecoin (DOGE)": "dogecoin",
-        "Polkadot (DOT)": "polkadot",
-        "Avalanche (AVAX)": "avalanche-2",
-        "Chainlink (LINK)": "chainlink",
+    # Quick-select buttons for popular coins
+    popular = {
+        "Bitcoin": "bitcoin", "Ethereum": "ethereum", "Solana": "solana",
+        "XRP": "ripple", "BNB": "binancecoin", "Cardano": "cardano",
+        "Dogecoin": "dogecoin", "Polkadot": "polkadot",
     }
     
+    cols = st.columns(len(popular))
+    for i, (name, cid) in enumerate(popular.items()):
+        with cols[i]:
+            if st.button(name, key=f"quick_{cid}", use_container_width=True):
+                st.session_state["crypto_search_coin_id"] = cid
+                st.session_state["crypto_search_coin_name"] = name
+    
+    col1, col2 = st.columns([2, 1])
+    
     with col1:
-        selected_coin = st.selectbox(
-            "Select Coin",
-            list(coin_options.keys()),
-            key="crypto_chart_coin",
+        search_query = st.text_input(
+            "🔍 Search any cryptocurrency (name or symbol)",
+            placeholder="e.g. shiba inu, pepe, avax, matic...",
+            key="crypto_search_input",
         )
+        
+        # Search CoinGecko for matching coins
+        coin_id = st.session_state.get("crypto_search_coin_id", "bitcoin")
+        selected_name = st.session_state.get("crypto_search_coin_name", "Bitcoin")
+        
+        if search_query:
+            try:
+                from pycoingecko import CoinGeckoAPI
+                cg = CoinGeckoAPI()
+                results = cg.search(search_query)
+                coins = results.get("coins", [])[:8]
+                
+                if coins:
+                    options = {f"{c['name']} ({c['symbol'].upper()})": c['id'] for c in coins}
+                    selected = st.selectbox(
+                        "Select from results:",
+                        list(options.keys()),
+                        key="crypto_search_result",
+                    )
+                    coin_id = options[selected]
+                    selected_name = selected
+                    st.session_state["crypto_search_coin_id"] = coin_id
+                    st.session_state["crypto_search_coin_name"] = selected_name
+                else:
+                    st.warning(f"No results for '{search_query}'")
+            except ImportError:
+                st.warning("Install `pycoingecko` for search: `pip install pycoingecko`")
+            except Exception as e:
+                st.error(f"Search error: {e}")
     
     with col2:
         time_range = st.selectbox(
@@ -143,7 +173,6 @@ def _render_price_chart():
             key="crypto_chart_range",
         )
     
-    coin_id = coin_options[selected_coin]
     days_map = {"7 Days": 7, "30 Days": 30, "90 Days": 90, "1 Year": 365, "Max": "max"}
     days = days_map[time_range]
     
@@ -151,7 +180,7 @@ def _render_price_chart():
         from pycoingecko import CoinGeckoAPI
         cg = CoinGeckoAPI()
         
-        with st.spinner(f"Fetching {selected_coin} price history..."):
+        with st.spinner(f"Fetching {selected_name} price history..."):
             chart_data = cg.get_coin_market_chart_by_id(
                 id=coin_id,
                 vs_currency="usd",
@@ -194,7 +223,7 @@ def _render_price_chart():
                     shared_xaxes=True,
                     vertical_spacing=0.03,
                     row_heights=[0.75, 0.25],
-                    subplot_titles=[f"{selected_coin} Price", "Volume"],
+                    subplot_titles=[f"{selected_name} Price", "Volume"],
                 )
                 
                 # Price line

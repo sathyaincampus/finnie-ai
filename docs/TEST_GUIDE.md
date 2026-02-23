@@ -1,7 +1,7 @@
 # Finnie AI — Test & Demo Guide
 
-> **Last Updated:** February 11, 2026  
-> **App Version:** Phase 2.5  
+> **Last Updated:** February 22, 2026  
+> **App Version:** Phase 3.0  
 > This guide is updated as new features are added.
 
 ---
@@ -35,7 +35,7 @@ streamlit run src/ui/app.py    # Opens at http://localhost:8501
 | 🪙 Crypto — Live Prices (CoinGecko) | ✅ Working | No |
 | 🪙 Crypto — Allocation Guide & Tax | ✅ Working | No |
 | ⚙️ Settings — Provider Config | ✅ Working | No |
-| 🔐 Auth — OAuth (Google/GitHub) + Guest | ✅ Working | OAuth setup |
+| 🔐 Auth — OAuth (Google) + Guest | ✅ Working | OAuth setup |
 | 🗄️ Chat Memory — SQLite Persistence | ✅ Working | No |
 | 🔧 MCP Tool Servers (7 tools) | ✅ Working | No |
 | 🔗 FastAPI API (13 endpoints) | ✅ Working | No |
@@ -386,7 +386,7 @@ pytest tests/ --cov=src --cov-report=term                # With coverage
 pytest tests/eval/test_phoenix_eval.py -v -k "relevancy or hallucination or faithfulness"
 ```
 
-**Expected:** 47+ passed, some skipped (eval tests skip without LLM API key)
+**Expected:** 113+ passed, some skipped (eval tests skip without LLM API key)
 
 ---
 
@@ -406,7 +406,8 @@ pytest tests/eval/test_phoenix_eval.py -v -k "relevancy or hallucination or fait
 | 10 | Toggle Voice Mode on, ask a question | "Edge-TTS voice output, browser STT input" |
 | 11 | Open `/api/docs` in new tab | "FastAPI with 13 endpoints, auto Swagger docs" |
 | 12 | Settings tab → show Phoenix | "Arize Phoenix observability at localhost:6006" |
-| 13 | Mention architecture | "LangGraph, MCP, 11 agents, Phoenix, Docker, 47+ tests" |
+| 13 | Help tab → Knowledge Explorer | "105 concepts from our Knowledge Graph, searchable, filterable, click Ask Finnie" |
+| 14 | Mention architecture | "LangGraph, MCP, 11 agents, GraphRAG, Phoenix, Docker, 113+ tests" |
 
 ---
 
@@ -436,7 +437,12 @@ pytest tests/eval/test_phoenix_eval.py -v -k "relevancy or hallucination or fait
 | Feb 8, 2026 | LangFuse observability (traces, spans, metrics) |
 | Feb 8, 2026 | Docker + Cloud Run deployment config |
 | Feb 8, 2026 | DeepEval test suite (relevancy, hallucination, faithfulness) |
-| Feb 8, 2026 | Test count: 33 → 47 (14 new MCP/Agent/Observability tests) |
+| Feb 22, 2026 | Knowledge Explorer: 105-concept browser with search, category/difficulty filters, Ask Finnie |
+| Feb 22, 2026 | Performance: @st.fragment + @st.cache_data for Knowledge Explorer |
+| Feb 22, 2026 | Auth: Fixed session persistence, removed GitHub (OIDC-only), improved logout |
+| Feb 22, 2026 | GraphRAG: Cached is_graph_available in session_state, RAG badge on responses |
+| Feb 22, 2026 | Routing: Fixed "dollar cost averaging" misroute to Quant agent |
+| Feb 11, 2026 | Test count: 33 → 113 (added MCP + agent + eval + integration tests) |
 | Feb 7, 2026 | Auth: OAuth (Google/GitHub) + guest mode, SQLite chat memory |
 | Feb 7, 2026 | Portfolio: live pricing, gain/loss, allocation chart |
 | Feb 7, 2026 | Market: BRK-B / BRK.B ticker normalization |

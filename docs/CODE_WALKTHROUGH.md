@@ -1,6 +1,6 @@
 # Finnie AI — Code Walkthrough
 
-> **Last updated:** 2026-02-11  
+> **Last updated:** 2026-02-22  
 > A comprehensive guide to the Finnie AI codebase for developers and reviewers.
 
 ---
@@ -114,8 +114,8 @@ finnie-ai/
 │   │   ├── ingest.py          # CLI ingestion pipeline
 │   │   └── retriever.py       # Query functions for agents
 │   ├── ui/                    # Streamlit frontend
-│   │   ├── app.py             # Main app (7 tabs, routing, chat)
-│   │   ├── auth.py            # Google/GitHub OAuth + guest login
+│   │   ├── app.py             # Main app (8 tabs, routing, chat)
+│   │   ├── auth.py            # Google OAuth + guest login
 │   │   ├── voice.py           # TTS (edge-tts) + STT control
 │   │   ├── stt_component/     # Custom Streamlit component for mic input
 │   │   │   └── index.html
@@ -127,7 +127,8 @@ finnie-ai/
 │   │       ├── projections.py # 🔮 Projections tab
 │   │       ├── planner.py     # 📋 Financial Planner tab
 │   │       ├── crypto.py      # 🪙 Crypto Dashboard tab
-│   │       └── settings.py    # ⚙️ Settings tab
+│   │       ├── settings.py    # ⚙️ Settings tab
+│   │       └── help.py        # ❓ Help + Knowledge Explorer tab
 │   └── api/
 │       └── main.py            # FastAPI REST endpoint
 ├── tests/
@@ -287,25 +288,26 @@ Key functions: `upsert_user()`, `create_conversation()`, `save_message()`, `get_
 
 #### `app.py` — Main Streamlit Application
 
-The largest file (~1350 lines). Contains:
+The largest file (~1500 lines). Contains:
 
-| Section | Lines | Purpose |
-|---------|-------|---------|
-| `init_session_state()` | 39–77 | Initialize provider, model, API key from `.env` |
-| `_process_chat_input()` | 368–405 | Shared handler for text + voice input |
-| `render_chat_tab()` | 408–460 | Chat UI with voice controls, message history, TTS |
-| `render_portfolio_tab()` | ~460–650 | Portfolio tracking with holdings management |
-| `render_market_tab()` | ~650–850 | Market data, charts, sector heatmaps |
-| `render_projections_tab()` | ~850–870 | Monte Carlo investment projections |
-| `render_settings_tab()` | ~870–935 | LLM provider config, connection status |
-| `generate_response()` | 941–1125 | **Intent router** — pattern-matches user input to agents |
+| Section | Purpose |
+|---------|--------|
+| `init_session_state()` | Initialize provider, model, API key from `.env` |
+| `_process_chat_input()` | Shared handler for text + voice input |
+| `render_chat_tab()` | Chat UI with voice controls, message history, TTS |
+| `render_portfolio_tab()` | Portfolio tracking with holdings management |
+| `render_market_tab()` | Market data, charts, sector heatmaps |
+| `render_projections_tab()` | Monte Carlo investment projections |
+| `render_settings_tab()` | LLM provider config, connection status |
+| `generate_response()` | **Intent router** — pattern-matches user input to agents |
 
 #### `auth.py` — Authentication
 
-Supports three login methods:
-- **Google OAuth** (via `google-auth-oauthlib`)
-- **GitHub OAuth** (via `requests`)
+Supports two login methods:
+- **Google OAuth** (via Streamlit's built-in OIDC)
 - **Guest mode** (anonymous, no persistence)
+
+> **Note:** GitHub OAuth is not supported because Streamlit requires OIDC and GitHub only provides plain OAuth 2.0.
 
 #### `voice.py` — Voice Interface
 
@@ -322,10 +324,11 @@ Supports three login methods:
 
 ### 8. Observability — `src/observability.py`
 
-**LangFuse** integration for production tracing:
-- `FinnieObserver` singleton with `create_trace()`, `span()`, `end_trace()`
+**Arize Phoenix** integration for production tracing:
+- Auto-launches locally at `localhost:6006`
+- OpenTelemetry-based tracing for all LLM calls and agent activity
 - Tracks latency, token usage, and errors per agent
-- Falls back to local storage when LangFuse credentials aren't configured
+- No external account needed — runs fully local
 
 ---
 
@@ -362,7 +365,7 @@ graph LR
 |------|-------|-----------|--------|
 | `Company` | 55+ | ticker, name, marketCap, peRatio | yFinance (live) |
 | `Sector` | 11 | name, description | GICS classification |
-| `Concept` | 20+ | name, definition, keyTakeaway, difficulty | Curated |
+| `Concept` | 105 | name, definition, keyTakeaway, difficulty, category | Curated (concepts.json) |
 | `ETF` | 18 | ticker, name, category | Curated |
 | `Industry` | ~30 | name | yFinance |
 

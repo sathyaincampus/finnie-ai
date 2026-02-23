@@ -158,5 +158,685 @@
         "keyTakeaway": "EBITDA removes financing and accounting effects, making it useful for comparing companies across industries.",
         "difficulty": "intermediate",
         "category": "fundamentals"
+    },
+    {
+        "name": "401(k)",
+        "aliases": "401k, traditional 401k, employer 401k",
+        "definition": "An employer-sponsored retirement savings plan allowing employees to contribute pre-tax income. 2025 limit: $23,500 ($30,500 if 50+).",
+        "keyTakeaway": "Always contribute enough to get the full employer match — it's free money. Contributions reduce taxable income.",
+        "difficulty": "beginner",
+        "category": "retirement"
+    },
+    {
+        "name": "Roth IRA",
+        "aliases": "roth, roth individual retirement account, backdoor roth",
+        "definition": "A retirement account funded with after-tax dollars. Qualified withdrawals in retirement are completely tax-free. 2025 limit: $7,000 ($8,000 if 50+).",
+        "keyTakeaway": "Best for those who expect higher taxes in retirement. Income limits apply but can be bypassed via 'backdoor Roth' conversion.",
+        "difficulty": "beginner",
+        "category": "retirement"
+    },
+    {
+        "name": "Traditional IRA",
+        "aliases": "ira, individual retirement account",
+        "definition": "A retirement account where contributions may be tax-deductible and investments grow tax-deferred until withdrawal.",
+        "keyTakeaway": "Deductibility depends on income and employer plan availability. Required Minimum Distributions start at age 73.",
+        "difficulty": "beginner",
+        "category": "retirement"
+    },
+    {
+        "name": "Required Minimum Distribution",
+        "aliases": "rmd, minimum distribution, required distribution",
+        "definition": "The minimum amount you must withdraw annually from tax-deferred retirement accounts starting at age 73 (as of SECURE 2.0 Act).",
+        "keyTakeaway": "Failing to take RMDs results in a 25% penalty on the amount not withdrawn. Roth IRAs have no RMDs for the original owner.",
+        "difficulty": "intermediate",
+        "category": "retirement"
+    },
+    {
+        "name": "Roth Conversion",
+        "aliases": "roth conversion ladder, convert to roth, backdoor roth conversion",
+        "definition": "Moving money from a Traditional IRA or 401(k) to a Roth IRA, paying taxes on the converted amount now for tax-free growth later.",
+        "keyTakeaway": "Best done in low-income years. The 'Roth conversion ladder' is a strategy for early retirees to access funds penalty-free.",
+        "difficulty": "advanced",
+        "category": "retirement"
+    },
+    {
+        "name": "HSA",
+        "aliases": "health savings account, hsa account, triple tax advantage",
+        "definition": "A tax-advantaged account for medical expenses available with high-deductible health plans. 2025 limits: $4,150 individual, $8,300 family.",
+        "keyTakeaway": "Triple tax advantage: tax-deductible contributions, tax-free growth, tax-free withdrawals for medical expenses. After 65, works like a Traditional IRA.",
+        "difficulty": "intermediate",
+        "category": "retirement"
+    },
+    {
+        "name": "Social Security",
+        "aliases": "social security benefits, ssa, social security retirement",
+        "definition": "Government retirement benefits based on your highest 35 years of earnings. Full retirement age is 67 for those born after 1960.",
+        "keyTakeaway": "Delaying benefits past full retirement age increases payments by 8% per year until 70. Claiming at 62 reduces benefits by ~30%.",
+        "difficulty": "beginner",
+        "category": "retirement"
+    },
+    {
+        "name": "Catch-Up Contributions",
+        "aliases": "catch up, over 50 contributions, additional contributions",
+        "definition": "Additional amounts people 50+ can contribute to retirement accounts above standard limits. 401k: $7,500 extra; IRA: $1,000 extra.",
+        "keyTakeaway": "Take advantage of catch-up provisions starting at 50 to accelerate retirement savings in your highest-earning years.",
+        "difficulty": "intermediate",
+        "category": "retirement"
+    },
+    {
+        "name": "529 Plan",
+        "aliases": "529, college savings plan, education savings",
+        "definition": "A tax-advantaged savings plan for education expenses. Contributions grow tax-free and withdrawals for qualified expenses are tax-free.",
+        "keyTakeaway": "Many states offer a tax deduction for 529 contributions. Unused funds can be rolled to Roth IRA (up to $35K lifetime) under SECURE 2.0.",
+        "difficulty": "beginner",
+        "category": "education"
+    },
+    {
+        "name": "Coverdell ESA",
+        "aliases": "coverdell, education savings account, esa",
+        "definition": "An education savings account with a $2,000/year contribution limit. Can be used for K-12 and college expenses.",
+        "keyTakeaway": "More flexible than 529 plans for K-12 expenses but has income limits and lower contribution caps.",
+        "difficulty": "intermediate",
+        "category": "education"
+    },
+    {
+        "name": "Tax-Loss Harvesting",
+        "aliases": "tax loss, harvesting losses, offset gains",
+        "definition": "Selling investments at a loss to offset capital gains taxes. Up to $3,000 in net losses can offset ordinary income annually.",
+        "keyTakeaway": "Beware the wash sale rule: you can't repurchase a 'substantially identical' security within 30 days. Consider buying a similar ETF instead.",
+        "difficulty": "intermediate",
+        "category": "tax"
+    },
+    {
+        "name": "Capital Gains Tax",
+        "aliases": "capital gains, long term capital gains, short term capital gains, ltcg, stcg",
+        "definition": "Tax on profit from selling an asset. Short-term (held <1 year): taxed as ordinary income. Long-term (held >1 year): lower rates (0%, 15%, or 20%).",
+        "keyTakeaway": "Hold investments >1 year to qualify for lower long-term rates. The 0% rate applies to income under ~$44K single / $89K married.",
+        "difficulty": "beginner",
+        "category": "tax"
+    },
+    {
+        "name": "Wash Sale Rule",
+        "aliases": "wash sale, 30 day rule, wash sale violation",
+        "definition": "IRS rule that disallows a tax loss deduction if you buy a substantially identical security within 30 days before or after the sale.",
+        "keyTakeaway": "To avoid wash sales, wait 31 days or buy a different but similar investment (e.g., sell SPY, buy VOO).",
+        "difficulty": "intermediate",
+        "category": "tax"
+    },
+    {
+        "name": "Alternative Minimum Tax",
+        "aliases": "amt, minimum tax, alternative tax",
+        "definition": "A parallel tax system that limits certain deductions and credits. Designed to ensure high-income earners pay a minimum level of tax.",
+        "keyTakeaway": "ISO stock option exercises, large state tax deductions, and certain municipal bonds can trigger AMT. Plan with a tax advisor.",
+        "difficulty": "advanced",
+        "category": "tax"
+    },
+    {
+        "name": "SALT Deduction",
+        "aliases": "state and local tax, salt cap, salt deduction limit",
+        "definition": "Deduction for state and local taxes paid. Currently capped at $10,000 per household under the Tax Cuts and Jobs Act.",
+        "keyTakeaway": "The $10K SALT cap particularly affects residents of high-tax states like CA, NY, NJ. May expire after 2025.",
+        "difficulty": "intermediate",
+        "category": "tax"
+    },
+    {
+        "name": "Standard Deduction",
+        "aliases": "standard deduction vs itemized, personal deduction",
+        "definition": "A fixed amount that reduces your taxable income. 2025: $15,000 single, $30,000 married filing jointly.",
+        "keyTakeaway": "Only itemize if your deductions (mortgage interest, charity, SALT) exceed the standard deduction. About 90% of filers use the standard.",
+        "difficulty": "beginner",
+        "category": "tax"
+    },
+    {
+        "name": "Tax Bracket",
+        "aliases": "marginal tax rate, income tax bracket, federal tax bracket",
+        "definition": "The percentage rate at which your last dollar of income is taxed. US has 7 brackets: 10%, 12%, 22%, 24%, 32%, 35%, 37%.",
+        "keyTakeaway": "Only income WITHIN each bracket is taxed at that rate (marginal), not your entire income. Effective rate is always lower than marginal rate.",
+        "difficulty": "beginner",
+        "category": "tax"
+    },
+    {
+        "name": "Qualified Dividend",
+        "aliases": "qualified dividends, ordinary dividend, dividend tax rate",
+        "definition": "Dividends from US or qualifying foreign corporations held for 60+ days. Taxed at lower long-term capital gains rates instead of ordinary income rates.",
+        "keyTakeaway": "Qualified dividends can be taxed at 0%, 15%, or 20% depending on income — much lower than ordinary income rates.",
+        "difficulty": "intermediate",
+        "category": "tax"
+    },
+    {
+        "name": "Mutual Fund",
+        "aliases": "mutual funds, open-end fund, actively managed fund",
+        "definition": "A pooled investment vehicle managed by a professional fund manager. Priced once daily at market close (NAV).",
+        "keyTakeaway": "Mutual funds offer professional management but typically charge higher expense ratios (0.5-1.5%) than ETFs (0.03-0.2%).",
+        "difficulty": "beginner",
+        "category": "instruments"
+    },
+    {
+        "name": "Index Fund",
+        "aliases": "index investing, passive investing, total market fund",
+        "definition": "A fund that tracks a market index (like S&P 500) rather than trying to beat it. Features very low fees.",
+        "keyTakeaway": "Over 15 years, 90%+ of actively managed funds underperform the S&P 500 index. Low fees compound massively over time.",
+        "difficulty": "beginner",
+        "category": "instruments"
+    },
+    {
+        "name": "REIT",
+        "aliases": "real estate investment trust, reit fund, real estate fund",
+        "definition": "A company that owns, operates, or finances income-producing real estate. Must distribute 90%+ of taxable income as dividends.",
+        "keyTakeaway": "REITs offer real estate exposure without owning property. They typically yield 3-6% but may be less tax-efficient than other investments.",
+        "difficulty": "intermediate",
+        "category": "instruments"
+    },
+    {
+        "name": "Futures Contract",
+        "aliases": "futures, commodity futures, futures trading",
+        "definition": "A standardized agreement to buy or sell a specific commodity or financial instrument at a set price on a future date.",
+        "keyTakeaway": "Futures provide leverage and hedging for commodities, currencies, and indices. They require margin and have unlimited loss potential.",
+        "difficulty": "advanced",
+        "category": "instruments"
+    },
+    {
+        "name": "Cryptocurrency",
+        "aliases": "crypto, digital currency, bitcoin, ethereum, blockchain",
+        "definition": "Digital assets that use cryptography and blockchain technology. Bitcoin and Ethereum are the two largest by market cap.",
+        "keyTakeaway": "Crypto is highly volatile (50%+ drawdowns common). Consider limiting to 1-5% of portfolio. Taxed as property by the IRS.",
+        "difficulty": "intermediate",
+        "category": "instruments"
+    },
+    {
+        "name": "Stablecoin",
+        "aliases": "usdc, usdt, tether, dai, stablecoins",
+        "definition": "Cryptocurrencies pegged to a stable asset (usually USD). Used for trading, yield generation, and payment settlement.",
+        "keyTakeaway": "Not all stablecoins are equally safe. USDC (Circle) is fully reserved; algorithmic stablecoins (like UST) have failed catastrophically.",
+        "difficulty": "intermediate",
+        "category": "instruments"
+    },
+    {
+        "name": "Sharpe Ratio",
+        "aliases": "sharpe, risk adjusted return, sharpe ratio formula",
+        "definition": "Measures risk-adjusted return: (Portfolio Return - Risk-Free Rate) ÷ Portfolio Standard Deviation.",
+        "keyTakeaway": "Sharpe > 1.0 is good, > 2.0 is very good, > 3.0 is excellent. The higher the Sharpe, the better the risk-adjusted performance.",
+        "difficulty": "intermediate",
+        "category": "risk"
+    },
+    {
+        "name": "Alpha",
+        "aliases": "jensen's alpha, excess return, alpha generation",
+        "definition": "The excess return of an investment relative to a benchmark index. Positive alpha means outperformance.",
+        "keyTakeaway": "True alpha is rare and hard to sustain. Most 'alpha' disappears after accounting for fees, risk, and luck.",
+        "difficulty": "intermediate",
+        "category": "risk"
+    },
+    {
+        "name": "Standard Deviation",
+        "aliases": "std dev, standard deviation finance, volatility measure",
+        "definition": "Measures the dispersion of returns around the average. Higher standard deviation = more variability in returns.",
+        "keyTakeaway": "Stocks typically have 15-20% annual std dev; bonds 4-8%. Use it to understand how much your portfolio value might swing.",
+        "difficulty": "intermediate",
+        "category": "risk"
+    },
+    {
+        "name": "Value at Risk",
+        "aliases": "var, value-at-risk, portfolio var",
+        "definition": "The maximum expected loss over a given time period at a given confidence level. Example: 95% daily VaR of $10K means you expect to lose no more than $10K on 95% of days.",
+        "keyTakeaway": "VaR is useful for setting risk limits but underestimates tail risk (black swan events). Use alongside stress testing.",
+        "difficulty": "advanced",
+        "category": "risk"
+    },
+    {
+        "name": "Correlation",
+        "aliases": "asset correlation, correlation coefficient, diversification benefit",
+        "definition": "Measures how two assets move relative to each other. +1 = perfect positive (move together); -1 = perfect negative (move opposite); 0 = no relationship.",
+        "keyTakeaway": "Low or negative correlations between portfolio assets improve diversification. In crises, correlations tend to spike toward +1.",
+        "difficulty": "intermediate",
+        "category": "risk"
+    },
+    {
+        "name": "Maximum Drawdown",
+        "aliases": "max drawdown, drawdown, peak to trough",
+        "definition": "The largest peak-to-trough decline in portfolio value before a new peak is reached. Measures worst-case scenario historically.",
+        "keyTakeaway": "S&P 500 max drawdowns: 2008 (-57%), 2020 (-34%), 2022 (-25%). Know your pain tolerance before investing aggressively.",
+        "difficulty": "intermediate",
+        "category": "risk"
+    },
+    {
+        "name": "IPO",
+        "aliases": "initial public offering, going public, ipo investing",
+        "definition": "The first time a private company offers shares to the public on a stock exchange. Transforms a private company into a publicly traded one.",
+        "keyTakeaway": "IPOs often pop on day one but underperform over 3-5 years. Most retail investors can't access IPO pricing — wait for the lockup period to expire.",
+        "difficulty": "intermediate",
+        "category": "market"
+    },
+    {
+        "name": "Dark Pool",
+        "aliases": "dark pools, alternative trading system, ats",
+        "definition": "Private exchanges where large institutional orders are matched anonymously to minimize market impact.",
+        "keyTakeaway": "Dark pools account for ~40% of US equity volume. They provide anonymity but reduce price transparency for retail investors.",
+        "difficulty": "advanced",
+        "category": "market"
+    },
+    {
+        "name": "Market Maker",
+        "aliases": "market making, designated market maker, dmm, liquidity provider",
+        "definition": "A firm that continuously provides buy and sell quotes for a security, profiting from the bid-ask spread while providing liquidity.",
+        "keyTakeaway": "Market makers (like Citadel Securities, Virtu) facilitate trading and narrow spreads. They take on inventory risk in exchange for the spread.",
+        "difficulty": "intermediate",
+        "category": "market"
+    },
+    {
+        "name": "Circuit Breaker",
+        "aliases": "market halt, trading halt, limit up limit down",
+        "definition": "Mechanisms that temporarily halt trading when prices drop too fast. S&P 500 triggers: Level 1 (-7%), Level 2 (-13%), Level 3 (-20%).",
+        "keyTakeaway": "Circuit breakers prevent panic selling. They were triggered in March 2020 multiple times during the COVID crash.",
+        "difficulty": "intermediate",
+        "category": "market"
+    },
+    {
+        "name": "Market Order vs Limit Order",
+        "aliases": "market order, limit order, stop order, order types",
+        "definition": "Market orders execute immediately at the current price. Limit orders execute only at a specified price or better.",
+        "keyTakeaway": "Always use limit orders for illiquid stocks or large trades. Market orders on volatile stocks can result in significant slippage.",
+        "difficulty": "beginner",
+        "category": "market"
+    },
+    {
+        "name": "Bid-Ask Spread",
+        "aliases": "bid ask, spread, bid price, ask price",
+        "definition": "The difference between the highest price a buyer will pay (bid) and the lowest price a seller will accept (ask).",
+        "keyTakeaway": "Narrower spreads indicate higher liquidity. Wide spreads on small-cap or penny stocks increase trading costs significantly.",
+        "difficulty": "beginner",
+        "category": "market"
+    },
+    {
+        "name": "Emergency Fund",
+        "aliases": "rainy day fund, emergency savings, cash reserve",
+        "definition": "Cash savings to cover unexpected expenses or income loss. Standard recommendation: 3-6 months of essential expenses.",
+        "keyTakeaway": "Keep in a High-Yield Savings Account (4-5% APY). Visa holders (H1B) should target 12-18 months due to employment uncertainty.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Budgeting",
+        "aliases": "budget, 50/30/20 rule, monthly budget, cash flow",
+        "definition": "A plan for managing income and expenses. Popular frameworks include: 50/30/20 (needs/wants/savings) and zero-based budgeting.",
+        "keyTakeaway": "Track spending for 1-2 months to understand patterns. Automate savings with 'pay yourself first' transfers on payday.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Credit Score",
+        "aliases": "fico score, credit rating, credit report, credit history",
+        "definition": "A numerical rating (300-850) representing creditworthiness. Based on payment history (35%), amounts owed (30%), length (15%), new credit (10%), mix (10%).",
+        "keyTakeaway": "740+ = excellent rates on mortgages. Never miss payments. Keep credit utilization below 30% (ideally <10%).",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Debt Snowball vs Avalanche",
+        "aliases": "debt payoff, debt snowball, debt avalanche, debt repayment",
+        "definition": "Snowball: pay off smallest debts first for psychological wins. Avalanche: pay off highest-interest debts first for mathematical optimization.",
+        "keyTakeaway": "Avalanche saves the most money mathematically. Snowball provides motivation through quick wins. Both beat minimum payments.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Net Worth",
+        "aliases": "total net worth, assets minus liabilities, wealth",
+        "definition": "Total assets minus total liabilities. A comprehensive measure of financial health that goes beyond income.",
+        "keyTakeaway": "Track net worth monthly. A positive and growing net worth is more important than high income. Include all assets and debts.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "High-Yield Savings Account",
+        "aliases": "hysa, high yield savings, online savings account",
+        "definition": "Online savings accounts offering 4-5% APY (vs 0.01-0.5% at traditional banks). FDIC insured up to $250,000.",
+        "keyTakeaway": "Perfect for emergency funds and short-term goals. Popular options: Marcus, Ally, Wealthfront, SoFi. Rates fluctuate with the Fed Funds rate.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Mortgage",
+        "aliases": "home loan, mortgage rate, fixed rate mortgage, adjustable rate mortgage",
+        "definition": "A loan secured by real property. Types: fixed-rate (stable payments) or adjustable-rate (initially lower, can change). Standard term: 30 or 15 years.",
+        "keyTakeaway": "20% down payment avoids PMI ($100s/month). 15-year mortgages save massive interest but have higher monthly payments.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Down Payment",
+        "aliases": "home down payment, 20 percent down, pmi",
+        "definition": "Upfront cash payment when purchasing a home. Standard is 20% to avoid Private Mortgage Insurance (PMI).",
+        "keyTakeaway": "PMI typically costs 0.5-1% of the loan annually. FHA loans allow 3.5% down but include MIP. VA loans require 0% down.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Dollar Weighted Return",
+        "aliases": "money weighted return, irr, internal rate of return, personal return",
+        "definition": "The return that accounts for the timing and size of all cash flows into and out of an investment.",
+        "keyTakeaway": "Dollar-weighted return reflects YOUR actual experience. It differs from time-weighted return when you add/withdraw money at different times.",
+        "difficulty": "intermediate",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Price-to-Book Ratio",
+        "aliases": "p/b ratio, price to book, book value",
+        "definition": "Stock Price ÷ Book Value Per Share. Compares market value to accounting value of a company.",
+        "keyTakeaway": "P/B < 1.0 may signal undervaluation (market values company below its assets). Banks and financial stocks commonly use P/B.",
+        "difficulty": "intermediate",
+        "category": "valuation"
+    },
+    {
+        "name": "Free Cash Flow",
+        "aliases": "fcf, free cash flow yield, cash flow from operations",
+        "definition": "Operating cash flow minus capital expenditures. Represents cash available for dividends, buybacks, or debt repayment.",
+        "keyTakeaway": "Companies with strong, positive FCF have more financial flexibility. FCF is harder to manipulate than earnings.",
+        "difficulty": "intermediate",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Debt-to-Equity Ratio",
+        "aliases": "d/e ratio, leverage ratio, financial leverage",
+        "definition": "Total Debt ÷ Total Shareholders' Equity. Measures how much a company relies on debt vs equity financing.",
+        "keyTakeaway": "Higher D/E = more financial risk. D/E > 2.0 is generally considered high. Varies significantly by industry (utilities vs tech).",
+        "difficulty": "intermediate",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Return on Equity",
+        "aliases": "roe, return on equity formula, shareholder returns",
+        "definition": "Net Income ÷ Shareholders' Equity. Measures how effectively a company uses shareholder capital to generate profit.",
+        "keyTakeaway": "ROE > 15% is generally considered good. Very high ROE (>30%) may indicate high leverage. Compare within the same industry.",
+        "difficulty": "intermediate",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Expense Ratio",
+        "aliases": "fund expense ratio, management fee, ter, total expense ratio",
+        "definition": "Annual fee charged by mutual funds or ETFs as a percentage of assets. Covers management, administration, and operating costs.",
+        "keyTakeaway": "A 1% expense ratio costs ~$28K on a $100K investment over 20 years (at 7% return). Choose funds with 0.03-0.20% ratios when possible.",
+        "difficulty": "beginner",
+        "category": "fundamentals"
+    },
+    {
+        "name": "Rebalancing",
+        "aliases": "portfolio rebalancing, asset reallocation, drift",
+        "definition": "Periodically adjusting portfolio holdings back to target allocations. Sell winners, buy losers to maintain desired risk level.",
+        "keyTakeaway": "Rebalance annually or when allocations drift >5% from targets. Tax-efficient method: direct new contributions to underweight assets.",
+        "difficulty": "intermediate",
+        "category": "strategy"
+    },
+    {
+        "name": "Value Investing",
+        "aliases": "value investor, graham, buffett, intrinsic value, margin of safety",
+        "definition": "Buying stocks trading below their intrinsic value. Pioneered by Benjamin Graham, popularized by Warren Buffett.",
+        "keyTakeaway": "Look for low P/E, low P/B, strong cash flow, and a margin of safety. Value has historically outperformed growth over long periods.",
+        "difficulty": "intermediate",
+        "category": "strategy"
+    },
+    {
+        "name": "Growth Investing",
+        "aliases": "growth investor, growth stocks, momentum investing",
+        "definition": "Investing in companies expected to grow revenue and earnings faster than the market average, even if current valuations are high.",
+        "keyTakeaway": "Growth stocks can deliver outsized returns but are more volatile. They often have high P/E ratios and may not pay dividends.",
+        "difficulty": "intermediate",
+        "category": "strategy"
+    },
+    {
+        "name": "FBAR",
+        "aliases": "foreign bank account report, fincen 114, foreign account reporting",
+        "definition": "US persons with foreign financial accounts exceeding $10,000 at any time during the year must file FinCEN Form 114 by April 15.",
+        "keyTakeaway": "Failure to file FBAR can result in penalties up to $100K per violation. Covers NRE/NRO accounts, foreign bank accounts, mutual funds.",
+        "difficulty": "advanced",
+        "category": "international"
+    },
+    {
+        "name": "NRE Account",
+        "aliases": "non-resident external account, nre fd, nre savings",
+        "definition": "Indian bank account for NRIs to deposit foreign earnings. Fully repatriable (can transfer back to US). Interest is tax-free in India.",
+        "keyTakeaway": "NRE FDs offer 6-7% interest (tax-free in India, taxable in US). Must be reported on FBAR if balance exceeds $10,000.",
+        "difficulty": "intermediate",
+        "category": "international"
+    },
+    {
+        "name": "NRO Account",
+        "aliases": "non-resident ordinary account, nro savings, india income account",
+        "definition": "Indian bank account for NRIs to manage India-sourced income (rent, dividends). Limited repatriation ($1M/year after tax). Interest taxed at 30% in India.",
+        "keyTakeaway": "Use NRO for rental income from Indian property. Interest income is taxable in both India and US (use DTAA for credit).",
+        "difficulty": "intermediate",
+        "category": "international"
+    },
+    {
+        "name": "DTAA",
+        "aliases": "double taxation avoidance agreement, tax treaty, us india tax treaty",
+        "definition": "Treaty between countries to prevent the same income from being taxed in both. US-India DTAA covers dividends, interest, capital gains, and services.",
+        "keyTakeaway": "Claim Foreign Tax Credit (Form 1116) on US returns for taxes paid in India. DTAA prevents double taxation on NRO interest, rental income.",
+        "difficulty": "advanced",
+        "category": "international"
+    },
+    {
+        "name": "FATCA",
+        "aliases": "foreign account tax compliance act, form 8938",
+        "definition": "US law requiring foreign financial institutions to report US account holders. US persons must file Form 8938 for foreign assets exceeding thresholds.",
+        "keyTakeaway": "Form 8938 thresholds: $50K (single, US) or $200K (single, abroad). FATCA and FBAR are separate filings with different thresholds.",
+        "difficulty": "advanced",
+        "category": "international"
+    },
+    {
+        "name": "PFIC",
+        "aliases": "passive foreign investment company, pfic tax, foreign mutual fund",
+        "definition": "A foreign corporation where 75%+ income is passive or 50%+ assets produce passive income. Subject to punitive US tax treatment.",
+        "keyTakeaway": "Indian mutual funds are classified as PFICs. This makes them extremely tax-inefficient for US persons — avoid holding them.",
+        "difficulty": "advanced",
+        "category": "international"
+    },
+    {
+        "name": "H1B Visa Financial Planning",
+        "aliases": "h1b, h1b visa, work visa, immigration financial planning",
+        "definition": "Financial considerations for H1B visa holders: limited job mobility, 60-day grace period if terminated, green card backlog, dual-country tax obligations.",
+        "keyTakeaway": "Build 12-18 month emergency fund (vs 3-6 months standard). Maintain India relocation reserve. Max out 401K early — it's portable.",
+        "difficulty": "intermediate",
+        "category": "international"
+    },
+    {
+        "name": "Stock Split",
+        "aliases": "forward split, reverse split, stock split history",
+        "definition": "A corporate action that increases (forward split) or decreases (reverse split) shares outstanding while maintaining the same total market value.",
+        "keyTakeaway": "A 4-for-1 split turns 1 share at $400 into 4 shares at $100. Doesn't change value but improves accessibility and often increases trading volume.",
+        "difficulty": "beginner",
+        "category": "market"
+    },
+    {
+        "name": "Stock Buyback",
+        "aliases": "share repurchase, buyback program, treasury stock",
+        "definition": "When a company purchases its own shares from the market, reducing shares outstanding and increasing EPS for remaining shareholders.",
+        "keyTakeaway": "Buybacks are more tax-efficient than dividends for shareholders. However, they don't always signal strength — some companies buy back at inflated prices.",
+        "difficulty": "intermediate",
+        "category": "market"
+    },
+    {
+        "name": "Dividend Reinvestment Plan",
+        "aliases": "drip, drip investing, automatic reinvestment",
+        "definition": "Automatically reinvesting dividends to purchase additional shares of the same stock or fund, often commission-free.",
+        "keyTakeaway": "DRIPs harness compounding by continuously increasing your share count. Over 20+ years, reinvested dividends can account for 40%+ of total returns.",
+        "difficulty": "beginner",
+        "category": "strategy"
+    },
+    {
+        "name": "Modern Portfolio Theory",
+        "aliases": "mpt, efficient frontier, markowitz, mean-variance optimization",
+        "definition": "Framework for constructing portfolios that maximize expected return for a given level of risk, using asset correlations and expected returns.",
+        "keyTakeaway": "The 'efficient frontier' shows the best possible return for each risk level. Diversification across uncorrelated assets improves the frontier.",
+        "difficulty": "advanced",
+        "category": "strategy"
+    },
+    {
+        "name": "Monte Carlo Simulation",
+        "aliases": "monte carlo, probability simulation, retirement simulation",
+        "definition": "A computerized mathematical technique that uses random sampling to model the probability of different outcomes in financial planning.",
+        "keyTakeaway": "Monte Carlo shows the range of possible outcomes (e.g., 85% chance of meeting your retirement goal). A 95%+ success rate is generally targeted.",
+        "difficulty": "intermediate",
+        "category": "strategy"
+    },
+    {
+        "name": "Safe Withdrawal Rate",
+        "aliases": "4% rule, swr, trinity study, retirement withdrawal",
+        "definition": "The percentage of a retirement portfolio that can be withdrawn annually with low risk of depletion over 30 years. The '4% rule' comes from the Trinity Study.",
+        "keyTakeaway": "4% is a starting point, not a guarantee. Adjust based on market conditions, spending flexibility, and retirement length. Some suggest 3.5% for safety.",
+        "difficulty": "intermediate",
+        "category": "retirement"
+    },
+    {
+        "name": "Asset Location",
+        "aliases": "asset location strategy, tax-efficient placement, account type optimization",
+        "definition": "Placing investments in the most tax-efficient account type: bonds in tax-deferred (401K/IRA), stocks in taxable/Roth for lower tax burden.",
+        "keyTakeaway": "Put high-growth assets in Roth (tax-free growth), bonds/REITs in Traditional IRA (defer ordinary income), and index funds in taxable (low turnover).",
+        "difficulty": "advanced",
+        "category": "strategy"
+    },
+    {
+        "name": "Backdoor Roth IRA",
+        "aliases": "backdoor roth, mega backdoor roth, roth conversion strategy",
+        "definition": "A strategy for high-income earners to contribute to a Roth IRA by first contributing to a Traditional IRA, then converting. Bypasses income limits.",
+        "keyTakeaway": "Works best with no existing Traditional IRA balance (avoids pro-rata rule). Mega backdoor Roth uses after-tax 401(k) contributions — up to $69K total.",
+        "difficulty": "advanced",
+        "category": "retirement"
+    },
+    {
+        "name": "FIRE Movement",
+        "aliases": "financial independence retire early, fire, lean fire, fat fire, coast fire",
+        "definition": "A lifestyle movement focused on extreme savings (50-70% of income) and investment to achieve financial independence and optional early retirement.",
+        "keyTakeaway": "FI number = annual expenses × 25 (based on 4% rule). Lean FIRE: <$40K/yr expenses. Fat FIRE: >$100K/yr. Coast FIRE: enough invested to stop saving.",
+        "difficulty": "intermediate",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Dollar Index",
+        "aliases": "dxy, us dollar index, dollar strength",
+        "definition": "Measures the US dollar's value against a basket of 6 major currencies (EUR, JPY, GBP, CAD, SEK, CHF). Base value: 100 (1973).",
+        "keyTakeaway": "A strong dollar hurts US exporters and multinational earnings but benefits importers. DXY above 100 = dollar stronger than 1973 baseline.",
+        "difficulty": "intermediate",
+        "category": "market"
+    },
+    {
+        "name": "Yield Curve",
+        "aliases": "yield curve inversion, inverted yield curve, treasury yield curve",
+        "definition": "A graph showing interest rates on US Treasury bonds across different maturities. Normal: upward sloping. Inverted: short-term > long-term.",
+        "keyTakeaway": "An inverted yield curve has preceded every US recession since 1955. It signals that investors expect lower rates (and slower growth) in the future.",
+        "difficulty": "intermediate",
+        "category": "market"
+    },
+    {
+        "name": "Federal Reserve",
+        "aliases": "the fed, federal funds rate, fomc, monetary policy, interest rate decision",
+        "definition": "The central bank of the United States. Sets monetary policy through the Federal Funds Rate, quantitative easing/tightening, and bank regulation.",
+        "keyTakeaway": "Rate hikes slow the economy and hurt stocks (especially growth). Rate cuts stimulate growth and benefit stocks. Watch FOMC meetings (8x/year).",
+        "difficulty": "beginner",
+        "category": "market"
+    },
+    {
+        "name": "Inflation",
+        "aliases": "cpi, consumer price index, inflation rate, purchasing power",
+        "definition": "The rate at which general prices increase over time, eroding purchasing power. Measured by the Consumer Price Index (CPI).",
+        "keyTakeaway": "The Fed targets 2% inflation. Investments must earn more than inflation to grow in real terms. TIPS bonds and I-Bonds protect against inflation.",
+        "difficulty": "beginner",
+        "category": "market"
+    },
+    {
+        "name": "TIPS",
+        "aliases": "treasury inflation protected securities, tips bonds, inflation bonds, i bonds",
+        "definition": "US Treasury bonds whose principal adjusts with inflation (CPI). Protects purchasing power while providing guaranteed real returns.",
+        "keyTakeaway": "I-Bonds ($10K/year limit) offer inflation protection with no downside risk. TIPS trade on the open market and can fluctuate in price.",
+        "difficulty": "intermediate",
+        "category": "instruments"
+    },
+    {
+        "name": "Sector Rotation",
+        "aliases": "sector rotation strategy, business cycle sectors, cyclical vs defensive",
+        "definition": "The strategy of moving investments between market sectors based on the economic cycle. Different sectors outperform at different stages.",
+        "keyTakeaway": "Early recovery: Technology, Consumer Discretionary. Mid-cycle: Industrials, Materials. Late cycle: Energy, Staples. Recession: Utilities, Healthcare.",
+        "difficulty": "intermediate",
+        "category": "strategy"
+    },
+    {
+        "name": "ESG Investing",
+        "aliases": "esg, sustainable investing, socially responsible investing, sri",
+        "definition": "Investing based on Environmental, Social, and Governance criteria alongside financial returns. Screens out companies with poor ESG practices.",
+        "keyTakeaway": "ESG funds have shown competitive returns vs traditional funds. However, ESG ratings vary across providers and there's a risk of greenwashing.",
+        "difficulty": "intermediate",
+        "category": "strategy"
+    },
+    {
+        "name": "Fibonacci Retracement",
+        "aliases": "fib levels, fibonacci, 61.8%, golden ratio finance",
+        "definition": "Technical analysis tool using horizontal lines at key Fibonacci percentages (23.6%, 38.2%, 50%, 61.8%) to identify potential support/resistance levels.",
+        "keyTakeaway": "The 61.8% level is the most watched. While not scientifically proven, Fibonacci levels become self-fulfilling prophecies because many traders use them.",
+        "difficulty": "advanced",
+        "category": "technical"
+    },
+    {
+        "name": "MACD",
+        "aliases": "moving average convergence divergence, macd indicator, macd crossover",
+        "definition": "A momentum indicator showing the relationship between two moving averages. MACD line crossing above signal line = bullish; below = bearish.",
+        "keyTakeaway": "MACD works best in trending markets. Combine with RSI and volume for stronger signals. Divergence between MACD and price often signals reversals.",
+        "difficulty": "intermediate",
+        "category": "technical"
+    },
+    {
+        "name": "Bollinger Bands",
+        "aliases": "bollinger, bollinger band squeeze, band width",
+        "definition": "Technical indicator with a middle band (20-day SMA) and upper/lower bands set 2 standard deviations away. Measures volatility and potential reversals.",
+        "keyTakeaway": "Price touching the upper band doesn't mean 'sell' — in strong uptrends, price rides the upper band. A 'squeeze' (narrow bands) often precedes a big move.",
+        "difficulty": "intermediate",
+        "category": "technical"
+    },
+    {
+        "name": "Volume",
+        "aliases": "trading volume, volume analysis, volume profile, obv",
+        "definition": "The number of shares or contracts traded in a security during a given period. Confirms the strength of price movements.",
+        "keyTakeaway": "Rising prices on rising volume = strong trend. Rising prices on declining volume = weakening trend. Volume spikes often occur at trend reversals.",
+        "difficulty": "beginner",
+        "category": "technical"
+    },
+    {
+        "name": "Support and Resistance",
+        "aliases": "support level, resistance level, price floor, price ceiling",
+        "definition": "Price levels where a stock tends to stop falling (support) or stop rising (resistance). Created by historical buying/selling patterns.",
+        "keyTakeaway": "When broken, support becomes resistance and vice versa. The more times a level is tested, the more significant the eventual breakout.",
+        "difficulty": "beginner",
+        "category": "technical"
+    },
+    {
+        "name": "Estate Planning",
+        "aliases": "will, trust, estate tax, inheritance, beneficiary designation",
+        "definition": "The process of arranging how your assets will be managed and distributed after death. Includes wills, trusts, beneficiary designations, and powers of attorney.",
+        "keyTakeaway": "Beneficiary designations on retirement accounts and insurance override your will. Review and update after major life events (marriage, kids, divorce).",
+        "difficulty": "intermediate",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Life Insurance",
+        "aliases": "term life, whole life, universal life, life insurance policy",
+        "definition": "Financial protection for dependents. Term life: coverage for a set period, cheapest. Whole life: lifetime coverage + cash value, much more expensive.",
+        "keyTakeaway": "Most people need term life insurance (10-20x annual income, 20-30 year term). Whole life is rarely the optimal choice — invest the premium difference instead.",
+        "difficulty": "beginner",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Umbrella Insurance",
+        "aliases": "excess liability, umbrella policy, personal liability",
+        "definition": "Extra liability coverage beyond auto and homeowner policies. Typically $1-5M in coverage for $200-500/year.",
+        "keyTakeaway": "Essential if your net worth exceeds your auto/home liability limits. Protects against lawsuits, personal liability, and catastrophic claims.",
+        "difficulty": "intermediate",
+        "category": "personal_finance"
+    },
+    {
+        "name": "Index Rebalancing",
+        "aliases": "index reconstitution, nasdaq 100 changes, sp500 additions, russell reconstitution",
+        "definition": "The periodic process of adding and removing stocks from market indices. Creates massive passive fund flows as index-tracking ETFs must adjust holdings.",
+        "keyTakeaway": "Stocks added to S&P 500 see $16T+ in passive flows. Front-running anticipated additions before announcement can generate 3-7% alpha.",
+        "difficulty": "advanced",
+        "category": "market"
     }
 ]

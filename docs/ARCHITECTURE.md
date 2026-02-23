@@ -1,7 +1,7 @@
 # Finnie AI — Architecture Documentation
 
-> **Version:** 2.5.0  
-> **Last Updated:** February 11, 2026
+> **Version:** 3.0.0  
+> **Last Updated:** February 22, 2026
 
 ---
 
@@ -17,7 +17,9 @@ The Finnie AI backend follows a layered architecture pattern with clear separati
 |-------|------------|---------|
 | **Input Layer** | User Input, Voice Input, Portfolio Data | Entry points for user interactions |
 | **API Gateway** | FastAPI (Port 8000) | REST endpoints, WebSocket streaming |
+| **LLM Gateway** | Smart Router, Budget Tracker | Routes queries to optimal model by complexity (free → cheap → full) |
 | **Orchestration** | LangGraph, Enhancer Agent, Session Manager, MCP Client | State machine, prompt optimization, memory, tool coordination |
+| **Context Manager** | Window Compression | Keeps original + recent, summarizes middle for long conversations |
 | **AI Services** | OpenAI, Anthropic, Google | Multi-provider LLM support |
 | **Agent Layer** | 11 specialized agents | Domain-specific processing (incl. Enhancer, Planner, Crypto) |
 | **MCP Tools** | yFinance, Charts, CoinGecko, News, Calculator | External integrations |
@@ -149,12 +151,14 @@ sequenceDiagram
 |----------|------------|
 | Frontend | Streamlit, Plotly, Custom CSS |
 | Backend | FastAPI, LangGraph, MCP |
-| LLMs | OpenAI GPT-4o, Claude, Gemini |
+| LLM Gateway | Smart Router (3-tier: free/cheap/full), Budget Tracker |
+| LLMs | OpenAI GPT-4o, GPT-4o-mini, Claude, Gemini 2.0 Flash |
 | Agents | 11 specialists (Enhancer, Quant, Professor, Scout, Oracle, Advisor, Analyst, Planner, Crypto, Guardian, Scribe) |
 | Databases | NeonDB (Postgres), AuraDB (Neo4j), Redis Cloud |
 | Voice | OpenAI Whisper, edge-tts |
 | Observability | Arize Phoenix + OpenTelemetry |
-| Evaluations | Arize Phoenix (relevance, hallucination, faithfulness) |
+| Evaluations | Arize Phoenix (Relevance, QA Quality, Hallucination, Toxicity) with Gemini Flash judge |
+| Context Mgmt | Window compression: original + summary + recent |
 | Deployment | Google Cloud Run, Docker |
 
 ---

@@ -254,9 +254,9 @@ class TestMCPTools:
         tools = get_available_tools()
         expected_tools = {
             "get_stock_price",
-            "get_stock_history",
-            "get_market_movers",
-            "render_chart",
+            "get_historical_data",
+            "get_company_info",
+            "create_price_chart",
         }
         tool_names = {t["name"] for t in tools}
         assert expected_tools.issubset(tool_names), f"Missing tools: {expected_tools - tool_names}"
@@ -269,13 +269,13 @@ class TestMCPTools:
         for tool in tools:
             assert "name" in tool, "Tool must have a name"
             assert "description" in tool, "Tool must have a description"
-            assert "parameters" in tool, "Tool must have parameters schema"
+            assert "inputSchema" in tool, "Tool must have inputSchema"
 
     def test_unknown_tool_error(self):
         """Calling an unknown tool should return an error, not crash."""
         from src.mcp.tools import execute_tool
 
-        result = execute_tool("nonexistent_tool", {})
+        result = execute_tool("nonexistent_tool")
         assert "error" in result
 
 

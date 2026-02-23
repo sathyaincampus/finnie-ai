@@ -28,7 +28,8 @@ def _get_user_info() -> Optional[dict]:
     Returns dict with: email, name, avatar_url, provider, user_id
     """
     try:
-        user = st.experimental_user
+        # Streamlit 1.54+ uses st.user; older versions use st.experimental_user
+        user = getattr(st, 'user', None) or getattr(st, 'experimental_user', None)
         if user and hasattr(user, 'email') and user.email:
             email = user.email
             name = getattr(user, 'name', None) or email.split('@')[0]
@@ -172,11 +173,8 @@ def render_login_page():
                 except Exception as e:
                     st.error(f"Google login error: {e}")
 
-            if st.button("⚫ Continue with GitHub", use_container_width=True, key="login_github"):
-                try:
-                    st.login("github")
-                except Exception as e:
-                    st.error(f"GitHub login error: {e}")
+
+
 
             st.markdown('<div class="login-divider">or</div>', unsafe_allow_html=True)
 
@@ -203,26 +201,31 @@ def require_auth() -> dict:
     Returns user info dict if authenticated, otherwise shows login page and stops.
     Auto-enters guest mode if OAuth is not configured (local dev).
     """
-    # Check for existing session
+    # Check for existing session (within this browser session)
     if st.session_state.get("auth_complete") and st.session_state.get("user"):
         return st.session_state.user
 
-    # Check OAuth user (if they completed OAuth flow)
-    oauth_user = _get_user_info()
-    if oauth_user:
-        st.session_state.user = oauth_user
-        st.session_state.auth_complete = True
+    # Only auto-detect OAuth when returning from the OAuth redirect flow,
+    # NOT on a general page refresh. This ensures logout truly logs out.
+    query_params = st.query_params.to_dict()
+    is_oauth_callback = "code" in query_params or "oauth2callback" in query_params.get("", "")
 
-        # Register user in database
-        from src.memory import upsert_user
-        upsert_user(
-            user_id=oauth_user["user_id"],
-            email=oauth_user["email"],
-            name=oauth_user["name"],
-            avatar_url=oauth_user.get("avatar_url", ""),
-            provider=oauth_user["provider"],
-        )
-        return oauth_user
+    if is_oauth_callback:
+        oauth_user = _get_user_info()
+        if oauth_user:
+            st.session_state.user = oauth_user
+            st.session_state.auth_complete = True
+
+            # Register user in database
+            from src.memory import upsert_user
+            upsert_user(
+                user_id=oauth_user["user_id"],
+                email=oauth_user["email"],
+                name=oauth_user["name"],
+                avatar_url=oauth_user.get("avatar_url", ""),
+                provider=oauth_user["provider"],
+            )
+            return oauth_user
 
     # Auto-enter guest mode if OAuth isn't properly configured
     # (avoids requiring a click every refresh during local dev)

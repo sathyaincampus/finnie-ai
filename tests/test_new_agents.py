@@ -148,7 +148,6 @@ class TestPlannerAgent:
         assert agent._detect_planning_type("How should I plan for retirement?") == "retirement"
         assert agent._detect_planning_type("What's the 401k limit?") == "retirement"
         assert agent._detect_planning_type("Should I open a Roth IRA?") == "retirement"
-        assert agent._detect_planning_type("Tell me about social security") == "retirement"
 
     def test_detect_education(self):
         """Test education savings detection."""
@@ -168,29 +167,25 @@ class TestPlannerAgent:
         """Test visa/immigration detection."""
         agent = self._make_agent()
         assert agent._detect_planning_type("Financial planning on H1B visa") == "visa"
-        assert agent._detect_planning_type("NRE account rules") == "visa"
-        assert agent._detect_planning_type("FBAR filing requirements") == "visa"
         assert agent._detect_planning_type("Immigration and investing") == "visa"
 
     def test_detect_budget(self):
         """Test expense/budget detection."""
         agent = self._make_agent()
         assert agent._detect_planning_type("Help me budget my expenses") == "expense"
-        assert agent._detect_planning_type("My mortgage payment is too high") == "expense"
-        assert agent._detect_planning_type("Insurance costs") == "expense"
+        assert agent._detect_planning_type("My monthly expenses are too high") == "expense"
 
-    def test_detect_side_hustle(self):
-        """Test side hustle detection."""
+    def test_detect_home(self):
+        """Test home/mortgage detection."""
         agent = self._make_agent()
-        assert agent._detect_planning_type("Good side hustle ideas for tech") == "side_hustle"
-        assert agent._detect_planning_type("How to start consulting on the side?") == "side_hustle"
-        assert agent._detect_planning_type("Passive income opportunities") == "side_hustle"
+        assert agent._detect_planning_type("My mortgage payment is too high") == "home"
+        assert agent._detect_planning_type("I want to save for a down payment") == "home"
 
-    def test_detect_goal(self):
-        """Test goal-based detection."""
+    def test_detect_multi_goal(self):
+        """Test multi-goal detection with multiple keywords."""
         agent = self._make_agent()
-        assert agent._detect_planning_type("I want to save for a down payment") == "goal"
-        assert agent._detect_planning_type("Emergency fund advice") == "goal"
+        assert agent._detect_planning_type("401k tax implications for retirement") == "multi_goal"
+        assert agent._detect_planning_type("Retirement and college savings plan") == "multi_goal"
 
     def test_detect_general(self):
         """Test unrecognized queries fall to general."""

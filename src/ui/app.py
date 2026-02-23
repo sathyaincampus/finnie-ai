@@ -128,7 +128,7 @@ def init_session_state():
 # =============================================================================
 
 def load_custom_css():
-    """Load custom CSS for premium dark mode styling."""
+    """Load custom CSS for premium dark mode styling with glassmorphism."""
     st.markdown("""
     <style>
     /* ================================================================
@@ -137,14 +137,49 @@ def load_custom_css():
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
     /* ================================================================
-       Global styling
+       Keyframe Animations
+       ================================================================ */
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    @keyframes subtleGlow {
+        0%, 100% { box-shadow: 0 0 15px rgba(124, 92, 252, 0.15); }
+        50% { box-shadow: 0 0 25px rgba(124, 92, 252, 0.25); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ================================================================
+       Global Styling
        ================================================================ */
     .stApp {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+        background: rgba(15, 15, 30, 0.5);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(124, 92, 252, 0.3);
+        border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(124, 92, 252, 0.5);
+    }
+
     /* ================================================================
-       Header
+       Header — Animated Gradient Title
        ================================================================ */
     .finnie-header {
         display: flex;
@@ -156,12 +191,18 @@ def load_custom_css():
     .finnie-logo {
         font-size: 2.4rem;
         line-height: 1;
+        filter: drop-shadow(0 0 8px rgba(124, 92, 252, 0.4));
     }
 
     .finnie-title {
         font-size: 2.2rem;
         font-weight: 700;
-        color: #a78bfa;
+        background: linear-gradient(135deg, #a78bfa 0%, #7c5cfc 30%, #60a5fa 60%, #a78bfa 100%);
+        background-size: 200% 200%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradientShift 4s ease infinite;
         letter-spacing: -0.5px;
     }
 
@@ -174,14 +215,17 @@ def load_custom_css():
     }
 
     /* ================================================================
-       Tabs — clean, readable labels
+       Tabs — Glassmorphism with Glow on Active
        ================================================================ */
     .stTabs [data-baseweb="tab-list"] {
         gap: 4px;
-        background: rgba(30, 30, 50, 0.6);
+        background: rgba(15, 15, 35, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         padding: 6px;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(124, 92, 252, 0.12);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     }
 
     .stTabs [data-baseweb="tab"] {
@@ -192,22 +236,25 @@ def load_custom_css():
         color: #94a3b8 !important;
         background: transparent;
         border: none;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
     }
 
     .stTabs [data-baseweb="tab"]:hover {
-        background: rgba(167, 139, 250, 0.1);
+        background: rgba(124, 92, 252, 0.1);
         color: #c4b5fd !important;
+        transform: translateY(-1px);
     }
 
     .stTabs [aria-selected="true"] {
-        background: rgba(167, 139, 250, 0.18) !important;
-        color: #c4b5fd !important;
+        background: linear-gradient(135deg, rgba(124, 92, 252, 0.25) 0%, rgba(167, 139, 250, 0.15) 100%) !important;
+        color: #e0d4ff !important;
         font-weight: 600;
         border-bottom: none !important;
+        box-shadow: 0 0 20px rgba(124, 92, 252, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(124, 92, 252, 0.25);
     }
 
-    /* tab bottom border override */
     .stTabs [data-baseweb="tab-highlight"] {
         background-color: transparent !important;
     }
@@ -217,38 +264,87 @@ def load_custom_css():
     }
 
     /* ================================================================
-       Chat messages — use Streamlit native, but improve theme
+       Chat Messages — Glass Bubbles with Depth
        ================================================================ */
     [data-testid="stChatMessage"] {
-        background: rgba(255, 255, 255, 0.03);
+        background: rgba(20, 20, 45, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 14px;
-        padding: 16px 20px;
-        margin-bottom: 10px;
+        border-radius: 16px;
+        padding: 18px 22px;
+        margin-bottom: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        animation: fadeInUp 0.3s ease;
+        transition: border-color 0.3s ease;
     }
 
-    /* User messages */
+    [data-testid="stChatMessage"]:hover {
+        border-color: rgba(124, 92, 252, 0.15);
+    }
+
+    /* User messages — purple glass tint */
     [data-testid="stChatMessage"]:has([data-testid="chatAvatarIcon-user"]) {
-        background: rgba(167, 139, 250, 0.08);
-        border: 1px solid rgba(167, 139, 250, 0.15);
+        background: linear-gradient(135deg, rgba(124, 92, 252, 0.12) 0%, rgba(96, 165, 250, 0.06) 100%);
+        border: 1px solid rgba(124, 92, 252, 0.2);
+        box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
+    }
+
+    /* Tables inside chat — premium styling */
+    [data-testid="stChatMessage"] table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(124, 92, 252, 0.15);
+        width: 100%;
+        margin: 8px 0;
+    }
+
+    [data-testid="stChatMessage"] th {
+        background: linear-gradient(135deg, rgba(124, 92, 252, 0.2) 0%, rgba(96, 165, 250, 0.1) 100%);
+        color: #c4b5fd;
+        font-weight: 600;
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 0.85rem;
+        letter-spacing: 0.03em;
+        border-bottom: 1px solid rgba(124, 92, 252, 0.2);
+    }
+
+    [data-testid="stChatMessage"] td {
+        padding: 8px 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        color: #cbd5e1;
+        font-size: 0.9rem;
+    }
+
+    [data-testid="stChatMessage"] tr:last-child td {
+        border-bottom: none;
+    }
+
+    [data-testid="stChatMessage"] tr:hover td {
+        background: rgba(124, 92, 252, 0.05);
     }
 
     /* ================================================================
-       Inputs
+       Inputs — Glass with Focus Glow
        ================================================================ */
     .stTextInput > div > div > input,
     [data-testid="stChatInputTextArea"] {
-        background: rgba(30, 30, 50, 0.6) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background: rgba(15, 15, 35, 0.7) !important;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(124, 92, 252, 0.15) !important;
         border-radius: 12px !important;
         color: #e2e8f0 !important;
         font-size: 0.95rem;
+        transition: all 0.3s ease;
     }
 
     .stTextInput > div > div > input:focus,
     [data-testid="stChatInputTextArea"]:focus {
         border-color: #7c5cfc !important;
-        box-shadow: 0 0 0 2px rgba(124, 92, 252, 0.2) !important;
+        box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15), 0 0 20px rgba(124, 92, 252, 0.1) !important;
     }
 
     .stTextInput > div > div > input::placeholder {
@@ -256,67 +352,115 @@ def load_custom_css():
     }
 
     /* ================================================================
-       Buttons
+       Buttons — Gradient with Glow Hover
        ================================================================ */
     .stButton > button {
-        background: linear-gradient(135deg, #7c5cfc 0%, #a78bfa 100%);
+        background: linear-gradient(135deg, #7c5cfc 0%, #6d45e8 50%, #a78bfa 100%);
+        background-size: 200% 200%;
         border: none;
         border-radius: 10px;
         padding: 8px 20px;
         font-weight: 500;
         color: white;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 10px rgba(124, 92, 252, 0.2);
     }
 
     .stButton > button:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(124, 92, 252, 0.3);
+        background-position: 100% 50%;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(124, 92, 252, 0.35);
     }
 
     .stButton > button:active {
         transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(124, 92, 252, 0.2);
     }
 
     /* ================================================================
-       Metrics
+       Metric Cards — Glassmorphism with Gradient Border
        ================================================================ */
     [data-testid="stMetric"] {
-        background: rgba(30, 30, 50, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 12px;
-        padding: 16px;
+        background: linear-gradient(135deg, rgba(20, 20, 50, 0.8) 0%, rgba(25, 25, 55, 0.6) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(124, 92, 252, 0.15);
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-testid="stMetric"]:hover {
+        border-color: rgba(124, 92, 252, 0.3);
+        box-shadow: 0 8px 30px rgba(124, 92, 252, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        transform: translateY(-2px);
     }
 
     [data-testid="stMetricLabel"] {
         color: #94a3b8 !important;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
     }
 
     [data-testid="stMetricValue"] {
-        color: #e2e8f0 !important;
+        color: #f1f5f9 !important;
+        font-weight: 700;
+        font-size: 1.6rem;
+    }
+
+    /* Positive delta — green glow */
+    [data-testid="stMetricDelta"][data-testid="stMetricDelta"] > div:first-child {
         font-weight: 600;
     }
 
-    /* Positive delta */
     [data-testid="stMetricDelta"] svg {
         display: inline;
     }
 
     /* ================================================================
-       Select boxes / Dropdowns
+       Select Boxes / Dropdowns — Glass
        ================================================================ */
     .stSelectbox > div > div {
-        background: rgba(30, 30, 50, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(15, 15, 35, 0.7);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(124, 92, 252, 0.12);
         border-radius: 10px;
+        transition: border-color 0.3s ease;
+    }
+
+    .stSelectbox > div > div:hover {
+        border-color: rgba(124, 92, 252, 0.3);
     }
 
     /* ================================================================
-       Info / Warning / Success boxes
+       Radio Buttons — Pill Style
+       ================================================================ */
+    .stRadio > div {
+        gap: 6px !important;
+    }
+
+    .stRadio > div > label {
+        background: rgba(20, 20, 50, 0.6);
+        border: 1px solid rgba(124, 92, 252, 0.1);
+        border-radius: 20px;
+        padding: 6px 16px;
+        transition: all 0.2s ease;
+    }
+
+    .stRadio > div > label:hover {
+        border-color: rgba(124, 92, 252, 0.3);
+        background: rgba(124, 92, 252, 0.08);
+    }
+
+    /* ================================================================
+       Info / Warning / Success Boxes — Themed Glass
        ================================================================ */
     .stAlert {
-        border-radius: 10px;
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
     }
 
     /* ================================================================
@@ -326,27 +470,35 @@ def load_custom_css():
         font-size: 0.8rem;
         color: #94a3b8;
         padding: 10px 14px;
-        background: rgba(250, 204, 21, 0.08);
+        background: rgba(250, 204, 21, 0.06);
+        backdrop-filter: blur(8px);
         border-radius: 10px;
         border-left: 3px solid #facc15;
         margin-top: 12px;
     }
 
     /* ================================================================
-       Welcome card
+       Welcome Card — Premium Glass
        ================================================================ */
     .welcome-card {
-        background: linear-gradient(135deg, rgba(124, 92, 252, 0.1) 0%, rgba(167, 139, 250, 0.05) 100%);
-        border: 1px solid rgba(167, 139, 250, 0.15);
-        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(124, 92, 252, 0.12) 0%, rgba(96, 165, 250, 0.06) 50%, rgba(167, 139, 250, 0.08) 100%);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(124, 92, 252, 0.2);
+        border-radius: 18px;
         padding: 28px 32px;
         margin: 12px 0 20px 0;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        animation: subtleGlow 3s ease-in-out infinite;
     }
 
     .welcome-card h3 {
-        color: #c4b5fd;
+        background: linear-gradient(135deg, #c4b5fd, #60a5fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
         margin-bottom: 12px;
-        font-weight: 600;
+        font-weight: 700;
     }
 
     .welcome-card p {
@@ -367,7 +519,16 @@ def load_custom_css():
         gap: 8px;
         color: #cbd5e1;
         font-size: 0.9rem;
-        padding: 6px 0;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        transition: all 0.2s ease;
+    }
+
+    .welcome-card .feature-item:hover {
+        background: rgba(124, 92, 252, 0.08);
+        border-color: rgba(124, 92, 252, 0.15);
     }
 
     .welcome-card .feature-item .icon {
@@ -375,16 +536,59 @@ def load_custom_css():
     }
 
     /* ================================================================
+       Subheaders — Gradient Left Bar
+       ================================================================ */
+    [data-testid="stSubheader"] {
+        padding-left: 14px !important;
+        border-left: 3px solid;
+        border-image: linear-gradient(to bottom, #7c5cfc, #60a5fa) 1;
+    }
+
+    /* ================================================================
+       Expanders — Glass
+       ================================================================ */
+    .stExpander {
+        background: rgba(20, 20, 50, 0.4);
+        border: 1px solid rgba(124, 92, 252, 0.1);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .stExpander:hover {
+        border-color: rgba(124, 92, 252, 0.2);
+    }
+
+    /* ================================================================
        Dividers
        ================================================================ */
     hr {
         border: none;
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        margin: 1rem 0;
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(124, 92, 252, 0.2), transparent);
+        margin: 1.2rem 0;
     }
 
     /* ================================================================
-       Hide Streamlit branding
+       Data Tables (st.dataframe)
+       ================================================================ */
+    [data-testid="stDataFrame"] {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(124, 92, 252, 0.12);
+    }
+
+    /* ================================================================
+       Plotly Charts — Remove White Background
+       ================================================================ */
+    .stPlotlyChart {
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid rgba(124, 92, 252, 0.1);
+        background: rgba(15, 15, 35, 0.4);
+    }
+
+    /* ================================================================
+       Hide Streamlit Branding
        ================================================================ */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -393,7 +597,53 @@ def load_custom_css():
     }
 
     /* ================================================================
-       Responsive
+       Markdown Tables (outside chat) — Premium Style
+       ================================================================ */
+    [data-testid="stMarkdownContainer"] table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(124, 92, 252, 0.12);
+        width: 100%;
+    }
+
+    [data-testid="stMarkdownContainer"] th {
+        background: linear-gradient(135deg, rgba(124, 92, 252, 0.15), rgba(96, 165, 250, 0.08));
+        color: #c4b5fd;
+        font-weight: 600;
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 0.85rem;
+        border-bottom: 1px solid rgba(124, 92, 252, 0.15);
+    }
+
+    [data-testid="stMarkdownContainer"] td {
+        padding: 8px 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        color: #cbd5e1;
+    }
+
+    [data-testid="stMarkdownContainer"] tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* ================================================================
+       Spinner — Themed
+       ================================================================ */
+    .stSpinner > div > div {
+        border-color: #7c5cfc transparent transparent transparent !important;
+    }
+
+    /* ================================================================
+       Columns gap fix
+       ================================================================ */
+    [data-testid="stHorizontalBlock"] {
+        gap: 12px;
+    }
+
+    /* ================================================================
+       Responsive — Mobile
        ================================================================ */
     @media (max-width: 768px) {
         .finnie-title {
@@ -401,6 +651,63 @@ def load_custom_css():
         }
         .welcome-card .feature-grid {
             grid-template-columns: 1fr;
+        }
+
+        /* Chat message text — prevent overflow */
+        [data-testid="stChatMessage"] {
+            padding: 12px 14px;
+            overflow-x: hidden;
+        }
+        [data-testid="stChatMessage"] p,
+        [data-testid="stChatMessage"] li,
+        [data-testid="stChatMessage"] td,
+        [data-testid="stChatMessage"] th {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+        /* Tables inside chat — horizontal scroll */
+        [data-testid="stChatMessage"] table {
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        /* Tighter metric cards */
+        [data-testid="stMetric"] {
+            padding: 12px 10px;
+        }
+        [data-testid="stMetricValue"] {
+            font-size: 1.2rem !important;
+        }
+
+        /* Column padding */
+        div[data-testid="column"] {
+            padding: 0 4px !important;
+        }
+
+        /* Expanders */
+        .stExpander {
+            padding: 0 !important;
+        }
+
+        /* Markdown content — horizontal scroll for tables */
+        [data-testid="stMarkdownContainer"] {
+            overflow-x: auto;
+        }
+        [data-testid="stMarkdownContainer"] table {
+            display: block;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Tabs — smaller on mobile */
+        .stTabs [data-baseweb="tab"] {
+            padding: 8px 12px;
+            font-size: 0.8rem;
         }
     }
     </style>
@@ -448,9 +755,13 @@ def _process_chat_input(user_input: str, is_guest: bool, user_id: str):
     def _bg_eval():
         try:
             from src.evals import run_evals_on_response
-            run_evals_on_response(user_input=user_input, response=response)
-        except Exception:
-            pass
+            results = run_evals_on_response(user_input=user_input, response=response)
+            if results:
+                import logging
+                logging.getLogger("finnie.evals").info(f"Evals logged: {list(results.keys())}")
+        except Exception as e:
+            import logging, traceback
+            logging.getLogger("finnie.evals").error(f"Eval failed: {e}\n{traceback.format_exc()}")
     threading.Thread(target=_bg_eval, daemon=True).start()
 
     # Flag for TTS — defer to render phase (audio would be destroyed by rerun)
@@ -512,6 +823,10 @@ def render_chat_tab():
             _process_chat_input(stt_result.strip(), is_guest, user_id)
 
     # Chat input — use rerun pattern so messages always appear above input
+    # Handle "Ask Finnie" from Knowledge Explorer
+    if pending := st.session_state.pop("pending_chat_question", None):
+        _process_chat_input(pending, is_guest, user_id)
+
     if user_input := st.chat_input("Ask anything about finance..."):
         _process_chat_input(user_input, is_guest, user_id)
 
@@ -688,143 +1003,9 @@ def render_portfolio_tab():
 
 
 def render_market_tab():
-    """Render the Market tab."""
-    st.markdown("#### 📈 Market Lookup")
-    st.caption("Supports tickers like AAPL, BRK-B, BRK.B, GOOGL")
-
-    # Common typo corrections
-    TICKER_CORRECTIONS = {
-        "APPL": "AAPL", "APLE": "AAPL", "APPLE": "AAPL",
-        "GOGLE": "GOOGL", "GOOG": "GOOGL", "GOOGLE": "GOOGL",
-        "MSFT": "MSFT", "MICROSOFT": "MSFT",
-        "AMAZN": "AMZN", "AMAZON": "AMZN",
-        "TSLA": "TSLA", "TESLA": "TSLA",
-        "FB": "META", "FACEBOOK": "META",
-        "NVDA": "NVDA", "NVIDIA": "NVDA",
-        "BRKB": "BRK-B", "BRKA": "BRK-A",
-        "BERKSHIRE": "BRK-B",
-    }
-
-    # Input row with search button
-    input_col, btn_col = st.columns([5, 1])
-    with input_col:
-        raw_ticker = st.text_input("Enter stock ticker", placeholder="e.g., AAPL, BRK-B, NVDA",
-                                   label_visibility="collapsed", key="market_input")
-    with btn_col:
-        search_clicked = st.button("🔍 Search", use_container_width=True)
-
-    # Quick access buttons — 2 rows of 4
-    st.caption("Quick access:")
-    quick_tickers = ["AAPL", "GOOGL", "MSFT", "AMZN", "NVDA", "TSLA", "META", "BRK-B"]
-    row1 = st.columns(4)
-    row2 = st.columns(4)
-    for i, qt in enumerate(quick_tickers):
-        col = row1[i] if i < 4 else row2[i - 4]
-        with col:
-            if st.button(qt, key=f"quick_{qt}", use_container_width=True):
-                st.session_state.active_market_ticker = qt
-                st.rerun()
-
-    # Determine which ticker to look up — persist in session state
-    if search_clicked and raw_ticker:
-        st.session_state.active_market_ticker = raw_ticker
-    elif raw_ticker and not st.session_state.get("active_market_ticker"):
-        st.session_state.active_market_ticker = raw_ticker
-
-    ticker_to_lookup = st.session_state.get("active_market_ticker")
-
-    if ticker_to_lookup:
-        ticker = _normalize_ticker(ticker_to_lookup)
-
-        # Check for typo corrections
-        corrected = TICKER_CORRECTIONS.get(ticker, None)
-        if corrected and corrected != ticker:
-            st.info(f"🔄 Corrected **{ticker}** → **{corrected}**")
-            ticker = corrected
-
-        with st.spinner(f"Fetching data for {ticker}..."):
-            try:
-                import yfinance as yf
-                stock = yf.Ticker(ticker)
-                info = stock.info
-
-                if info and info.get("shortName"):
-                    st.markdown(f"### {info.get('shortName', ticker)} ({ticker})")
-
-                    col1, col2, col3, col4 = st.columns(4)
-
-                    price = info.get('regularMarketPrice', info.get('previousClose', 0))
-                    prev_close = info.get('previousClose', price)
-                    change = price - prev_close if price and prev_close else 0
-                    change_pct = (change / prev_close * 100) if prev_close else 0
-
-                    with col1:
-                        st.metric("Price", f"${price:.2f}", f"{change_pct:+.2f}%")
-                    with col2:
-                        mc = info.get('marketCap', 0)
-                        if mc >= 1e12:
-                            mc_str = f"${mc/1e12:.2f}T"
-                        elif mc >= 1e9:
-                            mc_str = f"${mc/1e9:.1f}B"
-                        else:
-                            mc_str = f"${mc/1e6:.0f}M"
-                        st.metric("Market Cap", mc_str)
-                    with col3:
-                        pe = info.get('trailingPE')
-                        st.metric("P/E Ratio", f"{pe:.1f}" if pe else "N/A")
-                    with col4:
-                        st.metric("52W High", f"${info.get('fiftyTwoWeekHigh', 0):.2f}")
-
-                    # Price chart with time range selector
-                    st.markdown("---")
-
-                    # Time range selector — radio keeps state across reruns
-                    range_map = {"1M": "1mo", "3M": "3mo", "6M": "6mo", "1Y": "1y", "2Y": "2y", "5Y": "5y"}
-                    selected_label = st.radio(
-                        "Chart range", list(range_map.keys()),
-                        index=2,  # default to 6M
-                        horizontal=True,
-                        key="chart_range",
-                        label_visibility="collapsed",
-                    )
-                    period = range_map[selected_label]
-                    hist = stock.history(period=period)
-                    if not hist.empty:
-                        import plotly.graph_objects as go
-                        fig = go.Figure()
-
-                        # Calculate Y range from data with 5% padding
-                        y_min = hist['Close'].min()
-                        y_max = hist['Close'].max()
-                        y_pad = (y_max - y_min) * 0.05
-                        fig.add_trace(go.Scatter(
-                            x=hist.index, y=hist['Close'],
-                            mode='lines',
-                            line=dict(color='#7c5cfc', width=2),
-                            fill='tozeroy',
-                            fillcolor='rgba(124, 92, 252, 0.1)',
-                            name='Close'
-                        ))
-                        fig.update_layout(
-                            paper_bgcolor='rgba(0,0,0,0)',
-                            plot_bgcolor='rgba(0,0,0,0)',
-                            font_color='#94a3b8',
-                            xaxis=dict(gridcolor='rgba(255,255,255,0.05)'),
-                            yaxis=dict(
-                                gridcolor='rgba(255,255,255,0.05)',
-                                range=[y_min - y_pad, y_max + y_pad],
-                                fixedrange=True,  # lock Y — zoom only on time axis
-                            ),
-                            dragmode='zoom',  # default to horizontal zoom
-                            margin=dict(t=10, b=30, l=50, r=20),
-                            height=300,
-                            showlegend=False,
-                        )
-                        st.plotly_chart(fig, use_container_width=True)
-                else:
-                    st.warning(f"No data found for **{ticker}**. Check the ticker symbol — for Apple use `AAPL`, not `APPL`.")
-            except Exception as e:
-                st.error(f"Couldn't fetch data: {str(e)}")
+    """Render the Market tab (delegates to modular implementation)."""
+    from src.ui.tabs.market import render_market_tab as _render_market_modular
+    _render_market_modular()
 
 
 def render_projections_tab():
@@ -1152,12 +1333,23 @@ def render_settings_tab():
     with status_col2:
         st.markdown(f"{'✅' if st.session_state.llm_api_key else '⬜'} LLM Chat")
         st.markdown("✅ Voice Interface (TTS + STT)")
-        try:
-            from src.graphrag.graph_client import is_graph_available
-            graph_ok = is_graph_available()
-        except Exception:
-            graph_ok = False
+        # Cache graph check in session_state to avoid blocking every rerun
+        if "_graphrag_available" not in st.session_state:
+            try:
+                from src.graphrag.graph_client import is_graph_available
+                st.session_state._graphrag_available = is_graph_available()
+            except Exception:
+                st.session_state._graphrag_available = False
+        graph_ok = st.session_state._graphrag_available
         st.markdown(f"{'✅' if graph_ok else '⬜'} GraphRAG")
+        if not graph_ok:
+            if st.button("🔄 Re-check GraphRAG", key="recheck_graphrag"):
+                try:
+                    from src.graphrag.graph_client import is_graph_available
+                    st.session_state._graphrag_available = is_graph_available()
+                    st.rerun()
+                except Exception:
+                    pass
 
 
 # =============================================================================
@@ -1195,14 +1387,19 @@ def generate_response(user_input: str) -> str:
     ]
     if any(user_lower.startswith(p) or f" {p}" in f" {user_lower}" for p in educational_patterns):
         # Check if this is really a stock query like "what is AAPL trading at"
-        stock_qualifiers = ["trading", "price", "stock price", "worth", "cost"]
+        stock_qualifiers = ["trading at", "price of", "stock price", "worth right now",
+                            "share price", "trading for", "cost basis"]
+        has_stock_qualifier = any(q in user_lower for q in stock_qualifiers)
+        has_ticker = bool(extract_tickers(user_input))
+
         # Check if this is really an investment / market question
         market_qualifiers = [
             "invest", "investment", "buy", "sell", "market trend",
             "best stock", "best sector", "portfolio", "right now",
             "should i", "recommend", "opportunity", "current market",
         ]
-        if any(q in user_lower for q in stock_qualifiers):
+
+        if has_stock_qualifier and has_ticker:
             pass  # fall through to ticker-based routing below
         elif any(q in user_lower for q in market_qualifiers):
             # Route to Scout for market/investment strategy questions
@@ -1219,6 +1416,7 @@ def generate_response(user_input: str) -> str:
             response += "\n\n---\n*⚠️ Educational purposes only, not financial advice.*"
             return response
         else:
+            # Route to Professor for pure educational queries
             from src.agents.professor import ProfessorAgent
             agent = ProfessorAgent()
 
@@ -1400,16 +1598,35 @@ def generate_response(user_input: str) -> str:
 def _contextual_llm_response(user_input: str) -> str:
     """Generate a contextual response using conversation history.
     
-    This is the fallback when no keyword pattern matches but the user
-    has an active conversation. Sends conversation history to the LLM
-    so follow-up questions get meaningful answers.
+    Uses smart context management:
+    - Keep first 2 messages (original intent/context)
+    - Summarize middle messages (compressed essence)
+    - Keep last 5 messages (recent conversation)
+    
+    Also uses LLM gateway for cost-optimized model routing.
     """
     from src.llm import get_llm_adapter
 
-    # Build conversation history for context (last 10 messages to stay within limits)
     messages = st.session_state.get("messages", [])
-    history = messages[-10:]  # last 10 messages for context window
-
+    
+    # ── Context Window Management ──
+    # Keep original + recent, compress the middle
+    if len(messages) <= 8:
+        # Short conversation — use all messages
+        history = messages
+    else:
+        # Long conversation — compress middle
+        first_msgs = messages[:2]    # original intent
+        last_msgs = messages[-5:]    # recent context
+        middle_msgs = messages[2:-5] # to be summarized
+        
+        # Create a compressed summary of middle messages
+        middle_summary = _summarize_middle_context(middle_msgs)
+        
+        history = first_msgs + [
+            {"role": "assistant", "content": f"[Earlier conversation summary: {middle_summary}]"}
+        ] + last_msgs
+    
     llm_messages = []
     for msg in history:
         llm_messages.append({
@@ -1433,6 +1650,7 @@ Your capabilities:
 - Portfolio analysis and allocation advice
 - Crypto market data
 - Market trends and news
+- Index rebalancing strategies (NASDAQ-100, S&P 500, Dow Jones, Russell 2000)
 
 Rules:
 - Be specific with numbers, dollar amounts, and percentages
@@ -1444,10 +1662,22 @@ Rules:
 - Be concise but comprehensive"""
 
     try:
+        # ── Smart routing — pick model based on query complexity ──
+        try:
+            from src.llm_gateway import get_routed_model, track_usage
+            routed = get_routed_model(user_input)
+            provider = routed["provider"]
+            model = routed["model"]
+            api_key = routed["api_key"]
+        except ImportError:
+            provider = st.session_state.llm_provider
+            model = st.session_state.llm_model
+            api_key = st.session_state.llm_api_key
+        
         adapter = get_llm_adapter(
-            provider=st.session_state.llm_provider,
-            model=st.session_state.llm_model,
-            api_key=st.session_state.llm_api_key,
+            provider=provider,
+            model=model,
+            api_key=api_key,
         )
 
         response = asyncio.run(adapter.chat(
@@ -1455,9 +1685,19 @@ Rules:
             system_prompt=system_prompt,
         ))
 
+        # Track usage
+        try:
+            from src.llm_gateway import track_usage
+            tier = routed.get("tier", "full")
+            # Estimate tokens (rough: 4 chars per token)
+            input_tokens = sum(len(m["content"]) // 4 for m in llm_messages)
+            output_tokens = len(response.content) // 4
+            track_usage(tier, input_tokens, output_tokens)
+        except Exception:
+            pass
+
         return response.content
     except Exception as e:
-        # If LLM fails, try to give a helpful response based on context
         return (
             "I'd love to help with that! Based on our conversation, could you "
             "provide a bit more detail? For example:\n\n"
@@ -1466,6 +1706,28 @@ Rules:
             "- **Market data:** \"What's AAPL trading at?\"\n\n"
             "*⚠️ This is educational guidance, not professional financial advice.*"
         )
+
+
+def _summarize_middle_context(middle_msgs: list[dict]) -> str:
+    """Compress middle conversation messages into a brief summary.
+    
+    Uses a lightweight approach: extract key topics and numbers
+    without an LLM call (to save cost and latency).
+    """
+    if not middle_msgs:
+        return "No additional context."
+    
+    # Extract key content snippets
+    topics = []
+    for msg in middle_msgs:
+        content = msg.get("content", "")
+        # Keep first 100 chars of each message as a hint
+        snippet = content[:100].replace("\n", " ").strip()
+        if snippet:
+            role = "User" if msg["role"] == "user" else "Finnie"
+            topics.append(f"{role}: {snippet}...")
+    
+    return " | ".join(topics[:6])  # max 6 snippets
 
 
 def _default_response() -> str:
@@ -1681,6 +1943,7 @@ def main():
         "📋 Plan Builder",
         "🪙 Crypto",
         "⚙️ Settings",
+        "❓ Help",
     ])
 
     with tabs[0]:
@@ -1707,6 +1970,10 @@ def main():
 
     with tabs[6]:
         render_settings_tab()
+
+    with tabs[7]:
+        from src.ui.tabs.help import render_help_tab as _render_help
+        _render_help()
 
 
 if __name__ == "__main__":

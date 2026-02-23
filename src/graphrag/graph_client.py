@@ -123,6 +123,9 @@ class FinnieGraphClient:
 
 _client: FinnieGraphClient | None = None
 
+import logging
+_log = logging.getLogger("finnie.graphrag")
+
 
 def get_graph_client() -> FinnieGraphClient:
     """
@@ -145,6 +148,7 @@ def get_graph_client() -> FinnieGraphClient:
             "Set AURA_URI, AURA_USER, and AURA_PASSWORD in .env"
         )
 
+    _log.info(f"Connecting to Neo4j: {settings.aura_uri}")
     _client = FinnieGraphClient(
         uri=settings.aura_uri,
         user=settings.aura_user,
@@ -154,10 +158,33 @@ def get_graph_client() -> FinnieGraphClient:
     return _client
 
 
+def reset_graph_client():
+    """Reset the singleton so the next call creates a fresh connection."""
+    global _client
+    if _client is not None:
+        try:
+            _client.close()
+        except Exception:
+            pass
+    _client = None
+
+
 def is_graph_available() -> bool:
-    """Check if the graph database is reachable."""
+    """Check if the graph database is reachable (retries on each call)."""
+    global _client
     try:
         client = get_graph_client()
-        return client.verify_connection()
-    except (ConnectionError, Exception):
+        result = client.verify_connection()
+        if result:
+            _log.debug("GraphRAG connection verified ✅")
+        else:
+            _log.warning("GraphRAG verify_connection returned False — resetting client")
+            reset_graph_client()
+        return result
+    except ConnectionError as e:
+        _log.info(f"GraphRAG not configured: {e}")
+        return False
+    except Exception as e:
+        _log.warning(f"GraphRAG connection failed: {e} — resetting client for retry")
+        reset_graph_client()
         return False

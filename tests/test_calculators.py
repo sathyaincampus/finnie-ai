@@ -134,9 +134,9 @@ class TestPlannerDetectionCoverage:
         from src.agents.planner import PlannerAgent
         agent = PlannerAgent()
 
-        # First keyword match wins
+        # Multiple keywords → multi_goal
         result = agent._detect_planning_type("401k tax implications for retirement")
-        assert result in ("retirement", "tax")  # Either is acceptable
+        assert result == "multi_goal"  # retirement + tax = multi_goal
 
     def test_case_insensitivity(self):
         """Test that detection is case-insensitive."""

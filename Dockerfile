@@ -19,7 +19,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code
 COPY src/ ./src/
-COPY static/ ./static/
 COPY .streamlit/ ./.streamlit/
 
 # Expose Streamlit default port (Cloud Run maps to $PORT)
@@ -32,6 +31,7 @@ HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
 # Environment
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
     STREAMLIT_SERVER_PORT=8080 \
     STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
     STREAMLIT_SERVER_HEADLESS=true \
@@ -39,7 +39,7 @@ ENV PYTHONUNBUFFERED=1 \
 
 # Run Streamlit
 CMD ["streamlit", "run", "src/ui/app.py", \
-     "--server.port=8080", \
-     "--server.address=0.0.0.0", \
-     "--server.headless=true", \
-     "--browser.gatherUsageStats=false"]
+    "--server.port=8080", \
+    "--server.address=0.0.0.0", \
+    "--server.headless=true", \
+    "--browser.gatherUsageStats=false"]

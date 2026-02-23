@@ -16,6 +16,28 @@ import math
 def render_plan_builder_tab():
     """Render the interactive plan builder tab."""
 
+    # ── Responsive CSS for mobile ──
+    st.markdown("""
+    <style>
+    /* Mobile-responsive tables */
+    .plan-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+    }
+    .plan-table-wrap table {
+        min-width: 400px;
+        font-size: 0.85rem;
+    }
+    @media (max-width: 768px) {
+        .plan-table-wrap table { font-size: 0.75rem; }
+        .stExpander { padding: 0 !important; }
+        div[data-testid="column"] { padding: 0 4px !important; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.markdown("""
     <div style="
         background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(167, 139, 250, 0.06) 100%);
@@ -273,14 +295,16 @@ def render_plan_builder_tab():
 
         # ── Priority Table ──────────────────────────────────────
         st.markdown("#### 📋 Goal Breakdown")
-        table_md = "| Priority | Goal | Target | Monthly | Vehicle | Timeline |\n"
-        table_md += "|----------|------|--------|---------|---------|----------|\n"
+        table_md = "| Priority | Goal | Target | Monthly | Acct | Yrs |\n"
+        table_md += "|----------|------|--------|---------|------|-----|\n"
         for i, gp in enumerate(sorted(all_goal_projections, key=lambda x: x["goal"].get("priority", 99))):
             g = gp["goal"]
             prio_labels = {0: "🔴 Critical", 1: "🟠 High", 2: "🟡 Medium", 3: "🟢 Normal"}
             prio = prio_labels.get(g.get("priority", 3), "🟢 Normal")
-            table_md += f"| {prio} | {g.get('icon', '🎯')} {g['name']} | ${g['target']:,.0f} | ${gp['monthly']:,.0f} | {g.get('vehicle', '-')} | {g['timeline_years']}y |\n"
+            vehicle_short = g.get('vehicle', '-')[:15]
+            table_md += f"| {prio} | {g.get('icon', '🎯')} {g['name'][:18]} | ${g['target']:,.0f} | ${gp['monthly']:,.0f} | {vehicle_short} | {g['timeline_years']} |\n"
         table_md += f"| | **Total** | **${total_target:,.0f}** | **${total_monthly_all:,.0f}** | | |\n"
+        st.markdown(f'<div class="plan-table-wrap">{""}</div>', unsafe_allow_html=True)
         st.markdown(table_md)
 
         # ── Combined Timeline Chart ─────────────────────────────
@@ -350,34 +374,35 @@ def render_plan_builder_tab():
             pass
 
         # ── Quarter-by-Quarter Breakdown (First 3 Years) ────────
-        st.markdown("#### 📅 Quarter-by-Quarter Savings Breakdown")
+        with st.expander("📅 Quarter-by-Quarter Savings Breakdown", expanded=False):
+            qtr_years = min(3, max(gp["goal"]["timeline_years"] for gp in all_goal_projections))
+            qtr_table = "| Qtr |"
+            for gp in all_goal_projections:
+                qtr_table += f" {gp['goal'].get('icon', '')} {gp['goal']['name'][:12]} |"
+            qtr_table += " **Total** |\n"
+            qtr_table += "|-----|" + "------|" * len(all_goal_projections) + "-------|\n"
 
-        qtr_years = min(3, max(gp["goal"]["timeline_years"] for gp in all_goal_projections))
-        qtr_table = "| Quarter |"
-        for gp in all_goal_projections:
-            qtr_table += f" {gp['goal'].get('icon', '')} {gp['goal']['name'][:15]} |"
-        qtr_table += " **Total** |\n"
-        qtr_table += "|---------|" + "---------|" * len(all_goal_projections) + "---------|\n"
+            for y in range(1, qtr_years + 1):
+                for q in range(1, 5):
+                    quarter_label = f"Y{y}Q{q}"
+                    row = f"| {quarter_label} |"
+                    total_qtr = 0
+                    for gp in all_goal_projections:
+                        monthly = gp["monthly"]
+                        quarterly_savings = monthly * 3
+                        total_qtr += quarterly_savings
+                        row += f" ${quarterly_savings:,.0f} |"
+                    row += f" **${total_qtr:,.0f}** |"
+                    qtr_table += row + "\n"
 
-        for y in range(1, qtr_years + 1):
-            for q in range(1, 5):
-                quarter_label = f"Y{y} Q{q}"
-                row = f"| {quarter_label} |"
-                total_qtr = 0
-                for gp in all_goal_projections:
-                    monthly = gp["monthly"]
-                    quarterly_savings = monthly * 3
-                    total_qtr += quarterly_savings
-                    row += f" ${quarterly_savings:,.0f} |"
-                row += f" **${total_qtr:,.0f}** |"
-                qtr_table += row + "\n"
-
-        st.markdown(qtr_table)
+            st.markdown(f'<div class="plan-table-wrap">', unsafe_allow_html=True)
+            st.markdown(qtr_table)
+            st.markdown('</div>', unsafe_allow_html=True)
 
         # ── Scenario Comparison ─────────────────────────────────
         st.markdown("#### 🔄 Scenario Comparison")
 
-        scenarios = {"Conservative (5%)": 0.05, "Moderate (7%)": 0.07, "Aggressive (10%)": 0.10}
+        scenarios = {"Cons. (5%)": 0.05, "Mod. (7%)": 0.07, "Aggr. (10%)": 0.10}
         comp_table = "| Goal |"
         for s_name in scenarios:
             comp_table += f" {s_name} |"
@@ -385,9 +410,8 @@ def render_plan_builder_tab():
 
         for gp in all_goal_projections:
             g = gp["goal"]
-            row = f"| {g.get('icon', '🎯')} {g['name'][:20]} |"
+            row = f"| {g.get('icon', '🎯')} {g['name'][:15]} |"
             for s_name, s_rate in scenarios.items():
-                # Use scenario rate for non-short-term goals
                 rate = s_rate if g.get("category") not in ("home", "emergency") else g["annual_return"]
                 mr = rate / 12
                 months = g["timeline_years"] * 12
@@ -400,7 +424,6 @@ def render_plan_builder_tab():
                 row += f" ${monthly:,.0f}/mo |"
             comp_table += row + "\n"
 
-        # Totals row
         total_row = "| **Total** |"
         for s_name, s_rate in scenarios.items():
             total = 0
@@ -418,7 +441,9 @@ def render_plan_builder_tab():
                 total += monthly
             total_row += f" **${total:,.0f}/mo** |"
         comp_table += total_row + "\n"
+        st.markdown(f'<div class="plan-table-wrap">', unsafe_allow_html=True)
         st.markdown(comp_table)
+        st.markdown('</div>', unsafe_allow_html=True)
 
         # ── Actionable Insights ─────────────────────────────────
         st.markdown("---")

@@ -102,6 +102,20 @@ Keep explanations concise but thorough - aim for 2-3 paragraphs max."""
             data = {"topic": self._extract_topic(user_input)}
             if graph_context:
                 data["graph_context_used"] = True
+                # Log and badge so users can see RAG is active
+                import logging
+                logging.getLogger("finnie.professor").info(
+                    f"📚 GraphRAG context injected for topic: {self._extract_topic(user_input)}"
+                )
+                response += (
+                    "\n\n---\n"
+                    "*🧠 Enhanced with Finnie Knowledge Graph*"
+                )
+            else:
+                import logging
+                logging.getLogger("finnie.professor").debug(
+                    f"No GraphRAG context found for: {self._extract_topic(user_input)}"
+                )
             return {
                 "content": response,
                 "data": data,

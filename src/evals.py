@@ -157,20 +157,25 @@ def _find_latest_span_id() -> Optional[str]:
     try:
         import phoenix as px
         import time
-        
+
         client = px.Client()
-        
-        # Brief wait for the span to be flushed to Phoenix 
-        time.sleep(2)
-        
-        spans_df = client.get_spans_dataframe(limit=1)
-        if spans_df is not None and not spans_df.empty:
-            # The index of the spans dataframe is the span_id
-            span_id = str(spans_df.index[0])
-            return span_id
+
+        # Retry with increasing delays — span may not be flushed yet
+        for attempt in range(3):
+            time.sleep(3 + attempt * 2)  # 3s, 5s, 7s
+
+            try:
+                spans_df = client.get_spans_dataframe(limit=1)
+                if spans_df is not None and not spans_df.empty:
+                    span_id = str(spans_df.index[0])
+                    logger.info(f"Found span {span_id} on attempt {attempt + 1}")
+                    return span_id
+            except Exception:
+                continue
+
     except Exception as e:
-        logger.debug(f"Could not find latest span: {e}")
-    
+        logger.warning(f"Could not find latest span: {e}")
+
     return None
 
 

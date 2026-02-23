@@ -12,14 +12,14 @@ def render_market_tab():
     
     st.header("📈 Market Overview")
     
-    # Market indices
+    # Market indices (fast — 4 API calls)
     _render_market_indices()
     
-    # Stock search
-    _render_stock_search()
-    
-    # Market movers
+    # Market movers FIRST (most impactful, cached)
     _render_market_movers()
+    
+    # Stock search (on-demand)
+    _render_stock_search()
 
 
 def _render_market_indices():
@@ -57,15 +57,38 @@ def _render_market_indices():
 
 def _render_stock_search():
     """Render the stock search/lookup section."""
-    st.subheader("🔍 Stock Lookup")
+    st.subheader("🔍 Market Lookup")
+    st.caption("Supports tickers like AAPL, BRK-B, BRK.B, GOOGL")
     
-    ticker_input = st.text_input(
-        "Enter ticker symbol",
-        placeholder="AAPL, GOOGL, MSFT...",
-        key="market_ticker_search",
-    )
+    col_input, col_btn = st.columns([4, 1])
+    with col_input:
+        ticker_input = st.text_input(
+            "Enter ticker",
+            placeholder="e.g., AAPL, BRK-B, NVDA",
+            key="market_ticker_search",
+            label_visibility="collapsed",
+        )
+    with col_btn:
+        search_clicked = st.button("🔍 Search", use_container_width=True, type="primary")
     
-    if ticker_input:
+    # Quick access buttons
+    st.caption("Quick access:")
+    quick_cols = st.columns(4)
+    quick_tickers = [
+        ["AAPL", "GOOGL", "MSFT", "AMZN"],
+        ["NVDA", "TSLA", "META", "BRK-B"],
+    ]
+    for row in quick_tickers:
+        cols = st.columns(len(row))
+        for i, t in enumerate(row):
+            with cols[i]:
+                if st.button(t, key=f"quick_{t}", use_container_width=True):
+                    ticker_input = t
+                    search_clicked = True
+    
+    if ticker_input and search_clicked:
+        _show_stock_details(ticker_input.upper().strip())
+    elif ticker_input:
         _show_stock_details(ticker_input.upper().strip())
 
 
@@ -112,21 +135,103 @@ def _show_stock_details(symbol: str):
         st.error(f"Error fetching {symbol}: {e}")
 
 
+@st.cache_data(ttl=300, show_spinner=False)
+def _fetch_movers(period: str) -> list[dict]:
+    """Fetch market movers data (cached 5 min)."""
+    import yfinance as yf
+    
+    # Top 20 tickers for fast initial load
+    tracked_tickers = [
+        "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B",
+        "JPM", "V", "JNJ", "UNH", "XOM", "LLY", "NFLX", "AMD",
+        "CRM", "COIN", "PLTR", "SOFI",
+    ]
+    
+    movers = []
+    for ticker_symbol in tracked_tickers:
+        try:
+            ticker = yf.Ticker(ticker_symbol)
+            hist = ticker.history(period=period)
+            if hist.empty or len(hist) < 1:
+                continue
+            
+            start_price = hist["Close"].iloc[0]
+            end_price = hist["Close"].iloc[-1]
+            pct_change = ((end_price - start_price) / start_price) * 100
+            
+            movers.append({
+                "Symbol": ticker_symbol,
+                "Price": f"${end_price:,.2f}",
+                "Change": f"{pct_change:+.2f}%",
+                "pct": pct_change,
+            })
+        except Exception:
+            continue
+    
+    movers.sort(key=lambda x: x["pct"], reverse=True)
+    return movers
+
+
 def _render_market_movers():
-    """Render market movers section."""
+    """Render market movers section with real data."""
     st.subheader("🔥 Market Movers")
     
-    col1, col2 = st.columns(2)
+    period_tab = st.radio(
+        "Time Period",
+        ["Today", "This Week", "This Month"],
+        horizontal=True,
+        key="movers_period",
+    )
     
-    with col1:
-        st.markdown("**📈 Top Gainers**")
-        st.caption("Refresh to see latest movers")
+    period_map = {"Today": "1d", "This Week": "5d", "This Month": "1mo"}
+    period = period_map[period_tab]
     
-    with col2:
-        st.markdown("**📉 Top Losers**")
-        st.caption("Refresh to see latest movers")
+    try:
+        with st.spinner("Fetching market movers..."):
+            movers = _fetch_movers(period)
+        
+        if movers:
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("**📈 Top Gainers**")
+                gainers = [m for m in movers if m["pct"] > 0][:10]
+                for g in gainers:
+                    color = "#22c55e"
+                    st.markdown(
+                        f"<div style='display:flex; justify-content:space-between; padding:6px 10px; "
+                        f"border-left:3px solid {color}; margin:3px 0; background:rgba(34,197,94,0.08); "
+                        f"border-radius:0 6px 6px 0;'>"
+                        f"<span style='font-weight:600;'>{g['Symbol']}</span>"
+                        f"<span>{g['Price']}</span>"
+                        f"<span style='color:{color}; font-weight:600;'>{g['Change']}</span>"
+                        f"</div>", unsafe_allow_html=True
+                    )
+            
+            with col2:
+                st.markdown("**📉 Top Losers**")
+                losers = [m for m in movers if m["pct"] < 0]
+                losers.sort(key=lambda x: x["pct"])  # most negative first
+                for l in losers[:10]:
+                    color = "#ef4444"
+                    st.markdown(
+                        f"<div style='display:flex; justify-content:space-between; padding:6px 10px; "
+                        f"border-left:3px solid {color}; margin:3px 0; background:rgba(239,68,68,0.08); "
+                        f"border-radius:0 6px 6px 0;'>"
+                        f"<span style='font-weight:600;'>{l['Symbol']}</span>"
+                        f"<span>{l['Price']}</span>"
+                        f"<span style='color:{color}; font-weight:600;'>{l['Change']}</span>"
+                        f"</div>", unsafe_allow_html=True
+                    )
+        else:
+            st.warning("Could not fetch market data. Try again later.")
     
-    st.info("💡 Ask Finnie in the Chat tab: *\"What's trending in the market today?\"*")
+    except ImportError:
+        st.warning("Install `yfinance` for market movers: `pip install yfinance`")
+    except Exception as e:
+        st.error(f"Error fetching movers: {e}")
+    
+    st.info("💡 Also try asking Finnie: *\"Show me top stock gainers today\"* or *\"What stocks are moving this week?\"*")
 
 
 def _format_large_number(num: float) -> str:

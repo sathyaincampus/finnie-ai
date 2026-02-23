@@ -1,0 +1,21 @@
+# .gcloudignore — Files to exclude from Google Cloud Run deployment
+# Note: This file REPLACES .gitignore for Cloud Build uploads.
+.git
+.gitignore
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+.env.example
+docs/
+tests/
+Requirements/
+*.md
+!requirements.txt
+notebooks/
+_archived/
+*.ipynb
+
+# Explicitly INCLUDE secrets.toml (excluded by .gitignore but needed for OAuth)
+!.streamlit/secrets.toml

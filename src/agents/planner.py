@@ -55,35 +55,66 @@ Your role:
 - Break down complex multi-goal situations into clear, structured plans
 - Be specific with dollar amounts, percentages, monthly breakdowns
 - Show the math — users want to see HOW you arrived at the numbers
-- Consider the user's complete financial picture holistically
+- Consider the user's COMPLETE financial picture holistically
+
+CRITICAL — PARSE THE USER'S FINANCIAL SITUATION:
+When a user mentions ANY of these, you MUST acknowledge and factor them into your plan:
+- **Current savings/assets:** "I have $150K in savings" → use as starting balance
+- **Retirement accounts:** "$700K in 401K" → factor into retirement projections
+- **Monthly income:** "$12K post-tax" → base all monthly budgets on this
+- **Visa status:** "H1B visa" → 12+ month emergency fund, job loss contingency, India relocation scenario
+- **Spouse/partner income:** If not mentioned, ASK: "Does your spouse/partner have income? This significantly affects your plan."
+- **Side income:** If not mentioned, ASK: "Do you have any side income (rental, freelance, etc.)?"
+
+For visa holders (H1B, L1, etc.), ALWAYS include:
+- Emergency runway: 12-18 months expenses (vs standard 3-6 months)
+- Job loss contingency plan with timeline
+- India relocation cost projection if mentioned
+- NRE/NRO account strategies for India assets
+- FBAR reporting requirements
 
 WHEN A USER DESCRIBES MULTIPLE FINANCIAL GOALS, you MUST structure your response as:
 
 ## 🎯 Your Personalized Financial Plan
 
-Start with a brief acknowledgment of their situation.
+### 📋 Your Current Financial Snapshot
+| Item | Amount |
+|------|--------|
+| Monthly Income (Post-Tax) | $X |
+| Current Savings | $X |
+| Retirement Accounts (401K/IRA) | $X |
+| Brokerage | $X |
+| Visa Status | H1B / Green Card / Citizen |
+| Spouse Income | $X or Not mentioned |
 
 Then for EACH goal, create a detailed section:
 
 ### 🎓 Goal 1: [Specific Name, e.g., "College Fund — Son 1 (Age 11)"]
 - **Target Amount:** $X (show calculation: 4 years × $Y/year)
 - **Timeline:** Z years until needed
-- **Current Gap:** $X needed
+- **Starting Balance:** $X (from their mentioned savings/accounts)
+- **Remaining Gap:** $X needed
 - **Monthly Savings Required:** $X/month (at Y% return)
 - **Recommended Vehicle:** 529 Plan / Roth IRA / Brokerage
-- **Strategy:** Specific allocation advice (e.g., "age-based 529 transitioning to bonds as college approaches")
+- **Strategy:** Specific allocation advice
 
 [Repeat for each goal]
 
-### 📊 Combined Monthly Budget
-| Goal | Monthly Savings | Priority |
-|------|----------------|----------|
-| Goal 1 | $X | High |
-| ... | ... | ... |
-| **Total** | **$X** | |
+### 📊 Combined Monthly Budget (Based on $X/month income)
+| Category | Monthly | % of Income | Priority |
+|----------|---------|-------------|----------|
+| Goal 1 | $X | X% | High |
+| ... | ... | ... | ... |
+| Remaining for Living | $X | X% | |
+| **Total Income** | **$X** | **100%** | |
+
+### 🛡️ Emergency Fund & Safety Net
+- Standard recommendation: $X (6 months)
+- **Visa holder recommendation: $X (12-18 months)** — covers job search + potential relocation
+- India relocation reserve: $X (if applicable)
 
 ### 📅 Year-by-Year Milestone Roadmap
-Show key milestones across all goals.
+Show key milestones across all goals with projected balances.
 
 ### 🏆 Priority Order
 Numbered list of which goals to fund first and why.
@@ -92,20 +123,22 @@ Numbered list of which goals to fund first and why.
 - Specific tax-advantaged account recommendations
 - Employer match optimization
 - Backdoor Roth strategies if applicable
+- International tax considerations for visa holders
 
 ### ⚠️ Risks & Considerations
-- What could go wrong
-- Adjustments if income changes
+- What could go wrong (job loss, visa denial, market downturn)
+- Specific adjustments for each risk scenario
+- India fallback plan projection if mentioned
 
 IMPORTANT RULES:
-- Always show specific dollar amounts, not vague ranges
-- Show monthly AND annual breakdowns
+- ALWAYS use the user's stated income/savings — NEVER assume from scratch
+- Show monthly AND annual breakdowns relative to their stated income
 - Use current 2025 contribution limits (401K: $23,500, IRA: $7,000, HSA: $4,150/$8,300)
 - College costs: use $50K-$100K+ per year depending on public vs private
 - Home down payment: default 20% unless user specifies
 - Retirement: use 4% safe withdrawal rule
 - Investment returns: assume 7% for moderate, 5% conservative, 10% aggressive
-- Always caveat: "This is educational guidance, not professional financial advice"
+- Always caveat: "⚠️ This is educational guidance, not professional financial advice."
 
 Domains you cover:
 
@@ -126,11 +159,15 @@ Domains you cover:
    - Capital gains: short-term vs long-term, tax-loss harvesting
 
 4. VISA & IMMIGRATION PLANNING (H1B, L1, etc.):
-   - Risk factors, NRE/NRO accounts, FBAR reporting
+   - Risk factors, job loss contingency, Grace Period (60 days H1B)
+   - NRE/NRO accounts, FBAR reporting, FATCA compliance
+   - India relocation: cost of living comparison, rupee conversion planning
+   - Dual-country retirement planning
 
 5. GOAL-BASED PLANNING:
    - Home purchase: down payment (20%), closing costs, DTI ratio
-   - Emergency fund: 3-6 months (6-12 for visa holders)"""
+   - Emergency fund: 3-6 months (12-18 for visa holders)
+   - Spouse/partner income integration"""
     
     async def process(self, state: FinnieState) -> dict[str, Any]:
         """
@@ -142,19 +179,39 @@ Domains you cover:
         user_input = state.get("enhanced_input", state.get("user_input", ""))
         portfolio = state.get("portfolio_data", {})
         
-        # Extract structured goals from the user's text
+        # Extract structured goals and financial context from the user's text
         parsed_goals = self._extract_goals(user_input)
+        financial_context = self._extract_financial_context(user_input)
         
         # Build context-rich prompt
         context_parts = [f"User query: {user_input}"]
+        
+        if financial_context:
+            context_parts.append(
+                f"User's financial situation extracted from their query: {json.dumps(financial_context, default=str)}. "
+                "USE THESE EXACT NUMBERS in your plan — do NOT make assumptions."
+            )
         
         if portfolio:
             context_parts.append(f"Portfolio context: {json.dumps(portfolio, default=str)}")
         
         if parsed_goals:
+            # Build an explicit goal summary so the LLM doesn't re-interpret raw text
+            goal_lines = []
+            for g in parsed_goals:
+                goal_lines.append(
+                    f"  - {g['name']}: target=${g['target']:,.0f}, "
+                    f"timeline={g.get('timeline_years', '?')} years, "
+                    f"current_savings=${g.get('current_savings', 0):,.0f}"
+                )
+            goals_summary = "\n".join(goal_lines)
             context_parts.append(
-                f"I identified these goals from the user's query: {json.dumps(parsed_goals, default=str)}. "
-                "Use these as the basis for your structured plan, but add any missing details."
+                f"PARSED GOALS (use THESE exact amounts — do NOT re-interpret from the raw text):\n"
+                f"{goals_summary}\n"
+                f"IMPORTANT: The amounts above were carefully extracted using proximity matching. "
+                f"For example, if the user said '$2M home' and '$2.5M retirement', "
+                f"the home target is $2,000,000 and retirement is $2,500,000. "
+                f"DO NOT swap or re-assign these amounts."
             )
         
         context = "\n".join(context_parts)
@@ -173,6 +230,7 @@ Domains you cover:
                     "planning_type": self._detect_planning_type(user_input),
                     "query": user_input,
                     "goals": parsed_goals,
+                    "financial_context": financial_context,
                 },
             }
         except Exception as e:
@@ -192,28 +250,58 @@ Domains you cover:
         
         Parses mentions of retirement, college, home purchase, etc.
         and extracts dollar amounts, timelines, and other parameters.
+        Uses proximity-based matching to associate amounts with the right goals.
         """
         text_lower = text.lower()
         goals = []
         
-        # Extract all dollar amounts from text
-        amounts = re.findall(r'\$?([\d,]+(?:\.\d+)?)\s*(?:million|mil|m)\b', text_lower)
-        amounts_raw = [float(a.replace(',', '')) * 1_000_000 for a in amounts]
+        # Extract all dollar amounts WITH their positions in the text
+        amounts_with_pos = []
         
-        amounts_k = re.findall(r'\$?([\d,]+(?:\.\d+)?)\s*(?:thousand|k)\b', text_lower)
-        amounts_raw += [float(a.replace(',', '')) * 1_000 for a in amounts_k]
+        # Millions: "2.5 million", "2.5M", "2.5 mil"
+        for m in re.finditer(r'\$?(\d[\d,]*(?:\.\d+)?)\s*(?:million|mil|m)\b', text_lower):
+            val = float(m.group(1).replace(',', '')) * 1_000_000
+            amounts_with_pos.append((val, m.start()))
         
-        amounts_plain = re.findall(r'\$([\d,]+(?:\.\d+)?)\b', text_lower)
-        amounts_raw += [float(a.replace(',', '')) for a in amounts_plain if float(a.replace(',', '')) >= 1000]
+        # Thousands: "150K", "150 thousand"
+        for m in re.finditer(r'\$?(\d[\d,]*(?:\.\d+)?)\s*(?:thousand|k)\b', text_lower):
+            val = float(m.group(1).replace(',', '')) * 1_000
+            amounts_with_pos.append((val, m.start()))
+        
+        # Plain dollar amounts: "$100,000"
+        for m in re.finditer(r'\$(\d[\d,]*(?:\.\d+)?)\b', text_lower):
+            val = float(m.group(1).replace(',', ''))
+            if val >= 1000:
+                amounts_with_pos.append((val, m.start()))
+        
+        def _find_amount_near(keywords: list[str], min_val: float = 0, max_val: float = float('inf')) -> float | None:
+            """Find the dollar amount closest to any of the given keywords in the text."""
+            # Find positions of all keyword occurrences
+            keyword_positions = []
+            for kw in keywords:
+                for m in re.finditer(re.escape(kw), text_lower):
+                    keyword_positions.append(m.start())
+            
+            if not keyword_positions:
+                return None
+            
+            # Find the amount closest to any keyword position, within value range
+            best_amount = None
+            best_distance = float('inf')
+            for val, pos in amounts_with_pos:
+                if min_val <= val <= max_val:
+                    dist = min(abs(pos - kp) for kp in keyword_positions)
+                    if dist < best_distance:
+                        best_distance = dist
+                        best_amount = val
+            
+            return best_amount
         
         # --- Retirement Goal ---
         if any(w in text_lower for w in ["retire", "retirement"]):
-            target = 2_500_000  # default
-            for amt in amounts_raw:
-                if amt >= 500_000:
-                    # Check if this amount is near "retirement" in text
-                    target = amt
-                    break
+            target = _find_amount_near(
+                ["retirement", "retire"], min_val=500_000
+            ) or 2_500_000
             
             # Try to extract age/timeline
             timeline = 25  # default years to retirement
@@ -290,11 +378,10 @@ Domains you cover:
         
         # --- Home Purchase Goal ---
         if any(w in text_lower for w in ["home", "house", "down payment", "mortgage"]):
-            home_price = 2_000_000  # default
-            for amt in amounts_raw:
-                if 100_000 <= amt <= 10_000_000:
-                    home_price = amt
-                    break
+            home_price = _find_amount_near(
+                ["home", "house", "down payment", "mortgage"],
+                min_val=100_000, max_val=10_000_000
+            ) or 2_000_000
             
             # Down payment percentage
             down_pct = 0.20  # default 20%
@@ -343,6 +430,86 @@ Domains you cover:
         
         return goals
     
+    def _extract_financial_context(self, text: str) -> dict:
+        """
+        Extract the user's current financial situation from free-form text.
+        
+        Parses income, savings, retirement accounts, visa status, etc.
+        """
+        text_lower = text.lower()
+        context = {}
+        
+        # --- Monthly income ---
+        income_match = re.search(
+            r'(?:income|earn|salary|make|get)\s+(?:of\s+)?'
+            r'(?:is\s+)?(?:\$)?(\d[\d,]*(?:\.\d+)?)\s*k?\s*'
+            r'(?:per month|/month|monthly|a month|post.?tax|after.?tax)?',
+            text_lower
+        )
+        if income_match:
+            val = float(income_match.group(1).replace(',', ''))
+            context["monthly_income"] = val * 1000 if val < 100 else val
+        
+        # Also try "12K per month" or "$12K post tax per month"
+        if "monthly_income" not in context:
+            income_match2 = re.search(r'(\d[\d,]*(?:\.\d+)?)\s*k\s*(?:post.?tax|after.?tax|per month|/month|a month)', text_lower)
+            if income_match2:
+                context["monthly_income"] = float(income_match2.group(1).replace(',', '')) * 1000
+        
+        # --- Current savings ---
+        savings_match = re.search(
+            r'(\d[\d,]*(?:\.\d+)?)\s*k?\s*(?:in\s+)?(?:savings?|saved|cash|bank)',
+            text_lower
+        )
+        if savings_match:
+            val = float(savings_match.group(1).replace(',', ''))
+            context["current_savings"] = val * 1000 if val < 1000 else val
+        
+        # --- 401K / retirement accounts ---
+        retirement_match = re.search(
+            r'(\d[\d,]*(?:\.\d+)?)\s*k?\s*(?:in\s+)?(?:401\s*k|401\(k\)|retirement|ira|brokerage)',
+            text_lower
+        )
+        if retirement_match:
+            val = float(retirement_match.group(1).replace(',', ''))
+            context["retirement_accounts"] = val * 1000 if val < 1000 else val
+        
+        # --- Visa status ---
+        visa_patterns = {
+            "H1B": r'h[-\s]?1\s*b',
+            "L1": r'l[-\s]?1',
+            "H4 EAD": r'h[-\s]?4',
+            "Green Card": r'green\s*card',
+            "OPT": r'\bopt\b',
+            "F1": r'f[-\s]?1',
+        }
+        for visa, pattern in visa_patterns.items():
+            if re.search(pattern, text_lower):
+                context["visa_status"] = visa
+                context["visa_holder"] = True
+                break
+        
+        # --- Spouse/partner mention ---
+        if any(w in text_lower for w in ["spouse", "wife", "husband", "partner", "married"]):
+            context["has_spouse"] = True
+            spouse_income = re.search(
+                r'(?:spouse|wife|husband|partner)\s+(?:makes?|earns?|income)\s+(?:\$)?(\d[\d,]*(?:\.\d+)?)\s*k?',
+                text_lower
+            )
+            if spouse_income:
+                val = float(spouse_income.group(1).replace(',', ''))
+                context["spouse_income"] = val * 1000 if val < 100 else val
+        
+        # --- Side income ---
+        if any(w in text_lower for w in ["side income", "rental", "freelance", "side hustle", "passive income"]):
+            context["has_side_income"] = True
+        
+        # --- India relocation ---
+        if any(w in text_lower for w in ["india", "go back", "relocation", "relocate"]):
+            context["india_relocation"] = True
+        
+        return context
+
     def _detect_planning_type(self, text: str) -> str:
         """Detect which planning domain the query falls into."""
         text_lower = text.lower()
