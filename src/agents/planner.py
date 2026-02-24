@@ -234,8 +234,10 @@ Domains you cover:
                 },
             }
         except Exception as e:
+            fallback = self._get_fallback_response(user_input, parsed_goals)
+            fallback += f"\n\n---\n⚠️ *LLM call failed: {str(e)[:200]}*"
             return {
-                "content": self._get_fallback_response(user_input, parsed_goals),
+                "content": fallback,
                 "data": {
                     "planning_type": self._detect_planning_type(user_input),
                     "query": user_input,

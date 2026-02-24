@@ -808,7 +808,14 @@ def render_chat_tab():
     for message in st.session_state.messages:
         avatar = "🦈" if message["role"] == "assistant" else "👤"
         with st.chat_message(message["role"], avatar=avatar):
-            st.markdown(message["content"])
+            # Escape $ signs to prevent Streamlit LaTeX rendering
+            # (e.g. "$450,000 in 36 months" would render as math)
+            display_content = message["content"]
+            if message["role"] == "assistant":
+                import re
+                # Escape single $ but preserve $$ (intentional LaTeX blocks)
+                display_content = re.sub(r'(?<!\$)\$(?!\$)', r'\\$', display_content)
+            st.markdown(display_content)
 
     # ── TTS playback (deferred from _process_chat_input) ─────────
     if st.session_state.get("_speak_next"):
@@ -1360,6 +1367,8 @@ def generate_response(user_input: str) -> str:
     """Generate a response to user input.
     
     Routing priority:
+    0. Rate limiting → block if over limit
+    0b. Financial topic guardrail → reject off-topic
     1. Greetings (only when no conversation history) → default help
     2. Educational queries → Professor agent
     3. Trending queries → Scout agent
@@ -1369,8 +1378,38 @@ def generate_response(user_input: str) -> str:
     6. Contextual fallback (with history) → LLM with conversation context
     7. No history fallback → default help response
     """
+    import time
+    
     user_lower = user_input.lower().strip()
     has_history = len(st.session_state.get("messages", [])) > 0
+
+    # ── Rate Limiting (protect API key on public deployment) ────
+    MAX_QUERIES_PER_SESSION = 30   # Hard limit per browser session
+    MIN_QUERY_INTERVAL_SEC = 3     # Minimum seconds between queries
+    
+    # Initialize rate limit counters
+    if "rate_limit_count" not in st.session_state:
+        st.session_state.rate_limit_count = 0
+    if "rate_limit_last_query" not in st.session_state:
+        st.session_state.rate_limit_last_query = 0.0
+    
+    # Check session query limit
+    if st.session_state.rate_limit_count >= MAX_QUERIES_PER_SESSION:
+        return ("⏳ You've reached the **session limit** of "
+                f"{MAX_QUERIES_PER_SESSION} queries. "
+                "To continue, please configure your own API key in the "
+                "**⚙️ Settings** tab, or start a new session.\n\n"
+                "*This limit helps us keep Finnie AI free for everyone.*")
+    
+    # Check cooldown between queries
+    now = time.time()
+    elapsed = now - st.session_state.rate_limit_last_query
+    if elapsed < MIN_QUERY_INTERVAL_SEC and st.session_state.rate_limit_count > 0:
+        return "⏳ Please wait a moment before sending another query."
+    
+    # Update counters
+    st.session_state.rate_limit_count += 1
+    st.session_state.rate_limit_last_query = now
 
     # ── 1. Greetings & simple messages (ONLY when no conversation history) ──
     greeting_patterns = ["hello", "hi", "hey", "help", "what can you do",
@@ -1385,7 +1424,14 @@ def generate_response(user_input: str) -> str:
         "how do", "tell me about", "define", "meaning of",
         "difference between", "why is", "why do", "what does",
     ]
-    if any(user_lower.startswith(p) or f" {p}" in f" {user_lower}" for p in educational_patterns):
+    # Skip educational routing if the query is really about multi-goal planning
+    # (e.g. "save for college, retirement... what is my income" should go to Planner)
+    _planning_signals = ["college", "retirement", "home", "house", "down payment",
+                         "529", "roth", "save for", "saving for", "plan for"]
+    _planning_signal_count = sum(1 for s in _planning_signals if s in user_lower)
+    is_planning_query = _planning_signal_count >= 2
+
+    if not is_planning_query and any(user_lower.startswith(p) or f" {p}" in f" {user_lower}" for p in educational_patterns):
         # Check if this is really a stock query like "what is AAPL trading at"
         stock_qualifiers = ["trading at", "price of", "stock price", "worth right now",
                             "share price", "trading for", "cost basis"]
@@ -1588,7 +1634,7 @@ def generate_response(user_input: str) -> str:
         response += "\n\n---\n*⚠️ Educational purposes only, not financial advice.*"
         return response
 
-    # ── Fallback — contextual LLM response with conversation history ──
+    # ── 7. Fallback — contextual LLM response with conversation history ──
     if has_history:
         return _contextual_llm_response(user_input)
 
@@ -1653,6 +1699,7 @@ Your capabilities:
 - Index rebalancing strategies (NASDAQ-100, S&P 500, Dow Jones, Russell 2000)
 
 Rules:
+- IMPORTANT: You ONLY answer finance and investment related questions. If a user asks about topics completely unrelated to finance (sports, cooking, entertainment, travel, games, etc.), politely decline and redirect them to ask a financial question instead. Say something like: "I'm Finnie AI, a financial assistant. I can help with stocks, investing, budgeting, and financial planning. Could you ask me a finance-related question?"
 - Be specific with numbers, dollar amounts, and percentages
 - Reference the user's earlier goals/context from the conversation
 - Use markdown formatting for readability
